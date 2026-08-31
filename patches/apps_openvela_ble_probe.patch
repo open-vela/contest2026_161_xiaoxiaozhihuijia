@@ -1,0 +1,3794 @@
+diff --git a/examples/openvela_ble_probe/CMakeLists.txt b/examples/openvela_ble_probe/CMakeLists.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6e22ff1eae65afcfac5df9e387cd3e4ee5bff993
+--- /dev/null
++++ b/examples/openvela_ble_probe/CMakeLists.txt
+@@ -0,0 +1,24 @@
++if(CONFIG_EXAMPLES_OPENVELA_BLE_PROBE)
++  nuttx_add_application(
++    NAME
++      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_PROGNAME}
++    PRIORITY
++      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_PRIORITY}
++    STACKSIZE
++      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_STACKSIZE}
++    MODULE
++      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE}
++    SRCS
++      openvela_ble_probe_main.c
++      probe_game.c
++      probe_ui.c
++    DEPENDS
++      lvgl)
++
++  nuttx_add_dependencies(
++    TARGET
++      apps_openvela_ble_probe
++    DEPENDS
++      libbluetooth
++      libuv)
++endif()
+diff --git a/examples/openvela_ble_probe/Kconfig b/examples/openvela_ble_probe/Kconfig
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b7b668eb89daf03e2a2730dfbab3d1a02ae1b32
+--- /dev/null
++++ b/examples/openvela_ble_probe/Kconfig
+@@ -0,0 +1,23 @@
++config EXAMPLES_OPENVELA_BLE_PROBE
++        tristate "OpenVela BLE real-HCI probe"
++        default n
++        depends on BLUETOOTH_FRAMEWORK
++        depends on BLUETOOTH_FRAMEWORK_LOCAL
++        depends on BLUETOOTH_BLE_SUPPORT
++        depends on BLUETOOTH_BLE_ADV
++
++if EXAMPLES_OPENVELA_BLE_PROBE
++
++config EXAMPLES_OPENVELA_BLE_PROBE_PROGNAME
++        string "Program name"
++        default "openvela_ble_probe"
++
++config EXAMPLES_OPENVELA_BLE_PROBE_PRIORITY
++        int "Task priority"
++        default 100
++
++config EXAMPLES_OPENVELA_BLE_PROBE_STACKSIZE
++        int "Task stack size"
++        default 4096
++
++endif
+\ No newline at end of file
+diff --git a/examples/openvela_ble_probe/openvela_ble_probe_main.c b/examples/openvela_ble_probe/openvela_ble_probe_main.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..d568d7e6cff7a1ee573fab23cdca9ecb46d0a2f2
+--- /dev/null
++++ b/examples/openvela_ble_probe/openvela_ble_probe_main.c
+@@ -0,0 +1,3122 @@
++#include <nuttx/config.h>
++
++#include <errno.h>
++#include <fcntl.h>
++#include <inttypes.h>
++#include <pthread.h>
++#include <semaphore.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include <sys/ioctl.h>
++#include <syslog.h>
++#include <time.h>
++#include <unistd.h>
++
++#include <nuttx/i2c/i2c_master.h>
++#include <arch/board/board.h>
++
++#include "advertiser_data.h"
++#include "bluetooth.h"
++#include "bt_adapter.h"
++#include "bt_gatts.h"
++#include "bt_le_advertiser.h"
++#include "probe_game.h"
++#include "probe_ui.h"
++
++#define PROBE_SERVICE_UUID 0xfff0
++#define PROBE_RX_UUID      0xfff1
++#define PROBE_TX_UUID      0xfff2
++#define MIN_BLE_STARTUP_UPTIME_MS 6000ULL
++#define PROBE_RX_QUEUE_DEPTH 32
++#define PROBE_RX_FRAME_MAX   250
++/* Validated host data-window ceiling; WNR remains an unreliable transport. */
++#define PROBE_VALIDATED_HOST_DATA_WINDOW 30
++#define PROBE_DATA_HEADER_SIZE 5
++#define PROBE_VALIDATED_DATA_PAYLOAD 180
++#define BLE_PROBE_ENABLE_AUTO_2M_PHY 0
++#define PROBE_ADV_RESTART_MAX_ATTEMPTS 3
++#define PROBE_RELIABLE39_REQUEST_TYPE  0x20
++#define PROBE_RELIABLE39_RESPONSE_TYPE 0xa0
++#define PROBE_RELIABLE39_PAYLOAD_SIZE  39
++#define PROBE_RELIABLE39_CRC_OFFSET    44
++#define PROBE_RELIABLE39_FRAME_SIZE    46
++#define BLE_PROBE_GESTURE_TEST_INJECT  1 /* Product firmware: set to 0. */
++#define PROBE_GESTURE_TIME_SYNC_TYPE   0x40
++#define PROBE_GESTURE_ACK_TYPE         0x41
++#define PROBE_GESTURE_INJECT_TYPE      0x42
++#define PROBE_GESTURE_QUEUE_DEPTH      8
++#define PROBE_GESTURE_EVENT_SIZE       16
++#define PROBE_GESTURE_MAX_SENDS        3
++#define PROBE_GESTURE_WORKER_POLL_MS   50
++#define PROBE_IMU_I2C_DEV              "/dev/i2c2"
++#define PROBE_IMU_I2C_FREQUENCY        400000
++#define PROBE_IMU_WHO_AM_I_REG         0x0f
++#define PROBE_IMU_WHO_AM_I_VALUE       0x6a
++#define PROBE_IMU_ADDR                 0x6a
++#define PROBE_IMU_DRDY_PULSE_CFG_G     0x0b
++#define PROBE_IMU_INT1_CTRL             0x0d
++#define PROBE_IMU_CTRL1_XL             0x10
++#define PROBE_IMU_CTRL2_G              0x11
++#define PROBE_IMU_CTRL3_C              0x12
++#define PROBE_IMU_OUTX_L_G             0x22
++#define PROBE_IMU_CTRL1_XL_104HZ_4G    0x48
++#define PROBE_IMU_CTRL2_G_104HZ_500DPS 0x44
++#define PROBE_IMU_CTRL3_C_BDU_IF_INC   0x44
++#define PROBE_IMU_RAW_SAMPLE_SIZE      12
++#define PROBE_IMU_RAW_TARGET_HZ        104
++#define PROBE_IMU_FIFO_WATCHDOG_MS      250 /* FTH IRQ is the primary wakeup. */
++#define BLE_PROBE_IMU_DRDY_START_ON_TX_SUBSCRIBE 1
++
++/* LSM6DS3TR-C FIFO definitions are local to this hardware test. */
++
++#define PROBE_IMU_FIFO_CTRL1            0x06
++#define PROBE_IMU_FIFO_CTRL2            0x07
++#define PROBE_IMU_FIFO_CTRL3            0x08
++#define PROBE_IMU_FIFO_CTRL4            0x09
++#define PROBE_IMU_FIFO_CTRL5            0x0a
++#define PROBE_IMU_FIFO_STATUS1          0x3a
++#define PROBE_IMU_FIFO_DATA_OUT_L       0x3e
++#define PROBE_IMU_FIFO_WATERMARK_WORDS  120
++#define PROBE_IMU_FIFO_CTRL3_GY_XL      0x09
++#define PROBE_IMU_FIFO_BYPASS           0x00
++#define PROBE_IMU_FIFO_104HZ_CONTINUOUS 0x26
++#define PROBE_IMU_INT1_DRDY_XL          0x01
++#define PROBE_IMU_INT1_DRDY_G           0x02
++#define PROBE_IMU_INT1_FIFO_FTH         0x08
++#define PROBE_IMU_INT1_FIFO_OVR         0x10
++#define PROBE_IMU_INT1_FIFO_FULL        0x20
++#define PROBE_IMU_FIFO_PATTERN_WORDS    6
++#define PROBE_IMU_FIFO_NEAR_FULL_WORDS  2000
++#define PROBE_IMU_FIFO_SMART_FULL_LIMIT 2
++#define PROBE_IMU_FIFO_NEAR_FULL_LIMIT  3
++#define PROBE_IMU_FIFO_PATTERN_ERR_LIMIT 6
++#define PROBE_IMU_FIFO_RECOVERY_RETRIES 3
++#define PROBE_IMU_FIFO_RECOVERY_DELAY_US 1000000
++#define PROBE_IMU_FIFO_READ_MAX_BYTES   24
++#define PROBE_IMU_FIFO_READ_CHUNK_BYTES 24
++
++_Static_assert(PROBE_IMU_FIFO_READ_CHUNK_BYTES > 0,
++               "FIFO read chunk must not be empty");
++_Static_assert((PROBE_IMU_FIFO_READ_CHUNK_BYTES % 2) == 0,
++               "FIFO read chunk must contain whole words");
++_Static_assert(PROBE_IMU_FIFO_READ_CHUNK_BYTES <=
++               PROBE_IMU_FIFO_READ_MAX_BYTES,
++               "FIFO read chunk exceeds its fixed buffer");
++
++_Static_assert(PROBE_DATA_HEADER_SIZE + PROBE_VALIDATED_DATA_PAYLOAD <=
++               PROBE_RX_FRAME_MAX,
++               "validated DATA frame must fit in an RX queue slot");
++_Static_assert(PROBE_VALIDATED_HOST_DATA_WINDOW <= PROBE_RX_QUEUE_DEPTH,
++               "validated host data window must fit in the RX queue");
++_Static_assert(PROBE_RELIABLE39_FRAME_SIZE <= PROBE_RX_FRAME_MAX,
++               "reliable39 frame must fit in an RX queue slot");
++_Static_assert(PROBE_GESTURE_EVENT_SIZE <= PROBE_RX_FRAME_MAX,
++               "gesture event must fit in an RX queue slot");
++
++enum probe_attr_handle_e
++{
++  PROBE_SERVICE_HANDLE = 1,
++  PROBE_RX_HANDLE,
++  PROBE_TX_HANDLE,
++  PROBE_TX_CCCD_HANDLE,
++};
++
++static sem_t g_ble_on_sem;
++static volatile bool g_ble_on;
++
++static bt_instance_t *g_instance;
++static bt_advertiser_t *g_advertiser;
++static gatts_handle_t g_service_handle;
++
++static advertiser_data_t *g_adv_data;
++static advertiser_data_t *g_scan_rsp_data;
++static uint8_t *g_adv_payload;
++static uint8_t *g_scan_rsp_payload;
++static uint16_t g_adv_payload_len;
++static uint16_t g_scan_rsp_payload_len;
++
++static bt_address_t g_peer_addr;
++static bool g_peer_connected;
++static bool g_notify_enabled;
++static bool g_phy_read_pending;
++static bool g_phy_update_pending;
++static bool g_phy_read_requested;
++static bool g_phy_update_requested;
++static uint32_t g_connection_generation;
++static bool g_adv_start_inflight;
++static bool g_adv_start_callback_seen;
++static uint8_t g_adv_start_callback_status;
++static bool g_adv_restart_pending;
++static bool g_adv_restart_delay_armed;
++static uint8_t g_adv_restart_attempts;
++static uint64_t g_adv_restart_due_ms;
++static bool g_imu_detected;
++static bool g_imu_raw_launch_pending;
++static bool g_imu_raw_launch_attempted;
++static bool g_imu_raw_started;
++static bool g_imu_raw_launch_check_logged;
++static bool g_visible_game_launch_pending;
++static bool g_visible_game_launch_attempted;
++static sem_t g_imu_drdy_sem;
++static uint32_t g_imu_drdy_irq_count;
++
++struct probe_rx_slot_s
++{
++  bt_address_t addr;
++  uint32_t connection_generation;
++  uint16_t length;
++  uint16_t offset;
++  uint8_t value[PROBE_RX_FRAME_MAX];
++};
++
++static pthread_mutex_t g_state_lock;
++static pthread_mutex_t g_monotonic_lock = PTHREAD_MUTEX_INITIALIZER;
++static bool g_monotonic_extended_valid;
++static uint32_t g_monotonic_last_low_us;
++static uint64_t g_monotonic_epoch_us;
++static uint64_t g_monotonic_last_us;
++static sem_t g_rx_sem;
++static pthread_t g_communication_thread;
++static struct probe_rx_slot_s g_rx_queue[PROBE_RX_QUEUE_DEPTH];
++static uint32_t g_rx_head;
++static uint32_t g_rx_tail;
++static uint32_t g_rx_enqueued;
++static uint32_t g_rx_invalid_length;
++static uint32_t g_rx_drop_lock_busy;
++static uint32_t g_rx_drop_full;
++static uint32_t g_rx_high_water;
++static uint32_t g_rx_stale;
++static uint32_t g_reliable39_rx_ok;
++static uint32_t g_reliable39_bad_length;
++static uint32_t g_reliable39_bad_crc;
++static uint32_t g_reliable39_duplicates;
++static uint32_t g_reliable39_tx_attempted;
++static uint32_t g_reliable39_tx_status_nonzero;
++static uint32_t g_gesture_rx_head;
++static uint32_t g_gesture_rx_tail;
++static uint16_t g_gesture_next_packet_id;
++static bool g_gesture_time_synced;
++static uint64_t g_gesture_sync_unix_ms;
++static uint64_t g_gesture_sync_monotonic_us;
++static uint32_t g_gesture_enqueued;
++static uint32_t g_gesture_queue_full;
++static uint32_t g_gesture_acked;
++static uint32_t g_gesture_retransmitted;
++static uint32_t g_gesture_dropped;
++static uint32_t g_gesture_tx_status_nonzero;
++
++static uint8_t g_pong[] = { 'P', 'O', 'N', 'G' };
++static uint8_t g_error[] = { 'E', 'R', 'R' };
++
++struct probe_throughput_state_s
++{
++  bool active;
++  bool timing;
++  bool have_expected_seq;
++  uint32_t test_id;
++  uint32_t frames;
++  uint32_t payload_bytes;
++  uint32_t expected_seq;
++  uint32_t missing_frames;
++  uint64_t started_us;
++};
++
++static struct probe_throughput_state_s g_throughput;
++
++struct probe_reliable39_state_s
++{
++  bool valid;
++  uint32_t connection_generation;
++  uint32_t sequence;
++  uint8_t response[PROBE_RELIABLE39_FRAME_SIZE];
++};
++
++/* This cache is owned exclusively by the communication thread. */
++
++static struct probe_reliable39_state_s g_reliable39;
++
++static int probe_get_monotonic_us(uint64_t *out_us);
++
++struct probe_gesture_record_s
++{
++  uint32_t connection_generation;
++  uint16_t packet_id;
++  uint8_t event[PROBE_GESTURE_EVENT_SIZE];
++  uint8_t send_count;
++  uint64_t next_retry_ms;
++};
++
++static struct probe_gesture_record_s
++  g_gesture_queue[PROBE_GESTURE_QUEUE_DEPTH];
++
++static int probe_parse_startup_uptime(int argc, char *argv[],
++                                      uint64_t *target_ms)
++{
++  const char *cursor;
++  uint32_t value = 0;
++
++  if (argc == 1)
++    {
++      *target_ms = MIN_BLE_STARTUP_UPTIME_MS;
++      return 0;
++    }
++
++  if (argc == 2 && argv[1][0] != '\0')
++    {
++      for (cursor = argv[1]; *cursor != '\0'; cursor++)
++        {
++          if (*cursor < '0' || *cursor > '9')
++            {
++              goto invalid;
++          }
++
++          value = value * 10u + (uint32_t)(*cursor - '0');
++          if (value > 15000u)
++            {
++              goto invalid;
++            }
++          }
++
++      if (value >= 5000u && value <= 15000u && value % 250u == 0)
++        {
++          *target_ms = value;
++          return 0;
++        }
++    }
++
++invalid:
++  printf("Usage: openvela_ble_probe "
++         "[min_uptime_ms: 5000..15000, step 250]\n");
++  return -1;
++}
++
++static int probe_wait_for_ble_startup(uint64_t target_ms)
++{
++  uint64_t now_us;
++  uint64_t uptime_ms;
++  uint64_t remaining_ms;
++  uint64_t sleep_ms;
++  bool delay_logged = false;
++
++  for (;;)
++    {
++      if (probe_get_monotonic_us(&now_us) < 0)
++        {
++          printf("openvela_ble_probe: failed to read system uptime\n");
++          return -1;
++        }
++
++      uptime_ms = now_us / 1000ULL;
++      if (uptime_ms >= target_ms)
++        {
++          if (!delay_logged)
++            {
++              printf("openvela_ble_probe: BLE startup target=%llu ms "
++                     "already satisfied\n",
++                     (unsigned long long)target_ms);
++            }
++
++          return 0;
++        }
++
++      remaining_ms = target_ms - uptime_ms;
++      if (!delay_logged)
++        {
++          printf("openvela_ble_probe: delaying BLE start %llu ms "
++                 "for platform readiness (target=%llu ms)\n",
++                 (unsigned long long)remaining_ms,
++                 (unsigned long long)target_ms);
++          delay_logged = true;
++        }
++
++      sleep_ms = remaining_ms > 100u ? 100u : remaining_ms;
++      usleep((useconds_t)(sleep_ms * 1000u));
++    }
++}
++
++static int probe_imu_transfer(int fd, struct i2c_msg_s *messages,
++                              size_t count)
++{
++  struct i2c_transfer_s transfer;
++
++  transfer.msgv = messages;
++  transfer.msgc = count;
++  return ioctl(fd, I2CIOC_TRANSFER,
++               (unsigned long)(uintptr_t)&transfer);
++}
++
++static int probe_imu_read(int fd, uint8_t addr, uint8_t reg,
++                          uint8_t *value, size_t length)
++{
++  struct i2c_msg_s messages[2];
++
++  messages[0].frequency = PROBE_IMU_I2C_FREQUENCY;
++  messages[0].addr = addr;
++  messages[0].flags = I2C_M_NOSTOP;
++  messages[0].buffer = &reg;
++  messages[0].length = 1;
++  messages[1].frequency = PROBE_IMU_I2C_FREQUENCY;
++  messages[1].addr = addr;
++  messages[1].flags = I2C_M_READ | I2C_M_NOSTART;
++  messages[1].buffer = value;
++  messages[1].length = length;
++
++  return probe_imu_transfer(fd, messages, 2);
++}
++
++static int probe_imu_write_reg(int fd, uint8_t addr, uint8_t reg,
++                               uint8_t value)
++{
++  struct i2c_msg_s message;
++  uint8_t data[2] = {reg, value};
++
++  message.frequency = PROBE_IMU_I2C_FREQUENCY;
++  message.addr = addr;
++  message.flags = 0;
++  message.buffer = data;
++  message.length = sizeof(data);
++
++  return probe_imu_transfer(fd, &message, 1);
++}
++
++static int probe_imu_write_verify(int fd, uint8_t addr, uint8_t reg,
++                                  uint8_t value)
++{
++  uint8_t readback;
++  int ret;
++
++  ret = probe_imu_write_reg(fd, addr, reg, value);
++  if (ret != 0)
++    {
++      return ret;
++    }
++
++  ret = probe_imu_read(fd, addr, reg, &readback, 1);
++  if (ret != 0)
++    {
++      return ret;
++    }
++
++  return readback == value ? 0 : -EIO;
++}
++
++static bool probe_detect_imu(void)
++{
++  static const uint8_t addresses[] = {0x6a, 0x6b};
++  uint8_t whoami;
++  bool detected = false;
++  int fd;
++  int ret;
++  size_t i;
++
++  fd = open(PROBE_IMU_I2C_DEV, O_RDONLY);
++  if (fd < 0)
++    {
++      printf("openvela_ble_probe: IMU probe open %s failed errno=%d\n",
++             PROBE_IMU_I2C_DEV, errno);
++      printf("openvela_ble_probe: IMU not detected at 0x6a or 0x6b\n");
++      return false;
++    }
++
++  for (i = 0; i < sizeof(addresses); i++)
++    {
++      whoami = 0;
++      ret = probe_imu_read(fd, addresses[i], PROBE_IMU_WHO_AM_I_REG,
++                           &whoami, 1);
++      printf("openvela_ble_probe: IMU probe addr=0x%02x transport=%d"
++             " whoami=0x%02x\n",
++             addresses[i], ret, whoami);
++      if (ret == 0 && whoami == PROBE_IMU_WHO_AM_I_VALUE)
++        {
++          printf("openvela_ble_probe: IMU detected addr=0x%02x"
++                 " whoami=0x6a\n", addresses[i]);
++          detected = true;
++        }
++    }
++
++  close(fd);
++  if (!detected)
++    {
++      printf("openvela_ble_probe: IMU not detected at 0x6a or 0x6b\n");
++    }
++
++  return detected;
++}
++
++static int probe_get_monotonic_sample(uint64_t *out_us,
++                                      struct timespec *raw_time)
++{
++  struct timespec now;
++  uint64_t raw_us;
++  uint32_t low_us;
++  uint64_t extended_us;
++  bool log_enabled = false;
++  int error;
++
++  /* The SF32LB52 monotonic source can expose a 32-bit microsecond rollover.
++   * Sample and extend that counter under the same short lock so cross-thread
++   * ordering cannot join a pre-wrap sample to a post-wrap epoch.  Callers
++   * still transfer timestamps through their existing release/acquire SPSC
++   * slots rather than sharing mutable 64-bit fields.
++   */
++
++  pthread_mutex_lock(&g_monotonic_lock);
++  if (clock_gettime(CLOCK_MONOTONIC, &now) < 0)
++    {
++      error = errno;
++      pthread_mutex_unlock(&g_monotonic_lock);
++      errno = error;
++      return -1;
++    }
++
++  raw_us = (uint64_t)now.tv_sec * 1000000ULL +
++           (uint64_t)now.tv_nsec / 1000ULL;
++  low_us = (uint32_t)raw_us;
++  if (!g_monotonic_extended_valid)
++    {
++      g_monotonic_epoch_us = raw_us & ~UINT64_C(0xffffffff);
++      g_monotonic_extended_valid = true;
++      log_enabled = true;
++    }
++  else if (low_us < g_monotonic_last_low_us &&
++           g_monotonic_last_low_us - low_us > UINT32_C(0x80000000))
++    {
++      g_monotonic_epoch_us += UINT64_C(0x100000000);
++    }
++
++  extended_us = g_monotonic_epoch_us + low_us;
++  if (extended_us < g_monotonic_last_us)
++    {
++      extended_us = g_monotonic_last_us;
++    }
++
++  g_monotonic_last_low_us = low_us;
++  g_monotonic_last_us = extended_us;
++  *out_us = extended_us;
++  if (raw_time != NULL)
++    {
++      *raw_time = now;
++    }
++
++  pthread_mutex_unlock(&g_monotonic_lock);
++  if (log_enabled)
++    {
++      printf("openvela_ble_probe: monotonic 64-bit epoch extension enabled\n");
++    }
++
++  return 0;
++}
++
++static int probe_get_monotonic_us(uint64_t *out_us)
++{
++  return probe_get_monotonic_sample(out_us, NULL);
++}
++
++static void probe_timespec_add_ms(struct timespec *time, uint32_t ms)
++{
++  uint64_t nsec = (uint64_t)time->tv_nsec +
++                  (uint64_t)ms * 1000000ULL;
++
++  time->tv_sec += (time_t)(nsec / 1000000000ULL);
++  time->tv_nsec = (long)(nsec % 1000000000ULL);
++}
++
++static void probe_imu_int1_isr(void *arg)
++{
++  (void)arg;
++  __atomic_add_fetch(&g_imu_drdy_irq_count, 1, __ATOMIC_RELAXED);
++  sem_post(&g_imu_drdy_sem);
++}
++
++static uint16_t probe_imu_fifo_depth(const uint8_t status[4])
++{
++  return (uint16_t)status[0] | ((uint16_t)(status[1] & 0x07) << 8);
++}
++
++static void probe_imu_drain_semaphore(void)
++{
++  while (sem_trywait(&g_imu_drdy_sem) == 0)
++    {
++    }
++}
++
++static void *probe_imu_raw_thread(void *arg)
++{
++  static const uint8_t registers[] =
++    {
++      PROBE_IMU_FIFO_CTRL1,
++      PROBE_IMU_FIFO_CTRL2,
++      PROBE_IMU_FIFO_CTRL3,
++      PROBE_IMU_FIFO_CTRL4,
++      PROBE_IMU_FIFO_CTRL5,
++      PROBE_IMU_DRDY_PULSE_CFG_G,
++      PROBE_IMU_INT1_CTRL,
++      PROBE_IMU_CTRL1_XL,
++      PROBE_IMU_CTRL2_G,
++      PROBE_IMU_CTRL3_C
++    };
++  bool saved_valid[sizeof(registers)] = {false};
++  uint8_t saved[sizeof(registers)] = {0};
++  uint8_t status[4];
++  uint8_t fifo_data[PROBE_IMU_FIFO_READ_MAX_BYTES];
++  struct probe_game_imu_stats final_game_imu_stats;
++  struct timespec wait_until;
++  struct timespec now;
++  uint64_t start_us = 0;
++  uint64_t end_us = 0;
++  uint64_t next_log_us;
++  uint32_t imu_sequence = 0;
++  bool imu_gap_pending = false;
++  int16_t gyro[3] = {0};
++  int16_t accel[3] = {0};
++  uint32_t fifo_wake_count = 0;
++  uint32_t fifo_words_read = 0;
++  uint32_t fifo_data_read_transfers = 0;
++  uint32_t fifo_data_read_words = 0;
++  uint32_t fifo_data_read_max_bytes = 0;
++  uint32_t gyro_samples = 0;
++  uint32_t accel_samples = 0;
++  uint32_t paired_samples = 0;
++  uint32_t startup_discarded_words = 0;
++  uint32_t fifo_watermark_events = 0;
++  uint32_t fifo_overrun = 0;
++  uint32_t fifo_smart_full = 0;
++  uint32_t max_fifo_depth_words = 0;
++  uint32_t unexpected_frames = 0;
++  uint32_t i2c_errors = 0;
++  uint32_t timeouts = 0;
++  uint32_t timeout_status_polls = 0;
++  uint32_t fifo_recovery_attempts = 0;
++  uint32_t fifo_recovery_success = 0;
++  uint32_t fifo_recovery_failed = 0;
++  uint32_t fifo_irq_count;
++  uint16_t end_depth_words = 0;
++  uint8_t expected_pattern = 0;
++  uint8_t gyro_axis_mask = 0;
++  uint8_t accel_axis_mask = 0;
++  uint8_t discard_remaining = 0;
++  uint8_t smart_full_streak = 0;
++  uint8_t near_full_streak = 0;
++  uint8_t pattern_error_streak = 0;
++  uint8_t pattern_valid_streak = 0;
++  uint8_t int1_fifo_only;
++  bool pattern_aligned = false;
++  bool expected_valid = false;
++  bool gyro_ready = false;
++  bool irq_enabled = false;
++  bool semaphore_initialized = false;
++  bool fifo_started = false;
++  int restore_status = 0;
++  int cleanup_ret;
++  int wait_status;
++  int fd;
++  int ret;
++  size_t i;
++
++  (void)arg;
++  printf("openvela_ble_probe: IMU FIFO thread entered\n");
++  __atomic_store_n(&g_imu_drdy_irq_count, 0, __ATOMIC_RELAXED);
++  fd = open(PROBE_IMU_I2C_DEV, O_RDONLY);
++  if (fd < 0)
++    {
++      printf("openvela_ble_probe: IMU raw open %s failed errno=%d\n",
++             PROBE_IMU_I2C_DEV, errno);
++      return NULL;
++    }
++
++  for (i = 0; i < sizeof(registers); i++)
++    {
++      ret = probe_imu_read(fd, PROBE_IMU_ADDR, registers[i], &saved[i], 1);
++      if (ret != 0)
++        {
++          printf("openvela_ble_probe: IMU raw save reg=0x%02x failed"
++                 " status=%d\n", registers[i], ret);
++          goto restore;
++        }
++
++      saved_valid[i] = true;
++    }
++
++  ret = board_imu_int1_disable();
++  if (ret != 0)
++    {
++      printf("openvela_ble_probe: IMU FIFO initial IRQ disable failed"
++             " status=%d\n", ret);
++      goto restore;
++    }
++
++  ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL5,
++                               PROBE_IMU_FIFO_BYPASS);
++  if (ret == 0)
++    {
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR, PROBE_IMU_CTRL3_C,
++                                   PROBE_IMU_CTRL3_C_BDU_IF_INC);
++    }
++
++  if (ret == 0)
++    {
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR, PROBE_IMU_CTRL1_XL,
++                                   PROBE_IMU_CTRL1_XL_104HZ_4G);
++    }
++
++  if (ret == 0)
++    {
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR, PROBE_IMU_CTRL2_G,
++                                   PROBE_IMU_CTRL2_G_104HZ_500DPS);
++    }
++
++  if (ret == 0)
++    {
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_FIFO_CTRL1, 0x78);
++    }
++
++  if (ret == 0)
++    {
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_FIFO_CTRL2, 0x00);
++    }
++
++  if (ret == 0)
++    {
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_FIFO_CTRL3,
++                                   PROBE_IMU_FIFO_CTRL3_GY_XL);
++    }
++
++  if (ret == 0)
++    {
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_FIFO_CTRL4, 0x00);
++    }
++
++  if (ret == 0)
++    {
++      uint8_t int1_value = saved[6] &
++        ~(PROBE_IMU_INT1_DRDY_XL | PROBE_IMU_INT1_DRDY_G |
++          PROBE_IMU_INT1_FIFO_FTH | PROBE_IMU_INT1_FIFO_OVR |
++          PROBE_IMU_INT1_FIFO_FULL);
++
++      int1_value |= PROBE_IMU_INT1_FIFO_FTH;
++      int1_fifo_only = int1_value;
++      ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_INT1_CTRL, int1_value);
++    }
++
++  if (ret != 0)
++    {
++      printf("openvela_ble_probe: IMU FIFO configure failed status=%d\n",
++             ret);
++      goto restore;
++    }
++
++  if (sem_init(&g_imu_drdy_sem, 0, 0) < 0)
++    {
++      printf("openvela_ble_probe: IMU FIFO semaphore init failed errno=%d\n",
++             errno);
++      goto restore;
++    }
++
++  semaphore_initialized = true;
++
++  ret = board_imu_int1_enable(probe_imu_int1_isr, NULL);
++  if (ret != 0)
++    {
++      printf("openvela_ble_probe: IMU FIFO IRQ enable failed status=%d\n",
++             ret);
++      goto restore;
++    }
++
++  irq_enabled = true;
++  ret = probe_imu_write_verify(fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL5,
++                               PROBE_IMU_FIFO_104HZ_CONTINUOUS);
++  if (ret != 0)
++    {
++      printf("openvela_ble_probe: IMU FIFO start failed status=%d\n", ret);
++      goto stop_irq;
++    }
++
++  fifo_started = true;
++
++  printf("openvela_ble_probe: IMU FIFO config watermark_words=120"
++         " fifo_ctrl3=0x09 fifo_ctrl5=0x26\n");
++
++  if (probe_get_monotonic_us(&start_us) < 0)
++    {
++      printf("openvela_ble_probe: IMU DRDY clock_gettime failed errno=%d\n",
++             errno);
++      goto stop_irq;
++    }
++
++  next_log_us = start_us + 10000000ULL;
++
++  /* This producer is intentionally long-lived.  The cleanup path below is
++   * retained for configuration, I/O, or a future explicit-stop failure.
++   */
++
++  for (;;)
++    {
++      struct probe_game_imu_stats game_imu_stats;
++      uint64_t now_us;
++      uint16_t recovery_depth = 0;
++      const char *recovery_reason = NULL;
++      bool status_ready = false;
++      bool wake_watermark_seen = false;
++      bool wake_smart_full_seen = false;
++      bool wake_overrun_seen = false;
++
++      if (probe_get_monotonic_sample(&now_us, &now) < 0)
++        {
++          printf("openvela_ble_probe: IMU FIFO clock read failed errno=%d\n",
++                 errno);
++          break;
++        }
++
++      if (now_us >= next_log_us)
++        {
++          probe_game_get_imu_stats(&game_imu_stats);
++          fifo_irq_count = __atomic_load_n(&g_imu_drdy_irq_count,
++                                           __ATOMIC_RELAXED);
++          printf("openvela_ble_probe: IMU FIFO progress elapsed_ms=%llu"
++                 " fifo_irq_count=%lu fifo_wake_count=%lu"
++                 " fifo_words_read=%lu gyro_samples=%lu accel_samples=%lu"
++                 " paired_six_axis_samples=%lu fifo_overrun=%lu"
++                 " fifo_smart_full=%lu max_fifo_depth_words=%lu"
++                 " unexpected=%lu i2c_errors=%lu timeouts=%lu"
++                 " timeout_status_polls=%lu fifo_recovery_attempts=%lu"
++                 " fifo_recovery_success=%lu fifo_recovery_failed=%lu"
++                 " imu_ring_full=%lu imu_gap_samples=%lu"
++                 " fifo_data_read_transfers=%lu fifo_data_read_words=%lu"
++                 " fifo_data_read_max_bytes=%lu"
++                 " fifo_data_read_chunk_bytes=%u\n",
++                 (unsigned long long)((now_us - start_us) / 1000),
++                 (unsigned long)fifo_irq_count,
++                 (unsigned long)fifo_wake_count,
++                 (unsigned long)fifo_words_read,
++                 (unsigned long)gyro_samples,
++                 (unsigned long)accel_samples,
++                 (unsigned long)paired_samples,
++                 (unsigned long)fifo_overrun,
++                 (unsigned long)fifo_smart_full,
++                 (unsigned long)max_fifo_depth_words,
++                 (unsigned long)unexpected_frames,
++                 (unsigned long)i2c_errors, (unsigned long)timeouts,
++                 (unsigned long)timeout_status_polls,
++                 (unsigned long)fifo_recovery_attempts,
++                 (unsigned long)fifo_recovery_success,
++                 (unsigned long)fifo_recovery_failed,
++                 (unsigned long)game_imu_stats.ring_full,
++                 (unsigned long)game_imu_stats.gap_samples,
++                 (unsigned long)fifo_data_read_transfers,
++                 (unsigned long)fifo_data_read_words,
++                 (unsigned long)fifo_data_read_max_bytes,
++                 PROBE_IMU_FIFO_READ_CHUNK_BYTES);
++          next_log_us = now_us + 10000000ULL;
++        }
++
++      wait_until = now;
++      probe_timespec_add_ms(&wait_until, PROBE_IMU_FIFO_WATCHDOG_MS);
++
++      do
++        {
++          wait_status = sem_clockwait(&g_imu_drdy_sem, CLOCK_MONOTONIC,
++                                      &wait_until);
++        }
++      while (wait_status < 0 && errno == EINTR);
++
++      if (wait_status < 0)
++        {
++          if (errno == ETIMEDOUT)
++            {
++              timeouts++;
++              timeout_status_polls++;
++              ret = probe_imu_read(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_FIFO_STATUS1,
++                                   status, sizeof(status));
++              if (ret != 0)
++                {
++                  i2c_errors++;
++                  expected_valid = false;
++                  continue;
++                }
++
++              status_ready = true;
++              if ((status[1] & 0x60) == 0 &&
++                  ((status[1] & 0x10) != 0 ||
++                   probe_imu_fifo_depth(status) == 0))
++                {
++                  continue;
++                }
++            }
++          else
++            {
++              printf("openvela_ble_probe: IMU FIFO semaphore wait failed"
++                     " errno=%d\n", errno);
++              break;
++            }
++        }
++      else
++        {
++          fifo_wake_count++;
++        }
++
++      for (;;)
++        {
++          uint16_t depth;
++          uint16_t pattern;
++          uint16_t words_to_read;
++          uint64_t drain_now_us;
++          bool watermark;
++          bool empty;
++          bool smart_full;
++          bool overrun;
++
++          if (!status_ready)
++            {
++              ret = probe_imu_read(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_FIFO_STATUS1,
++                                   status, sizeof(status));
++              if (ret != 0)
++                {
++                  i2c_errors++;
++                  expected_valid = false;
++                  break;
++                }
++            }
++
++          status_ready = false;
++
++          if (probe_get_monotonic_us(&drain_now_us) < 0)
++            {
++              printf("openvela_ble_probe: IMU FIFO timestamp failed"
++                     " errno=%d\n", errno);
++              goto stop_irq;
++            }
++
++          depth = probe_imu_fifo_depth(status);
++          empty = (status[1] & 0x10) != 0;
++          smart_full = (status[1] & 0x20) != 0;
++          overrun = (status[1] & 0x40) != 0;
++          watermark = (status[1] & 0x80) != 0;
++          pattern = (uint16_t)status[2] |
++                    ((uint16_t)(status[3] & 0x03) << 8);
++
++          if (depth > max_fifo_depth_words)
++            {
++              max_fifo_depth_words = depth;
++            }
++
++          if (watermark && !wake_watermark_seen)
++            {
++              fifo_watermark_events++;
++              wake_watermark_seen = true;
++            }
++
++          if (smart_full && !wake_smart_full_seen)
++            {
++              fifo_smart_full++;
++              wake_smart_full_seen = true;
++            }
++
++          if (overrun && !wake_overrun_seen)
++            {
++              fifo_overrun++;
++              wake_overrun_seen = true;
++            }
++
++          if (smart_full)
++            {
++              if (smart_full_streak < UINT8_MAX)
++                {
++                  smart_full_streak++;
++                }
++            }
++          else
++            {
++              smart_full_streak = 0;
++            }
++
++          if (depth >= PROBE_IMU_FIFO_NEAR_FULL_WORDS)
++            {
++              if (near_full_streak < UINT8_MAX)
++                {
++                  near_full_streak++;
++                }
++            }
++          else
++            {
++              near_full_streak = 0;
++            }
++
++          if (overrun)
++            {
++              recovery_reason = "overrun";
++            }
++          else if (smart_full_streak >=
++                   PROBE_IMU_FIFO_SMART_FULL_LIMIT)
++            {
++              recovery_reason = "smart-full";
++            }
++          else if (near_full_streak >= PROBE_IMU_FIFO_NEAR_FULL_LIMIT)
++            {
++              recovery_reason = "near-full";
++            }
++
++          if (recovery_reason != NULL)
++            {
++              recovery_depth = depth;
++              break;
++            }
++
++          if (empty || depth == 0)
++            {
++              break;
++            }
++
++          words_to_read = depth;
++          while (words_to_read > 0)
++            {
++              uint16_t chunk_words = MIN(words_to_read,
++                PROBE_IMU_FIFO_READ_CHUNK_BYTES / 2);
++              uint16_t chunk_index;
++              size_t chunk_bytes = (size_t)chunk_words * 2;
++
++              ret = probe_imu_read(fd, PROBE_IMU_ADDR,
++                                   PROBE_IMU_FIFO_DATA_OUT_L,
++                                   fifo_data, chunk_bytes);
++              if (ret != 0)
++                {
++                  i2c_errors++;
++                  expected_valid = false;
++                  break;
++                }
++
++              fifo_data_read_transfers++;
++              fifo_data_read_words += chunk_words;
++              if (chunk_bytes > fifo_data_read_max_bytes)
++                {
++                  fifo_data_read_max_bytes = chunk_bytes;
++                }
++
++              fifo_words_read += chunk_words;
++              for (chunk_index = 0; chunk_index < chunk_words; chunk_index++)
++                {
++                  struct probe_imu_sample sample;
++                  uint8_t pattern_word = (uint8_t)(pattern %
++                    PROBE_IMU_FIFO_PATTERN_WORDS);
++                  size_t word_offset = (size_t)chunk_index * 2;
++                  int16_t raw;
++
++                  words_to_read--;
++
++                  if (expected_valid && pattern_word != expected_pattern)
++                    {
++                      unexpected_frames++;
++                      if (pattern_error_streak < UINT8_MAX)
++                        {
++                          pattern_error_streak++;
++                        }
++
++                      pattern_valid_streak = 0;
++                      gyro_axis_mask = 0;
++                      accel_axis_mask = 0;
++                      gyro_ready = false;
++                    }
++                  else
++                    {
++                      if (pattern_valid_streak <
++                          PROBE_IMU_FIFO_PATTERN_WORDS)
++                        {
++                          pattern_valid_streak++;
++                        }
++
++                      if (pattern_valid_streak >=
++                          PROBE_IMU_FIFO_PATTERN_WORDS)
++                        {
++                          pattern_error_streak = 0;
++                        }
++                    }
++
++                  if (pattern_error_streak >=
++                      PROBE_IMU_FIFO_PATTERN_ERR_LIMIT)
++                    {
++                      recovery_reason = "pattern";
++                      recovery_depth = depth;
++                      break;
++                    }
++
++                  raw = (int16_t)((uint16_t)fifo_data[word_offset] |
++                    ((uint16_t)fifo_data[word_offset + 1] << 8));
++              if (!pattern_aligned)
++                {
++                  if (pattern_word != 0)
++                    {
++                      unexpected_frames++;
++                    }
++                  else
++                    {
++                      pattern_aligned = true;
++                      discard_remaining = PROBE_IMU_FIFO_PATTERN_WORDS;
++                    }
++                }
++
++              if (pattern_aligned && discard_remaining > 0)
++                {
++                  discard_remaining--;
++                  startup_discarded_words++;
++                }
++              else if (pattern_aligned)
++                {
++                  if (pattern_word < 3)
++                    {
++                      gyro[pattern_word] = raw;
++                      gyro_axis_mask |= 1u << pattern_word;
++                      if (pattern_word == 2)
++                        {
++                          if (gyro_axis_mask == 0x07)
++                            {
++                              gyro_samples++;
++                              gyro_ready = true;
++                            }
++                          else
++                            {
++                              unexpected_frames++;
++                              gyro_ready = false;
++                            }
++
++                          gyro_axis_mask = 0;
++                        }
++                    }
++                  else
++                    {
++                      accel[pattern_word - 3] = raw;
++                      accel_axis_mask |= 1u << (pattern_word - 3);
++                      if (pattern_word == 5)
++                        {
++                          if (accel_axis_mask == 0x07)
++                            {
++                              accel_samples++;
++                              if (gyro_ready)
++                                {
++                                  uint32_t complete_cycles_after =
++                                    words_to_read /
++                                    PROBE_IMU_FIFO_PATTERN_WORDS;
++
++                                  paired_samples++;
++                                  memset(&sample, 0, sizeof(sample));
++                                  sample.monotonic_us = drain_now_us -
++                                    (uint64_t)complete_cycles_after *
++                                    1000000ULL / PROBE_IMU_RAW_TARGET_HZ;
++                                  sample.sequence = imu_sequence++;
++                                  memcpy(sample.gyro, gyro,
++                                         sizeof(sample.gyro));
++                                  memcpy(sample.accel, accel,
++                                         sizeof(sample.accel));
++                                  sample.flags =
++                                    PROBE_IMU_SAMPLE_FLAG_ESTIMATED_TIME;
++                                  if (imu_gap_pending)
++                                    {
++                                      sample.flags |=
++                                        PROBE_IMU_SAMPLE_FLAG_GAP;
++                                    }
++
++                                  if (probe_game_submit_imu(&sample))
++                                    {
++                                      imu_gap_pending = false;
++                                    }
++                                  else
++                                    {
++                                      imu_gap_pending = true;
++                                    }
++                                }
++                              else
++                                {
++                                  unexpected_frames++;
++                                }
++                            }
++                          else
++                            {
++                              unexpected_frames++;
++                            }
++
++                          accel_axis_mask = 0;
++                          gyro_ready = false;
++                        }
++                    }
++                }
++
++              expected_pattern = (uint8_t)((pattern_word + 1) %
++                                             PROBE_IMU_FIFO_PATTERN_WORDS);
++              expected_valid = true;
++              pattern++;
++            }
++
++          if (recovery_reason != NULL)
++            {
++              break;
++            }
++          }
++
++          if (recovery_reason != NULL)
++            {
++              break;
++            }
++
++          if (ret != 0)
++            {
++              break;
++            }
++
++          /* Re-read status and continue draining until FIFO_EMPTY. */
++        }
++
++      if (recovery_reason != NULL)
++        {
++          bool recovery_complete = false;
++          unsigned int attempt;
++
++          for (attempt = 0; attempt < PROBE_IMU_FIFO_RECOVERY_RETRIES;
++               attempt++)
++            {
++              uint8_t recovery_status[4];
++              int recovery_ret = 0;
++
++              fifo_recovery_attempts++;
++              printf("openvela_ble_probe: IMU FIFO recovery begin"
++                     " reason=%s depth=%u attempt=%u\n",
++                     recovery_reason, recovery_depth, attempt + 1);
++
++              if (irq_enabled)
++                {
++                  recovery_ret = board_imu_int1_disable();
++                  if (recovery_ret == 0)
++                    {
++                      irq_enabled = false;
++                    }
++                }
++
++              probe_imu_drain_semaphore();
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_INT1_CTRL,
++                    int1_fifo_only & (uint8_t)~PROBE_IMU_INT1_FIFO_FTH);
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL5,
++                    PROBE_IMU_FIFO_BYPASS);
++                  if (recovery_ret == 0)
++                    {
++                      fifo_started = false;
++                    }
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_read(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_STATUS1,
++                    recovery_status, sizeof(recovery_status));
++                  if (recovery_ret == 0 &&
++                      (probe_imu_fifo_depth(recovery_status) != 0 ||
++                       (recovery_status[1] & 0x10) == 0))
++                    {
++                      recovery_ret = -EIO;
++                    }
++                }
++
++              if (recovery_ret == 0)
++                {
++                  pattern_aligned = false;
++                  expected_valid = false;
++                  expected_pattern = 0;
++                  gyro_axis_mask = 0;
++                  accel_axis_mask = 0;
++                  gyro_ready = false;
++                  memset(gyro, 0, sizeof(gyro));
++                  memset(accel, 0, sizeof(accel));
++                  discard_remaining = PROBE_IMU_FIFO_PATTERN_WORDS;
++                  imu_gap_pending = true;
++                  smart_full_streak = 0;
++                  near_full_streak = 0;
++                  pattern_error_streak = 0;
++                  pattern_valid_streak = 0;
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL1, 0x78);
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL2, 0x00);
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL3,
++                    PROBE_IMU_FIFO_CTRL3_GY_XL);
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL4, 0x00);
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_INT1_CTRL,
++                    int1_fifo_only);
++                }
++
++              probe_imu_drain_semaphore();
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = board_imu_int1_enable(
++                    probe_imu_int1_isr, NULL);
++                  if (recovery_ret == 0)
++                    {
++                      irq_enabled = true;
++                    }
++                }
++
++              if (recovery_ret == 0)
++                {
++                  recovery_ret = probe_imu_write_verify(
++                    fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_CTRL5,
++                    PROBE_IMU_FIFO_104HZ_CONTINUOUS);
++                  if (recovery_ret == 0)
++                    {
++                      fifo_started = true;
++                    }
++                }
++
++              if (recovery_ret == 0)
++                {
++                  fifo_recovery_success++;
++                  recovery_complete = true;
++                  printf("openvela_ble_probe: IMU FIFO recovery end"
++                         " reason=%s status=0 attempt=%u\n",
++                         recovery_reason, attempt + 1);
++                  break;
++                }
++
++              fifo_recovery_failed++;
++              printf("openvela_ble_probe: IMU FIFO recovery end"
++                     " reason=%s status=%d attempt=%u\n",
++                     recovery_reason, recovery_ret, attempt + 1);
++              if (irq_enabled)
++                {
++                  board_imu_int1_disable();
++                  irq_enabled = false;
++                }
++
++              probe_imu_write_reg(fd, PROBE_IMU_ADDR,
++                                  PROBE_IMU_FIFO_CTRL5,
++                                  PROBE_IMU_FIFO_BYPASS);
++              fifo_started = false;
++              if (attempt + 1 < PROBE_IMU_FIFO_RECOVERY_RETRIES)
++                {
++                  usleep(PROBE_IMU_FIFO_RECOVERY_DELAY_US);
++                }
++            }
++
++          if (!recovery_complete)
++            {
++              printf("openvela_ble_probe: IMU producer stopped after"
++                     " recovery failure\n");
++              goto stop_irq;
++            }
++        }
++    }
++
++stop_irq:
++  if (irq_enabled)
++    {
++      cleanup_ret = board_imu_int1_disable();
++      if (cleanup_ret != 0 && restore_status == 0)
++        {
++          restore_status = cleanup_ret;
++        }
++      irq_enabled = false;
++    }
++
++  ret = probe_imu_read(fd, PROBE_IMU_ADDR, PROBE_IMU_FIFO_STATUS1,
++                       status, sizeof(status));
++  if (ret == 0)
++    {
++      end_depth_words = (uint16_t)status[0] |
++                        ((uint16_t)(status[1] & 0x07) << 8);
++    }
++  else
++    {
++      i2c_errors++;
++    }
++
++  if (fifo_started)
++    {
++      cleanup_ret = probe_imu_write_reg(fd, PROBE_IMU_ADDR,
++                                        PROBE_IMU_FIFO_CTRL5,
++                                        PROBE_IMU_FIFO_BYPASS);
++      if (cleanup_ret != 0 && restore_status == 0)
++        {
++          restore_status = cleanup_ret;
++        }
++    }
++
++restore:
++  /* Restore sensors, FIFO configuration/mode, pulse mode, then INT1. */
++
++  for (i = 7; i < 10; i++)
++    {
++      if (saved_valid[i])
++        {
++          cleanup_ret = probe_imu_write_reg(fd, PROBE_IMU_ADDR,
++                                            registers[i], saved[i]);
++          if (cleanup_ret != 0 && restore_status == 0)
++            {
++              restore_status = cleanup_ret;
++            }
++        }
++    }
++
++  for (i = 0; i < 5; i++)
++    {
++      if (saved_valid[i])
++        {
++          cleanup_ret = probe_imu_write_reg(fd, PROBE_IMU_ADDR,
++                                            registers[i], saved[i]);
++          if (cleanup_ret != 0 && restore_status == 0)
++            {
++              restore_status = cleanup_ret;
++            }
++        }
++    }
++
++  for (i = 5; i < 7; i++)
++    {
++      if (saved_valid[i])
++        {
++          cleanup_ret = probe_imu_write_reg(fd, PROBE_IMU_ADDR,
++                                            registers[i], saved[i]);
++          if (cleanup_ret != 0 && restore_status == 0)
++            {
++              restore_status = cleanup_ret;
++            }
++        }
++    }
++
++  if (semaphore_initialized)
++    {
++      sem_destroy(&g_imu_drdy_sem);
++    }
++
++  fifo_irq_count = __atomic_load_n(&g_imu_drdy_irq_count,
++                                    __ATOMIC_RELAXED);
++  end_us = start_us;
++  if (start_us != 0 && probe_get_monotonic_us(&end_us) < 0)
++    {
++      end_us = start_us;
++    }
++
++  probe_game_get_imu_stats(&final_game_imu_stats);
++
++  printf("openvela_ble_probe: IMU FIFO summary duration_ms=%llu"
++         " elapsed_ms=%llu"
++         " fifo_irq_count=%lu fifo_wake_count=%lu fifo_words_read=%lu"
++         " gyro_samples=%lu accel_samples=%lu"
++         " paired_six_axis_samples=%lu startup_discarded_words=%lu"
++         " fifo_watermark_events=%lu fifo_overrun=%lu fifo_smart_full=%lu"
++         " max_fifo_depth_words=%lu unpaired_or_unexpected_frames=%lu"
++         " i2c_errors=%lu timeouts=%lu timeout_status_polls=%lu"
++         " fifo_recovery_attempts=%lu fifo_recovery_success=%lu"
++         " fifo_recovery_failed=%lu imu_ring_full=%lu"
++         " imu_gap_samples=%lu fifo_data_read_transfers=%lu"
++         " fifo_data_read_words=%lu fifo_data_read_max_bytes=%lu"
++         " fifo_data_read_chunk_bytes=%u end_depth_words=%u\n",
++         (unsigned long long)(start_us == 0 || end_us < start_us ? 0 :
++                              (end_us - start_us) / 1000),
++         (unsigned long long)(start_us == 0 || end_us < start_us ? 0 :
++                              (end_us - start_us) / 1000),
++         (unsigned long)fifo_irq_count, (unsigned long)fifo_wake_count,
++         (unsigned long)fifo_words_read, (unsigned long)gyro_samples,
++         (unsigned long)accel_samples, (unsigned long)paired_samples,
++         (unsigned long)startup_discarded_words,
++         (unsigned long)fifo_watermark_events,
++         (unsigned long)fifo_overrun, (unsigned long)fifo_smart_full,
++         (unsigned long)max_fifo_depth_words,
++         (unsigned long)unexpected_frames, (unsigned long)i2c_errors,
++         (unsigned long)timeouts, (unsigned long)timeout_status_polls,
++         (unsigned long)fifo_recovery_attempts,
++         (unsigned long)fifo_recovery_success,
++         (unsigned long)fifo_recovery_failed,
++         (unsigned long)final_game_imu_stats.ring_full,
++         (unsigned long)final_game_imu_stats.gap_samples,
++         (unsigned long)fifo_data_read_transfers,
++         (unsigned long)fifo_data_read_words,
++         (unsigned long)fifo_data_read_max_bytes,
++         PROBE_IMU_FIFO_READ_CHUNK_BYTES, end_depth_words);
++  printf("openvela_ble_probe: IMU FIFO registers restored status=%d\n",
++         restore_status);
++  close(fd);
++  return NULL;
++}
++
++static void probe_launch_imu_raw_if_pending(void)
++{
++  pthread_t thread;
++  bool launch;
++  int detach_ret;
++  int ret;
++
++  pthread_mutex_lock(&g_state_lock);
++  launch = g_imu_raw_launch_pending && !g_imu_raw_launch_attempted;
++  if (launch)
++    {
++      g_imu_raw_launch_pending = false;
++      g_imu_raw_launch_attempted = true;
++    }
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (!launch)
++    {
++      return;
++    }
++
++  ret = pthread_create(&thread, NULL, probe_imu_raw_thread, NULL);
++  printf("openvela_ble_probe: IMU raw pthread create ret=%d\n", ret);
++  if (ret != 0)
++    {
++      return;
++    }
++
++  pthread_mutex_lock(&g_state_lock);
++  g_imu_raw_started = true;
++  pthread_mutex_unlock(&g_state_lock);
++
++  detach_ret = pthread_detach(thread);
++  printf("openvela_ble_probe: IMU raw pthread detach ret=%d\n", detach_ret);
++}
++
++static bool probe_ui_ble_connected(void)
++{
++  bool connected;
++
++  pthread_mutex_lock(&g_state_lock);
++  connected = g_peer_connected;
++  pthread_mutex_unlock(&g_state_lock);
++  return connected;
++}
++
++static void probe_launch_visible_game_if_pending(void)
++{
++  bool launch;
++  bool game_started;
++  bool imu_skipped = false;
++  int ret;
++
++  pthread_mutex_lock(&g_state_lock);
++  launch = g_visible_game_launch_pending &&
++           !g_visible_game_launch_attempted;
++  if (launch)
++    {
++      g_visible_game_launch_pending = false;
++      g_visible_game_launch_attempted = true;
++    }
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (!launch)
++    {
++      return;
++    }
++
++  ret = probe_game_start();
++  printf("openvela_ble_probe: game thread create status=%d\n", ret);
++  game_started = ret == 0;
++  ret = probe_ui_start(probe_ui_ble_connected, g_imu_detected);
++  printf("openvela_ble_probe: UI thread create status=%d\n", ret);
++
++  pthread_mutex_lock(&g_state_lock);
++  if (game_started && g_imu_detected && !g_imu_raw_launch_attempted &&
++      !g_imu_raw_started)
++    {
++      g_imu_raw_launch_pending = true;
++    }
++  else if (!g_imu_detected)
++    {
++      imu_skipped = true;
++    }
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (imu_skipped)
++    {
++      printf("openvela_ble_probe: IMU FIFO producer skipped:"
++             " IMU unavailable\n");
++    }
++}
++
++static int probe_monotonic_ms(uint64_t *now_ms)
++{
++  uint64_t now_us;
++
++  if (probe_get_monotonic_us(&now_us) < 0)
++    {
++      return -1;
++    }
++
++  *now_ms = now_us / 1000ULL;
++  return 0;
++}
++
++static uint32_t probe_get_le32(const uint8_t *value)
++{
++  return (uint32_t)value[0] |
++         ((uint32_t)value[1] << 8) |
++         ((uint32_t)value[2] << 16) |
++         ((uint32_t)value[3] << 24);
++}
++
++static void probe_put_le32(uint8_t *value, uint32_t number)
++{
++  value[0] = (uint8_t)number;
++  value[1] = (uint8_t)(number >> 8);
++  value[2] = (uint8_t)(number >> 16);
++  value[3] = (uint8_t)(number >> 24);
++}
++
++static uint16_t probe_get_le16(const uint8_t *value)
++{
++  return (uint16_t)value[0] | ((uint16_t)value[1] << 8);
++}
++
++static void probe_put_le16(uint8_t *value, uint16_t number)
++{
++  value[0] = (uint8_t)number;
++  value[1] = (uint8_t)(number >> 8);
++}
++
++static uint64_t probe_get_le64(const uint8_t *value)
++{
++  return (uint64_t)value[0] |
++         ((uint64_t)value[1] << 8) |
++         ((uint64_t)value[2] << 16) |
++         ((uint64_t)value[3] << 24) |
++         ((uint64_t)value[4] << 32) |
++         ((uint64_t)value[5] << 40) |
++         ((uint64_t)value[6] << 48) |
++         ((uint64_t)value[7] << 56);
++}
++
++static void probe_put_le64(uint8_t *value, uint64_t number)
++{
++  value[0] = (uint8_t)number;
++  value[1] = (uint8_t)(number >> 8);
++  value[2] = (uint8_t)(number >> 16);
++  value[3] = (uint8_t)(number >> 24);
++  value[4] = (uint8_t)(number >> 32);
++  value[5] = (uint8_t)(number >> 40);
++  value[6] = (uint8_t)(number >> 48);
++  value[7] = (uint8_t)(number >> 56);
++}
++
++static uint16_t probe_crc16_ccitt_false(const uint8_t *value, size_t length)
++{
++  uint16_t crc = 0xffff;
++  size_t i;
++  uint8_t bit;
++
++  for (i = 0; i < length; i++)
++    {
++      crc ^= (uint16_t)value[i] << 8;
++      for (bit = 0; bit < 8; bit++)
++        {
++          crc = (crc & 0x8000) != 0 ?
++                (uint16_t)((crc << 1) ^ 0x1021) :
++                (uint16_t)(crc << 1);
++        }
++    }
++
++  return crc;
++}
++
++static bt_status_t probe_notify(gatts_handle_t srv_handle,
++                                uint8_t *value, uint16_t length)
++{
++  bt_address_t peer_addr;
++  bool ready;
++
++  pthread_mutex_lock(&g_state_lock);
++  ready = g_peer_connected && g_notify_enabled;
++  memcpy(&peer_addr, &g_peer_addr, sizeof(peer_addr));
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (!ready)
++    {
++      printf("openvela_ble_probe: TX notification not subscribed\n");
++      return BT_STATUS_NOT_READY;
++    }
++
++  return bt_gatts_notify(srv_handle, &peer_addr, PROBE_TX_HANDLE,
++                         value, length);
++}
++
++static uint32_t probe_elapsed_ms(uint64_t started_us)
++{
++  uint64_t ended_us;
++  uint64_t milliseconds;
++
++  if (probe_get_monotonic_us(&ended_us) < 0 || ended_us < started_us)
++    {
++      return 0;
++    }
++
++  milliseconds = (ended_us - started_us) / 1000ULL;
++  return milliseconds > UINT32_MAX ? UINT32_MAX : (uint32_t)milliseconds;
++}
++
++static void probe_print_rx_queue_stats(void)
++{
++  printf("openvela_ble_probe: rx queue enqueued=%lu lock_busy=%lu "
++         "full=%lu high_water=%lu stale=%lu invalid_length=%lu\n",
++         (unsigned long)__atomic_load_n(&g_rx_enqueued,
++                                         __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_rx_drop_lock_busy,
++                                         __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_rx_drop_full,
++                                         __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_rx_high_water,
++                                         __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_rx_stale,
++                                         __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_rx_invalid_length,
++                                         __ATOMIC_RELAXED));
++}
++
++static void probe_print_reliable39_stats(void)
++{
++  printf("openvela_ble_probe: reliable39_rx_ok=%lu "
++         "reliable39_bad_length=%lu reliable39_bad_crc=%lu "
++         "reliable39_duplicates=%lu reliable39_tx_attempted=%lu "
++         "reliable39_tx_status_nonzero=%lu\n",
++         (unsigned long)__atomic_load_n(&g_reliable39_rx_ok,
++                                        __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_reliable39_bad_length,
++                                        __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_reliable39_bad_crc,
++                                        __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_reliable39_duplicates,
++                                        __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_reliable39_tx_attempted,
++                                        __ATOMIC_RELAXED),
++         (unsigned long)__atomic_load_n(&g_reliable39_tx_status_nonzero,
++                                        __ATOMIC_RELAXED));
++}
++
++static void probe_print_gesture_stats(void)
++{
++  uint32_t enqueued;
++  uint32_t full;
++  uint32_t acked;
++  uint32_t retransmitted;
++  uint32_t dropped;
++  uint32_t tx_status_nonzero;
++
++  pthread_mutex_lock(&g_state_lock);
++  enqueued = g_gesture_enqueued;
++  full = g_gesture_queue_full;
++  acked = g_gesture_acked;
++  retransmitted = g_gesture_retransmitted;
++  dropped = g_gesture_dropped;
++  tx_status_nonzero = g_gesture_tx_status_nonzero;
++  pthread_mutex_unlock(&g_state_lock);
++
++  printf("openvela_ble_probe: gesture enqueued=%lu full=%lu acked=%lu "
++         "retransmitted=%lu dropped=%lu tx_status_nonzero=%lu\n",
++         (unsigned long)enqueued,
++         (unsigned long)full,
++         (unsigned long)acked,
++         (unsigned long)retransmitted,
++         (unsigned long)dropped,
++         (unsigned long)tx_status_nonzero);
++}
++
++/* Future gesture producers must use this bounded publisher rather than
++ * calling a GATT API.  It is task-context only, never ISR-context.
++ */
++
++static int probe_publish_gesture(uint8_t gesture, uint8_t confidence,
++                                 uint8_t flags, uint8_t battery,
++                                 uint64_t event_monotonic_us)
++{
++  struct probe_gesture_record_s *record;
++  uint64_t now_monotonic_us;
++  uint64_t timestamp_ms;
++  uint32_t generation;
++  uint32_t used;
++  bool synced;
++
++  if (probe_get_monotonic_us(&now_monotonic_us) < 0)
++    {
++      return -1;
++    }
++
++  if (event_monotonic_us == 0)
++    {
++      event_monotonic_us = now_monotonic_us;
++    }
++
++  pthread_mutex_lock(&g_state_lock);
++  generation = __atomic_load_n(&g_connection_generation, __ATOMIC_ACQUIRE);
++  if (!g_peer_connected)
++    {
++      pthread_mutex_unlock(&g_state_lock);
++      return -1;
++    }
++
++  used = g_gesture_rx_head - g_gesture_rx_tail;
++  if (used >= PROBE_GESTURE_QUEUE_DEPTH)
++    {
++      g_gesture_queue_full++;
++      pthread_mutex_unlock(&g_state_lock);
++      return -1;
++    }
++
++  synced = g_gesture_time_synced;
++  if (synced && event_monotonic_us < g_gesture_sync_monotonic_us)
++    {
++      event_monotonic_us = now_monotonic_us;
++    }
++
++  timestamp_ms = synced ?
++    g_gesture_sync_unix_ms +
++      (event_monotonic_us - g_gesture_sync_monotonic_us) / 1000ULL :
++    event_monotonic_us / 1000ULL;
++  if (synced)
++    {
++      flags |= 0x01;
++    }
++  else
++    {
++      flags &= (uint8_t)~0x01;
++    }
++
++  record = &g_gesture_queue[g_gesture_rx_head %
++                            PROBE_GESTURE_QUEUE_DEPTH];
++  memset(record, 0, sizeof(*record));
++  record->connection_generation = generation;
++  record->packet_id = g_gesture_next_packet_id++;
++  record->event[0] = 1;
++  record->event[1] = 0x01;
++  probe_put_le16(&record->event[2], record->packet_id);
++  probe_put_le64(&record->event[4], timestamp_ms);
++  record->event[12] = gesture;
++  record->event[13] = confidence;
++  record->event[14] = flags;
++  record->event[15] = battery;
++  g_gesture_rx_head++;
++  g_gesture_enqueued++;
++  pthread_mutex_unlock(&g_state_lock);
++
++  sem_post(&g_rx_sem);
++  return 0;
++}
++
++static void probe_gesture_time_sync(const uint8_t *value)
++{
++  uint64_t monotonic_us;
++  uint64_t unix_ms;
++
++  if (probe_get_monotonic_us(&monotonic_us) < 0)
++    {
++      printf("openvela_ble_probe: gesture time sync clock failed\n");
++      return;
++    }
++
++  pthread_mutex_lock(&g_state_lock);
++  unix_ms = probe_get_le64(value);
++  g_gesture_sync_unix_ms = unix_ms;
++  g_gesture_sync_monotonic_us = monotonic_us;
++  g_gesture_time_synced = true;
++  pthread_mutex_unlock(&g_state_lock);
++  printf("openvela_ble_probe: gesture time synchronized unix_ms=%" PRIu64
++         " monotonic_us=%" PRIu64 "\n", unix_ms, monotonic_us);
++}
++
++static void probe_gesture_ack(uint16_t packet_id, uint32_t generation)
++{
++  struct probe_gesture_record_s *record;
++  bool matched = false;
++
++  pthread_mutex_lock(&g_state_lock);
++  if (g_gesture_rx_tail != g_gesture_rx_head)
++    {
++      record = &g_gesture_queue[g_gesture_rx_tail %
++                                PROBE_GESTURE_QUEUE_DEPTH];
++      if (record->connection_generation == generation &&
++          record->packet_id == packet_id && record->send_count != 0)
++        {
++          memset(record, 0, sizeof(*record));
++          g_gesture_rx_tail++;
++          g_gesture_acked++;
++          matched = true;
++        }
++    }
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (matched)
++    {
++      printf("openvela_ble_probe: gesture ACK packet_id=%u\n", packet_id);
++    }
++}
++
++static void probe_process_gesture_tx(void)
++{
++  static const uint16_t retry_delays_ms[PROBE_GESTURE_MAX_SENDS] =
++    {
++      500, 1000, 2000
++    };
++  struct probe_gesture_record_s *record;
++  uint8_t event[PROBE_GESTURE_EVENT_SIZE];
++  uint64_t now_ms;
++  uint32_t generation;
++  uint16_t packet_id = 0;
++  uint8_t send_count = 0;
++  bool send = false;
++  bool dropped = false;
++  bt_status_t status;
++
++  if (probe_monotonic_ms(&now_ms) < 0)
++    {
++      return;
++    }
++
++  pthread_mutex_lock(&g_state_lock);
++  generation = __atomic_load_n(&g_connection_generation, __ATOMIC_ACQUIRE);
++  if (g_gesture_rx_tail != g_gesture_rx_head)
++    {
++      record = &g_gesture_queue[g_gesture_rx_tail %
++                                PROBE_GESTURE_QUEUE_DEPTH];
++      if (!g_peer_connected || !g_notify_enabled ||
++          record->connection_generation != generation)
++        {
++          if (record->connection_generation != generation)
++            {
++              g_gesture_rx_tail = g_gesture_rx_head;
++            }
++        }
++      else if (record->send_count == 0 || now_ms >= record->next_retry_ms)
++        {
++          if (record->send_count >= PROBE_GESTURE_MAX_SENDS)
++            {
++              packet_id = record->packet_id;
++              memset(record, 0, sizeof(*record));
++              g_gesture_rx_tail++;
++              g_gesture_dropped++;
++              dropped = true;
++            }
++          else
++            {
++              packet_id = record->packet_id;
++              memcpy(event, record->event, sizeof(event));
++              record->send_count++;
++              send_count = record->send_count;
++              record->next_retry_ms =
++                now_ms + retry_delays_ms[send_count - 1];
++              if (send_count > 1)
++                {
++                  g_gesture_retransmitted++;
++                }
++              send = true;
++            }
++        }
++    }
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (dropped)
++    {
++      printf("openvela_ble_probe: gesture dropped packet_id=%u\n",
++             packet_id);
++      return;
++    }
++
++  if (!send)
++    {
++      return;
++    }
++
++  status = probe_notify(g_service_handle, event, sizeof(event));
++  if (status != BT_STATUS_SUCCESS)
++    {
++      pthread_mutex_lock(&g_state_lock);
++      g_gesture_tx_status_nonzero++;
++      pthread_mutex_unlock(&g_state_lock);
++    }
++
++  if (send_count > 1)
++    {
++      printf("openvela_ble_probe: gesture retransmit packet_id=%u "
++             "attempt=%u status=%d\n",
++             packet_id, send_count, status);
++    }
++}
++
++static uint16_t probe_tx_cccd_written(gatts_handle_t srv_handle,
++                                      bt_address_t *addr,
++                                      uint16_t attr_handle,
++                                      const uint8_t *value,
++                                      uint16_t length,
++                                      uint16_t offset)
++{
++  bool notify_enabled;
++  uint16_t cccd;
++
++  (void)srv_handle;
++  (void)attr_handle;
++
++  if (offset != 0 || length < 2)
++    {
++      printf("openvela_ble_probe: invalid CCCD write\n");
++      return 0;
++    }
++
++  cccd = (uint16_t)value[0] | ((uint16_t)value[1] << 8);
++  pthread_mutex_lock(&g_state_lock);
++  memcpy(&g_peer_addr, addr, sizeof(g_peer_addr));
++  g_notify_enabled = (cccd & GATT_CCC_NOTIFY) != 0;
++  notify_enabled = g_notify_enabled;
++  /* The visible-game build starts its long-lived FIFO producer after the
++   * first successful advertising start, not from this GATT callback.
++   */
++  pthread_mutex_unlock(&g_state_lock);
++
++  printf("openvela_ble_probe: TX notify=%d\n", notify_enabled);
++  return length;
++}
++
++static void probe_process_frame(gatts_handle_t srv_handle,
++                                const uint8_t *value, uint16_t length,
++                                uint32_t connection_generation)
++{
++  uint8_t response[21];
++  uint8_t *reply;
++  uint16_t reply_len;
++  uint32_t elapsed_ms;
++  uint32_t id_or_seq;
++  uint32_t seq;
++  bt_status_t status;
++
++  if (length == 4 && memcmp(value, "PING", 4) == 0)
++    {
++      reply = g_pong;
++      reply_len = sizeof(g_pong);
++      printf("openvela_ble_probe: RX PING\n");
++    }
++  else if (length >= 1 && value[0] == 0x01)
++    {
++      if (length < 5)
++        {
++          printf("openvela_ble_probe: short binary PING length=%u\n",
++                 length);
++          return;
++        }
++
++      id_or_seq = probe_get_le32(&value[1]);
++      response[0] = 0x81;
++      probe_put_le32(&response[1], id_or_seq);
++      printf("openvela_ble_probe: RX binary PING seq=%lu\n",
++             (unsigned long)id_or_seq);
++      status = probe_notify(srv_handle, response, 5);
++      printf("openvela_ble_probe: TX binary PONG status=%d\n", status);
++      return;
++    }
++  else if (length >= 1 && value[0] == PROBE_RELIABLE39_REQUEST_TYPE)
++    {
++      uint16_t expected_crc;
++      uint16_t received_crc;
++
++      if (length != PROBE_RELIABLE39_FRAME_SIZE)
++        {
++          __atomic_fetch_add(&g_reliable39_bad_length, 1,
++                             __ATOMIC_RELAXED);
++          return;
++        }
++
++      received_crc = probe_get_le16(&value[PROBE_RELIABLE39_CRC_OFFSET]);
++      expected_crc = probe_crc16_ccitt_false(
++        value, PROBE_RELIABLE39_CRC_OFFSET);
++      if (received_crc != expected_crc)
++        {
++          __atomic_fetch_add(&g_reliable39_bad_crc, 1, __ATOMIC_RELAXED);
++          return;
++        }
++
++      id_or_seq = probe_get_le32(&value[1]);
++      if (g_reliable39.valid &&
++          g_reliable39.connection_generation == connection_generation &&
++          g_reliable39.sequence == id_or_seq)
++        {
++          __atomic_fetch_add(&g_reliable39_duplicates, 1,
++                             __ATOMIC_RELAXED);
++        }
++      else
++        {
++          g_reliable39.response[0] = PROBE_RELIABLE39_RESPONSE_TYPE;
++          probe_put_le32(&g_reliable39.response[1], id_or_seq);
++          memcpy(&g_reliable39.response[5], &value[5],
++                 PROBE_RELIABLE39_PAYLOAD_SIZE);
++          probe_put_le16(&g_reliable39.response[PROBE_RELIABLE39_CRC_OFFSET],
++                         probe_crc16_ccitt_false(
++                           g_reliable39.response,
++                           PROBE_RELIABLE39_CRC_OFFSET));
++          g_reliable39.connection_generation = connection_generation;
++          g_reliable39.sequence = id_or_seq;
++          g_reliable39.valid = true;
++          __atomic_fetch_add(&g_reliable39_rx_ok, 1, __ATOMIC_RELAXED);
++        }
++
++      __atomic_fetch_add(&g_reliable39_tx_attempted, 1, __ATOMIC_RELAXED);
++      status = probe_notify(srv_handle, g_reliable39.response,
++                            sizeof(g_reliable39.response));
++      if (status != BT_STATUS_SUCCESS)
++        {
++          __atomic_fetch_add(&g_reliable39_tx_status_nonzero, 1,
++                             __ATOMIC_RELAXED);
++        }
++
++      return;
++    }
++  else if (length >= 1 && value[0] == PROBE_GESTURE_TIME_SYNC_TYPE)
++    {
++      if (length != 9)
++        {
++          printf("openvela_ble_probe: invalid gesture time sync length=%u\n",
++                 length);
++          return;
++        }
++
++      probe_gesture_time_sync(&value[1]);
++      return;
++    }
++  else if (length >= 1 && value[0] == PROBE_GESTURE_ACK_TYPE)
++    {
++      if (length != 3)
++        {
++          printf("openvela_ble_probe: invalid gesture ACK length=%u\n",
++                 length);
++          return;
++        }
++
++      probe_gesture_ack(probe_get_le16(&value[1]),
++                        connection_generation);
++      return;
++    }
++  else if (length >= 1 && value[0] == PROBE_GESTURE_INJECT_TYPE)
++    {
++      if (length != 5)
++        {
++          printf("openvela_ble_probe: invalid gesture inject length=%u\n",
++                 length);
++          return;
++        }
++
++#if BLE_PROBE_GESTURE_TEST_INJECT
++      {
++        struct probe_game_command command;
++
++        command.connection_generation = connection_generation;
++        command.gesture = value[1];
++        command.confidence = value[2];
++        command.flags = value[3];
++        command.battery = value[4];
++        printf("openvela_ble_probe: gesture test inject game_queue=%d\n",
++               probe_game_submit_command(&command));
++      }
++#else
++      printf("openvela_ble_probe: gesture test inject disabled\n");
++#endif
++      return;
++    }
++  else if (length >= 1 && value[0] == 0x10)
++    {
++      if (length < 5)
++        {
++          printf("openvela_ble_probe: short START length=%u\n", length);
++          return;
++        }
++
++      id_or_seq = probe_get_le32(&value[1]);
++      memset(&g_throughput, 0, sizeof(g_throughput));
++      g_throughput.active = true;
++      g_throughput.test_id = id_or_seq;
++
++      response[0] = 0x90;
++      probe_put_le32(&response[1], id_or_seq);
++      printf("openvela_ble_probe: throughput START test_id=%lu\n",
++             (unsigned long)id_or_seq);
++      status = probe_notify(srv_handle, response, 5);
++      printf("openvela_ble_probe: throughput START_ACK status=%d\n", status);
++      return;
++    }
++  else if (length >= 1 && value[0] == 0x11)
++    {
++      if (length < 5)
++        {
++          printf("openvela_ble_probe: short DATA length=%u\n", length);
++          return;
++        }
++
++      if (!g_throughput.active)
++        {
++          printf("openvela_ble_probe: DATA without active test\n");
++          return;
++        }
++
++      seq = probe_get_le32(&value[1]);
++      if (!g_throughput.timing)
++        {
++          if (probe_get_monotonic_us(&g_throughput.started_us) == 0)
++            {
++              g_throughput.timing = true;
++            }
++          else
++            {
++              printf("openvela_ble_probe: monotonic clock failed\n");
++            }
++        }
++
++      g_throughput.frames++;
++      g_throughput.payload_bytes += length - 5;
++
++      if (!g_throughput.have_expected_seq)
++        {
++          g_throughput.expected_seq = seq + 1;
++          g_throughput.have_expected_seq = true;
++        }
++      else if (seq == g_throughput.expected_seq)
++        {
++          g_throughput.expected_seq++;
++        }
++      else if (seq > g_throughput.expected_seq)
++        {
++          g_throughput.missing_frames += seq - g_throughput.expected_seq;
++          g_throughput.expected_seq = seq + 1;
++        }
++      else
++        {
++          g_throughput.missing_frames++;
++        }
++
++      return;
++    }
++  else if (length >= 1 && value[0] == 0x12)
++    {
++      if (length < 5)
++        {
++          printf("openvela_ble_probe: short END length=%u\n", length);
++          return;
++        }
++
++      id_or_seq = probe_get_le32(&value[1]);
++      if (!g_throughput.active || id_or_seq != g_throughput.test_id)
++        {
++          printf("openvela_ble_probe: unmatched END test_id=%lu\n",
++                 (unsigned long)id_or_seq);
++          return;
++        }
++
++      elapsed_ms = g_throughput.timing ?
++                   probe_elapsed_ms(g_throughput.started_us) : 0;
++      response[0] = 0x91;
++      probe_put_le32(&response[1], g_throughput.test_id);
++      probe_put_le32(&response[5], g_throughput.frames);
++      probe_put_le32(&response[9], g_throughput.payload_bytes);
++      probe_put_le32(&response[13], elapsed_ms);
++      probe_put_le32(&response[17], g_throughput.missing_frames);
++
++      printf("openvela_ble_probe: throughput END test_id=%lu frames=%lu "
++             "payload=%lu elapsed_ms=%lu missing=%lu\n",
++             (unsigned long)g_throughput.test_id,
++             (unsigned long)g_throughput.frames,
++             (unsigned long)g_throughput.payload_bytes,
++             (unsigned long)elapsed_ms,
++             (unsigned long)g_throughput.missing_frames);
++      status = probe_notify(srv_handle, response, sizeof(response));
++      printf("openvela_ble_probe: throughput REPORT status=%d\n", status);
++      probe_print_rx_queue_stats();
++      memset(&g_throughput, 0, sizeof(g_throughput));
++      return;
++    }
++  else
++    {
++      reply = g_error;
++      reply_len = sizeof(g_error);
++      printf("openvela_ble_probe: RX unknown command\n");
++    }
++
++  status = probe_notify(srv_handle, reply, reply_len);
++  printf("openvela_ble_probe: TX notify status=%d\n", status);
++}
++
++static uint16_t probe_rx_written(gatts_handle_t srv_handle,
++                                 bt_address_t *addr,
++                                 uint16_t attr_handle,
++                                 const uint8_t *value,
++                                 uint16_t length,
++                                 uint16_t offset)
++{
++  struct probe_rx_slot_s *slot;
++  uint32_t generation;
++  uint32_t head;
++  uint32_t tail;
++  uint32_t used;
++
++  (void)srv_handle;
++  (void)attr_handle;
++
++  if (offset != 0 || length > PROBE_RX_FRAME_MAX)
++    {
++      __atomic_fetch_add(&g_rx_invalid_length, 1, __ATOMIC_RELAXED);
++      return 0;
++    }
++
++  generation = __atomic_load_n(&g_connection_generation, __ATOMIC_ACQUIRE);
++  head = __atomic_load_n(&g_rx_head, __ATOMIC_RELAXED);
++  tail = __atomic_load_n(&g_rx_tail, __ATOMIC_ACQUIRE);
++  used = head - tail;
++  if (used >= PROBE_RX_QUEUE_DEPTH)
++    {
++      __atomic_fetch_add(&g_rx_drop_full, 1, __ATOMIC_RELAXED);
++      return 0;
++    }
++
++  slot = &g_rx_queue[head % PROBE_RX_QUEUE_DEPTH];
++  memcpy(&slot->addr, addr, sizeof(slot->addr));
++  slot->connection_generation = generation;
++  slot->length = length;
++  slot->offset = offset;
++  memcpy(slot->value, value, length);
++  used++;
++  if (used >
++      __atomic_load_n(&g_rx_high_water, __ATOMIC_RELAXED))
++    {
++      __atomic_store_n(&g_rx_high_water, used, __ATOMIC_RELAXED);
++    }
++
++  /* Publish only after the complete slot is visible to the consumer. */
++
++  __atomic_store_n(&g_rx_head, head + 1, __ATOMIC_RELEASE);
++
++  __atomic_fetch_add(&g_rx_enqueued, 1, __ATOMIC_RELAXED);
++  sem_post(&g_rx_sem);
++  return length;
++}
++
++static void *probe_communication_thread(void *arg)
++{
++  struct probe_game_result game_result;
++  struct probe_rx_slot_s slot;
++  bt_address_t peer_addr;
++  uint32_t generation;
++  uint32_t active_generation = 0;
++  uint32_t head;
++  uint32_t tail;
++  bool connected;
++  bool have_slot;
++  int wait_status;
++  struct timespec wait_until;
++
++  (void)arg;
++
++  for (;;)
++    {
++      if (clock_gettime(CLOCK_REALTIME, &wait_until) < 0)
++        {
++          continue;
++        }
++
++      wait_until.tv_nsec += PROBE_GESTURE_WORKER_POLL_MS * 1000000L;
++      if (wait_until.tv_nsec >= 1000000000L)
++        {
++          wait_until.tv_sec++;
++          wait_until.tv_nsec -= 1000000000L;
++        }
++
++      do
++        {
++          wait_status = sem_timedwait(&g_rx_sem, &wait_until);
++        }
++      while (wait_status < 0 && errno == EINTR);
++
++      if (wait_status < 0 && errno != ETIMEDOUT)
++        {
++          continue;
++        }
++
++      tail = __atomic_load_n(&g_rx_tail, __ATOMIC_RELAXED);
++      head = __atomic_load_n(&g_rx_head, __ATOMIC_ACQUIRE);
++      have_slot = tail != head;
++      if (have_slot)
++        {
++          memcpy(&slot, &g_rx_queue[tail % PROBE_RX_QUEUE_DEPTH],
++                 sizeof(slot));
++          __atomic_store_n(&g_rx_tail, tail + 1, __ATOMIC_RELEASE);
++        }
++
++      pthread_mutex_lock(&g_state_lock);
++      generation = __atomic_load_n(&g_connection_generation,
++                                   __ATOMIC_ACQUIRE);
++      connected = g_peer_connected;
++      memcpy(&peer_addr, &g_peer_addr, sizeof(peer_addr));
++      pthread_mutex_unlock(&g_state_lock);
++
++      if (generation != active_generation)
++        {
++          memset(&g_throughput, 0, sizeof(g_throughput));
++          memset(&g_reliable39, 0, sizeof(g_reliable39));
++          active_generation = generation;
++        }
++
++      if (have_slot &&
++          (!connected || slot.connection_generation != generation ||
++           memcmp(&slot.addr, &peer_addr, sizeof(peer_addr)) != 0))
++        {
++          __atomic_fetch_add(&g_rx_stale, 1, __ATOMIC_RELAXED);
++          have_slot = false;
++        }
++
++      if (have_slot)
++        {
++          probe_process_frame(g_service_handle, slot.value, slot.length,
++                              generation);
++        }
++
++      while (probe_game_take_ble_result(&game_result))
++        {
++          int publish_status;
++
++          if (!connected || game_result.connection_generation != generation)
++            {
++              printf("openvela_ble_probe: stale game result dropped"
++                     " generation=%lu current=%lu\n",
++                     (unsigned long)game_result.connection_generation,
++                     (unsigned long)generation);
++              continue;
++            }
++
++          publish_status = probe_publish_gesture(game_result.gesture,
++                                                 game_result.confidence,
++                                                 game_result.flags,
++                                                 game_result.battery,
++                                                 game_result.monotonic_us);
++
++          printf("openvela_ble_probe: game result publish gesture=%u"
++                 " session=%lu combo=%lu status=%d\n",
++                 game_result.gesture,
++                 (unsigned long)game_result.game_session,
++                 (unsigned long)game_result.combo, publish_status);
++        }
++
++      probe_process_gesture_tx();
++    }
++
++  return NULL;
++}
++
++static gatt_attr_db_t g_attr_db[] =
++{
++  GATT_H_PRIMARY_SERVICE(BT_UUID_DECLARE_16(PROBE_SERVICE_UUID),
++                         PROBE_SERVICE_HANDLE),
++
++  GATT_H_CHARACTERISTIC_USER_RSP(
++    BT_UUID_DECLARE_16(PROBE_RX_UUID),
++    GATT_PROP_WRITE | GATT_PROP_WRITE_NR,
++    GATT_PERM_WRITE,
++    NULL, probe_rx_written, PROBE_RX_HANDLE),
++
++  GATT_H_CHARACTERISTIC_AUTO_RSP(
++    BT_UUID_DECLARE_16(PROBE_TX_UUID),
++    GATT_PROP_NOTIFY, 0, NULL, 0, PROBE_TX_HANDLE),
++
++  GATT_H_CCCD(GATT_PERM_READ | GATT_PERM_WRITE,
++              probe_tx_cccd_written, PROBE_TX_CCCD_HANDLE),
++};
++
++static gatt_srv_db_t g_service_db =
++{
++  .attr_num = sizeof(g_attr_db) / sizeof(g_attr_db[0]),
++  .attr_db = g_attr_db,
++};
++
++static void on_gatts_connected(gatts_handle_t srv_handle, bt_address_t *addr)
++{
++  (void)srv_handle;
++
++  pthread_mutex_lock(&g_state_lock);
++  __atomic_add_fetch(&g_connection_generation, 1, __ATOMIC_RELEASE);
++  __atomic_store_n(&g_rx_enqueued, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_rx_invalid_length, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_rx_drop_lock_busy, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_rx_drop_full, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_rx_high_water, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_rx_stale, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_reliable39_rx_ok, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_reliable39_bad_length, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_reliable39_bad_crc, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_reliable39_duplicates, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_reliable39_tx_attempted, 0, __ATOMIC_RELAXED);
++  __atomic_store_n(&g_reliable39_tx_status_nonzero, 0, __ATOMIC_RELAXED);
++  memset(g_gesture_queue, 0, sizeof(g_gesture_queue));
++  g_gesture_rx_head = 0;
++  g_gesture_rx_tail = 0;
++  g_gesture_next_packet_id = 1;
++  g_gesture_time_synced = false;
++  g_gesture_sync_unix_ms = 0;
++  g_gesture_sync_monotonic_us = 0;
++  g_gesture_enqueued = 0;
++  g_gesture_queue_full = 0;
++  g_gesture_acked = 0;
++  g_gesture_retransmitted = 0;
++  g_gesture_dropped = 0;
++  g_gesture_tx_status_nonzero = 0;
++  memcpy(&g_peer_addr, addr, sizeof(g_peer_addr));
++  g_notify_enabled = false;
++  g_phy_read_requested = false;
++  g_phy_update_requested = false;
++  g_phy_update_pending = false;
++  g_peer_connected = true;
++  g_adv_restart_pending = false;
++  g_adv_restart_delay_armed = false;
++  g_adv_restart_attempts = 0;
++#if BLE_PROBE_ENABLE_AUTO_2M_PHY
++  g_phy_read_pending = true;
++#else
++  g_phy_read_pending = false;
++#endif
++  pthread_mutex_unlock(&g_state_lock);
++  printf("openvela_ble_probe: GATT client connected\n");
++#if !BLE_PROBE_ENABLE_AUTO_2M_PHY
++  printf("openvela_ble_probe: automatic 2M PHY request disabled\n");
++#endif
++}
++
++static void on_gatts_disconnected(gatts_handle_t srv_handle,
++                                  bt_address_t *addr)
++{
++  (void)srv_handle;
++  (void)addr;
++
++  pthread_mutex_lock(&g_state_lock);
++  __atomic_add_fetch(&g_connection_generation, 1, __ATOMIC_RELEASE);
++  g_peer_connected = false;
++  g_notify_enabled = false;
++  g_phy_read_pending = false;
++  g_phy_update_pending = false;
++  g_phy_read_requested = false;
++  g_phy_update_requested = false;
++#if BLE_PROBE_IMU_DRDY_START_ON_TX_SUBSCRIBE
++  if (!g_imu_raw_launch_attempted && !g_imu_raw_started)
++    {
++      g_imu_raw_launch_pending = false;
++    }
++#endif
++  memset(g_gesture_queue, 0, sizeof(g_gesture_queue));
++  g_gesture_rx_head = 0;
++  g_gesture_rx_tail = 0;
++  g_gesture_time_synced = false;
++  g_gesture_sync_unix_ms = 0;
++  g_gesture_sync_monotonic_us = 0;
++  memset(&g_peer_addr, 0, sizeof(g_peer_addr));
++  g_adv_restart_pending = true;
++  g_adv_restart_delay_armed = false;
++  g_adv_restart_attempts = 0;
++  pthread_mutex_unlock(&g_state_lock);
++  sem_post(&g_rx_sem);
++  printf("openvela_ble_probe: GATT client disconnected\n");
++  probe_print_rx_queue_stats();
++  probe_print_reliable39_stats();
++  probe_print_gesture_stats();
++}
++
++static void on_attr_table_added(gatts_handle_t srv_handle,
++                                gatt_status_t status,
++                                uint16_t attr_handle)
++{
++  (void)srv_handle;
++
++  printf("openvela_ble_probe: GATT table status=%d handle=%u\n",
++         status, attr_handle);
++}
++
++static void on_notify_complete(gatts_handle_t srv_handle, bt_address_t *addr,
++                               gatt_status_t status, uint16_t attr_handle)
++{
++  (void)srv_handle;
++  (void)addr;
++
++  printf("openvela_ble_probe: notify status=%d handle=%u\n",
++         status, attr_handle);
++}
++
++static void on_mtu_changed(gatts_handle_t srv_handle, bt_address_t *addr,
++                           uint32_t mtu)
++{
++  (void)srv_handle;
++  (void)addr;
++
++  printf("openvela_ble_probe: MTU=%lu\n", (unsigned long)mtu);
++}
++
++static void on_phy_read(gatts_handle_t srv_handle, bt_address_t *addr,
++                        ble_phy_type_t tx_phy, ble_phy_type_t rx_phy)
++{
++  (void)srv_handle;
++
++  printf("openvela_ble_probe: PHY current tx=%d rx=%d\n",
++         tx_phy, rx_phy);
++
++#if BLE_PROBE_ENABLE_AUTO_2M_PHY
++  pthread_mutex_lock(&g_state_lock);
++  if (g_peer_connected && g_phy_read_requested &&
++      !g_phy_update_requested &&
++      memcmp(&g_peer_addr, addr, sizeof(g_peer_addr)) == 0)
++    {
++      g_phy_update_pending = true;
++    }
++  pthread_mutex_unlock(&g_state_lock);
++#else
++  (void)addr;
++#endif
++}
++
++static void on_phy_updated(gatts_handle_t srv_handle, bt_address_t *addr,
++                           gatt_status_t status, ble_phy_type_t tx_phy,
++                           ble_phy_type_t rx_phy)
++{
++  bool requested;
++
++  (void)srv_handle;
++  (void)addr;
++
++  pthread_mutex_lock(&g_state_lock);
++  requested = g_phy_update_requested;
++  pthread_mutex_unlock(&g_state_lock);
++
++  printf("openvela_ble_probe: PHY updated status=%d tx=%d rx=%d "
++         "requested=%d\n",
++         status, tx_phy, rx_phy, requested);
++}
++
++static void on_conn_param_changed(gatts_handle_t srv_handle,
++                                  bt_address_t *addr,
++                                  uint16_t connection_interval,
++                                  uint16_t peripheral_latency,
++                                  uint16_t supervision_timeout)
++{
++  (void)srv_handle;
++  (void)addr;
++
++  printf("openvela_ble_probe: connection params interval=%u latency=%u "
++         "timeout=%u\n",
++         connection_interval, peripheral_latency, supervision_timeout);
++}
++
++static const gatts_callbacks_t g_gatts_callbacks =
++{
++  .size = sizeof(g_gatts_callbacks),
++  .on_connected = on_gatts_connected,
++  .on_disconnected = on_gatts_disconnected,
++  .on_attr_table_added = on_attr_table_added,
++  .on_notify_complete = on_notify_complete,
++  .on_mtu_changed = on_mtu_changed,
++  .on_phy_read = on_phy_read,
++  .on_phy_updated = on_phy_updated,
++  .on_conn_param_changed = on_conn_param_changed,
++};
++
++static int init_gatt_service(void)
++{
++  bt_status_t status;
++
++  status = bt_gatts_register_service(g_instance, &g_service_handle,
++                                     (gatts_callbacks_t *)&g_gatts_callbacks);
++  if (status != BT_STATUS_SUCCESS || g_service_handle == NULL)
++    {
++      printf("openvela_ble_probe: GATT register failed:%d\n", status);
++      return -1;
++    }
++
++  status = bt_gatts_add_attr_table(g_service_handle, &g_service_db);
++  if (status != BT_STATUS_SUCCESS)
++    {
++      printf("openvela_ble_probe: GATT table add failed:%d\n", status);
++      return -1;
++    }
++
++  printf("openvela_ble_probe: GATT service FFF0, RX FFF1, TX FFF2\n");
++  return 0;
++}
++
++static void on_adapter_state_changed(void *cookie, bt_adapter_state_t state)
++{
++  (void)cookie;
++
++  printf("openvela_ble_probe: adapter state=%d\n", state);
++
++  if (!g_ble_on &&
++      (state == BT_ADAPTER_STATE_BLE_ON ||
++       state == BT_ADAPTER_STATE_ON))
++    {
++      g_ble_on = true;
++      sem_post(&g_ble_on_sem);
++    }
++}
++
++static const adapter_callbacks_t g_adapter_callbacks =
++{
++  .on_adapter_state_changed = on_adapter_state_changed,
++};
++
++static void on_advertising_start(bt_advertiser_t *adv, uint8_t id,
++                                 uint8_t status)
++{
++  bool retries_exhausted = false;
++  bool log_imu_launch_check = false;
++  bool imu_detected = false;
++  bool imu_started = false;
++
++  pthread_mutex_lock(&g_state_lock);
++  g_adv_start_inflight = false;
++  g_adv_start_callback_seen = true;
++  g_adv_start_callback_status = status;
++  if (status == 0)
++    {
++      g_adv_restart_pending = false;
++      g_adv_restart_delay_armed = false;
++      g_adv_restart_attempts = 0;
++      if (!g_imu_raw_launch_check_logged)
++        {
++          g_imu_raw_launch_check_logged = true;
++          log_imu_launch_check = true;
++          imu_detected = g_imu_detected;
++          imu_started = g_imu_raw_started;
++        }
++
++      if (id == 1 && !g_visible_game_launch_attempted)
++        {
++          g_visible_game_launch_pending = true;
++        }
++
++#if !BLE_PROBE_IMU_DRDY_START_ON_TX_SUBSCRIBE
++      if (id == 1 && g_imu_detected && !g_imu_raw_launch_attempted &&
++          !g_imu_raw_started)
++        {
++          g_imu_raw_launch_pending = true;
++        }
++#endif
++    }
++  else
++    {
++      if (adv == g_advertiser)
++        {
++          g_advertiser = NULL;
++        }
++
++      if (g_adv_restart_pending)
++        {
++          g_adv_restart_delay_armed = false;
++          if (g_adv_restart_attempts >= PROBE_ADV_RESTART_MAX_ATTEMPTS)
++            {
++              g_adv_restart_pending = false;
++              retries_exhausted = true;
++            }
++        }
++    }
++
++  pthread_mutex_unlock(&g_state_lock);
++  syslog(LOG_INFO, "ov_ble_adv_diag: probe adv: callback id=%u status=%u\n",
++         id, status);
++  printf("openvela_ble_probe: advertising start id=%u status=%u\n",
++         id, status);
++  if (log_imu_launch_check)
++    {
++      printf("openvela_ble_probe: IMU raw launch check detected=%d"
++             " started=%d adv_id=%u status=%u\n",
++             imu_detected, imu_started, id, status);
++    }
++  if (retries_exhausted)
++    {
++      printf("openvela_ble_probe: advertising restart failed after %u "
++             "attempts\n", PROBE_ADV_RESTART_MAX_ATTEMPTS);
++    }
++}
++
++static void on_advertising_stopped(bt_advertiser_t *adv, uint8_t id)
++{
++  printf("openvela_ble_probe: advertising stopped id=%u\n", id);
++
++  pthread_mutex_lock(&g_state_lock);
++  if (adv == g_advertiser)
++    {
++      g_advertiser = NULL;
++    }
++  pthread_mutex_unlock(&g_state_lock);
++}
++
++static advertiser_callback_t g_advertiser_callbacks =
++{
++  .size = sizeof(g_advertiser_callbacks),
++  .on_advertising_start = on_advertising_start,
++  .on_advertising_stopped = on_advertising_stopped,
++};
++
++static int start_advertising(void)
++{
++  ble_adv_params_t params;
++  bt_advertiser_t *advertiser;
++  bool callback_failed;
++
++  pthread_mutex_lock(&g_state_lock);
++  if (g_advertiser != NULL || g_adv_start_inflight || g_peer_connected)
++    {
++      pthread_mutex_unlock(&g_state_lock);
++      return 0;
++    }
++
++  g_adv_start_inflight = true;
++  g_adv_start_callback_seen = false;
++  pthread_mutex_unlock(&g_state_lock);
++
++  memset(&params, 0, sizeof(params));
++  params.adv_type = BT_LE_LEGACY_ADV_IND;
++  params.interval = 320;
++  params.duration = 0;
++  params.channel_map = BT_LE_ADV_CHANNEL_DEFAULT;
++  params.filter_policy = BT_LE_ADV_FILTER_WHITE_LIST_FOR_NONE;
++
++  if (g_adv_data == NULL || g_scan_rsp_data == NULL)
++    {
++      g_adv_data = advertiser_data_new();
++      g_scan_rsp_data = advertiser_data_new();
++      if (g_adv_data == NULL || g_scan_rsp_data == NULL)
++        {
++          printf("openvela_ble_probe: advertiser_data_new failed\n");
++          pthread_mutex_lock(&g_state_lock);
++          g_adv_start_inflight = false;
++          pthread_mutex_unlock(&g_state_lock);
++          return -1;
++        }
++
++      advertiser_data_set_flags(g_adv_data,
++                                BT_AD_FLAG_GENERAL_DISCOVERABLE |
++                                BT_AD_FLAG_BREDR_NOT_SUPPORT);
++      advertiser_data_set_name(g_scan_rsp_data, "ov_ble_probe");
++
++      g_adv_payload = advertiser_data_build(g_adv_data,
++                                            &g_adv_payload_len);
++      g_scan_rsp_payload = advertiser_data_build(g_scan_rsp_data,
++                                                 &g_scan_rsp_payload_len);
++      if (g_adv_payload == NULL || g_scan_rsp_payload == NULL)
++        {
++          printf("openvela_ble_probe: advertiser_data_build failed\n");
++          pthread_mutex_lock(&g_state_lock);
++          g_adv_start_inflight = false;
++          pthread_mutex_unlock(&g_state_lock);
++          return -1;
++        }
++    }
++
++  syslog(LOG_INFO, "ov_ble_adv_diag: probe adv: request begin\n");
++  advertiser = bt_le_start_advertising(g_instance, &params,
++                                       g_adv_payload, g_adv_payload_len,
++                                       g_scan_rsp_payload,
++                                       g_scan_rsp_payload_len,
++                                       &g_advertiser_callbacks);
++  syslog(LOG_INFO, "ov_ble_adv_diag: probe adv: request returned status=%d\n",
++         advertiser != NULL ? 0 : -1);
++
++  pthread_mutex_lock(&g_state_lock);
++  callback_failed = g_adv_start_callback_seen &&
++                    g_adv_start_callback_status != 0;
++  if (advertiser != NULL && !callback_failed)
++    {
++      g_advertiser = advertiser;
++    }
++  else
++    {
++      g_adv_start_inflight = false;
++    }
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (advertiser == NULL)
++    {
++      printf("openvela_ble_probe: bt_le_start_advertising failed\n");
++      return -1;
++    }
++
++  printf("openvela_ble_probe: advertising as ov_ble_probe\n");
++  return 0;
++}
++
++static void process_advertising_restart(void)
++{
++  static const uint16_t retry_delays_ms[PROBE_ADV_RESTART_MAX_ATTEMPTS] =
++    {
++      200, 500, 1000
++    };
++  uint64_t now_ms;
++  uint16_t delay_ms = 0;
++  uint8_t attempt = 0;
++  bool start_now = false;
++  bool log_scheduled = false;
++  bool retries_exhausted = false;
++  int ret;
++
++  if (probe_monotonic_ms(&now_ms) < 0)
++    {
++      return;
++    }
++
++  pthread_mutex_lock(&g_state_lock);
++  if (!g_adv_restart_pending || g_peer_connected ||
++      g_advertiser != NULL || g_adv_start_inflight)
++    {
++      pthread_mutex_unlock(&g_state_lock);
++      return;
++    }
++
++  if (g_adv_restart_attempts >= PROBE_ADV_RESTART_MAX_ATTEMPTS)
++    {
++      g_adv_restart_pending = false;
++      retries_exhausted = true;
++    }
++  else if (!g_adv_restart_delay_armed)
++    {
++      delay_ms = retry_delays_ms[g_adv_restart_attempts];
++      g_adv_restart_due_ms = now_ms + delay_ms;
++      g_adv_restart_delay_armed = true;
++      log_scheduled = true;
++    }
++  else if (now_ms >= g_adv_restart_due_ms)
++    {
++      g_adv_restart_delay_armed = false;
++      g_adv_restart_attempts++;
++      attempt = g_adv_restart_attempts;
++      start_now = true;
++    }
++
++  pthread_mutex_unlock(&g_state_lock);
++
++  if (log_scheduled)
++    {
++      printf("openvela_ble_probe: advertising restart scheduled in %u ms\n",
++             delay_ms);
++    }
++
++  if (retries_exhausted)
++    {
++      printf("openvela_ble_probe: advertising restart failed after %u "
++             "attempts\n", PROBE_ADV_RESTART_MAX_ATTEMPTS);
++      return;
++    }
++
++  if (!start_now)
++    {
++      return;
++    }
++
++  printf("openvela_ble_probe: restart advertising after disconnect "
++         "attempt=%u\n", attempt);
++  ret = start_advertising();
++  if (ret < 0)
++    {
++      pthread_mutex_lock(&g_state_lock);
++      if (g_adv_restart_pending)
++        {
++          if (g_adv_restart_attempts >= PROBE_ADV_RESTART_MAX_ATTEMPTS)
++            {
++              g_adv_restart_pending = false;
++              retries_exhausted = true;
++            }
++          else
++            {
++              g_adv_restart_delay_armed = false;
++            }
++        }
++      pthread_mutex_unlock(&g_state_lock);
++
++      if (retries_exhausted)
++        {
++          printf("openvela_ble_probe: advertising restart failed after %u "
++                 "attempts\n", PROBE_ADV_RESTART_MAX_ATTEMPTS);
++        }
++    }
++}
++
++int main(int argc, char *argv[])
++{
++#if BLE_PROBE_ENABLE_AUTO_2M_PHY
++  bt_address_t peer_addr;
++#endif
++  bt_status_t status;
++  uint64_t startup_target_ms;
++#if BLE_PROBE_ENABLE_AUTO_2M_PHY
++  uint32_t generation;
++  bool do_phy_read;
++  bool do_phy_update;
++#endif
++  int ret;
++
++  if (probe_parse_startup_uptime(argc, argv, &startup_target_ms) < 0)
++    {
++      return 1;
++    }
++
++  if (probe_wait_for_ble_startup(startup_target_ms) < 0)
++    {
++      return 1;
++    }
++
++  g_imu_detected = probe_detect_imu();
++
++  sem_init(&g_ble_on_sem, 0, 0);
++
++  g_instance = bluetooth_create_instance();
++  if (g_instance == NULL)
++    {
++      printf("openvela_ble_probe: bluetooth_create_instance failed\n");
++      return 1;
++    }
++
++  if (bt_adapter_register_callback(g_instance, &g_adapter_callbacks) == NULL)
++    {
++      printf("openvela_ble_probe: callback registration failed\n");
++      return 1;
++    }
++
++  status = bt_adapter_enable_le(g_instance);
++  if (status != BT_STATUS_SUCCESS && status != BT_STATUS_DONE)
++    {
++      printf("openvela_ble_probe: bt_adapter_enable_le failed:%d\n",
++             status);
++      return 1;
++    }
++
++  if (bt_adapter_get_state(g_instance) != BT_ADAPTER_STATE_BLE_ON &&
++      bt_adapter_get_state(g_instance) != BT_ADAPTER_STATE_ON)
++    {
++      printf("openvela_ble_probe: waiting for BLE adapter\n");
++      sem_wait(&g_ble_on_sem);
++    }
++
++  ret = pthread_mutex_init(&g_state_lock, NULL);
++  if (ret != 0)
++    {
++      printf("openvela_ble_probe: state mutex init failed:%d\n", ret);
++      return 1;
++    }
++
++  if (sem_init(&g_rx_sem, 0, 0) < 0)
++    {
++      printf("openvela_ble_probe: RX semaphore init failed\n");
++      return 1;
++    }
++
++  if (init_gatt_service() < 0)
++    {
++      return 1;
++    }
++
++  ret = pthread_create(&g_communication_thread, NULL,
++                       probe_communication_thread, NULL);
++  if (ret != 0)
++    {
++      printf("openvela_ble_probe: communication thread create failed:%d\n",
++             ret);
++      return 1;
++    }
++
++  printf("openvela_ble_probe: delaying advertising 100 ms after GATT "
++         "table setup\n");
++  usleep(100000);
++
++  if (start_advertising() < 0)
++    {
++      return 1;
++    }
++
++  for (;;)
++    {
++      usleep(100000);
++
++      probe_launch_visible_game_if_pending();
++      probe_launch_imu_raw_if_pending();
++      process_advertising_restart();
++
++#if BLE_PROBE_ENABLE_AUTO_2M_PHY
++      do_phy_read = false;
++      do_phy_update = false;
++
++      pthread_mutex_lock(&g_state_lock);
++      generation = __atomic_load_n(&g_connection_generation,
++                                   __ATOMIC_ACQUIRE);
++      if (g_peer_connected && g_phy_read_pending &&
++          !g_phy_read_requested)
++        {
++          g_phy_read_pending = false;
++          g_phy_read_requested = true;
++          memcpy(&peer_addr, &g_peer_addr, sizeof(peer_addr));
++          do_phy_read = true;
++        }
++      else if (g_peer_connected && g_phy_update_pending &&
++               !g_phy_update_requested)
++        {
++          g_phy_update_pending = false;
++          g_phy_update_requested = true;
++          memcpy(&peer_addr, &g_peer_addr, sizeof(peer_addr));
++          do_phy_update = true;
++        }
++      pthread_mutex_unlock(&g_state_lock);
++
++      if (do_phy_read)
++        {
++          status = bt_gatts_read_phy(g_service_handle, &peer_addr);
++          printf("openvela_ble_probe: PHY read request status=%d\n",
++                 status);
++
++          if (status == BT_STATUS_SUCCESS)
++            {
++              pthread_mutex_lock(&g_state_lock);
++              if (g_peer_connected &&
++                  generation ==
++                  __atomic_load_n(&g_connection_generation,
++                                  __ATOMIC_ACQUIRE))
++                {
++                  g_phy_update_pending = true;
++                }
++              pthread_mutex_unlock(&g_state_lock);
++            }
++
++          continue;
++        }
++
++      if (do_phy_update)
++        {
++          status = bt_gatts_update_phy(g_service_handle, &peer_addr,
++                                       BT_LE_2M_PHY, BT_LE_2M_PHY);
++          printf("openvela_ble_probe: PHY 2M request status=%d\n",
++                 status);
++        }
++#endif
++    }
++}
+diff --git a/examples/openvela_ble_probe/probe_game.c b/examples/openvela_ble_probe/probe_game.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..d7978dfd92b5135a77c523b9d47e77fe4a4f8ddb
+--- /dev/null
++++ b/examples/openvela_ble_probe/probe_game.c
+@@ -0,0 +1,299 @@
++#include <nuttx/config.h>
++
++#include <errno.h>
++#include <inttypes.h>
++#include <pthread.h>
++#include <semaphore.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include <time.h>
++
++#include "probe_game.h"
++#include "probe_ui.h"
++
++#define PROBE_IMU_RING_DEPTH     32
++#define PROBE_COMMAND_RING_DEPTH 16
++#define PROBE_RESULT_RING_DEPTH  16
++
++static struct probe_imu_sample g_imu_ring[PROBE_IMU_RING_DEPTH];
++static struct probe_game_command g_command_ring[PROBE_COMMAND_RING_DEPTH];
++static struct probe_game_result g_result_ring[PROBE_RESULT_RING_DEPTH];
++static uint32_t g_imu_head;
++static uint32_t g_imu_tail;
++static uint32_t g_command_head;
++static uint32_t g_command_tail;
++static uint32_t g_result_head;
++static uint32_t g_result_tail;
++static uint32_t g_imu_ring_full;
++static uint32_t g_imu_gap_samples;
++static uint32_t g_command_ring_full;
++static uint32_t g_result_ring_full;
++static uint32_t g_ui_ring_full;
++static sem_t g_game_sem;
++static pthread_t g_game_thread;
++static bool g_started;
++
++static bool probe_game_take_imu(struct probe_imu_sample *sample)
++{
++  uint32_t tail = __atomic_load_n(&g_imu_tail, __ATOMIC_RELAXED);
++  uint32_t head = __atomic_load_n(&g_imu_head, __ATOMIC_ACQUIRE);
++
++  if (tail == head)
++    {
++      return false;
++    }
++
++  memcpy(sample, &g_imu_ring[tail % PROBE_IMU_RING_DEPTH], sizeof(*sample));
++  __atomic_store_n(&g_imu_tail, tail + 1, __ATOMIC_RELEASE);
++  return true;
++}
++
++static bool probe_game_take_command(struct probe_game_command *command)
++{
++  uint32_t tail = __atomic_load_n(&g_command_tail, __ATOMIC_RELAXED);
++  uint32_t head = __atomic_load_n(&g_command_head, __ATOMIC_ACQUIRE);
++
++  if (tail == head)
++    {
++      return false;
++    }
++
++  memcpy(command, &g_command_ring[tail % PROBE_COMMAND_RING_DEPTH],
++         sizeof(*command));
++  __atomic_store_n(&g_command_tail, tail + 1, __ATOMIC_RELEASE);
++  return true;
++}
++
++static enum probe_judgement_e probe_test_judgement(uint8_t gesture)
++{
++  /* Test-only visible mapping; this is not an action recognition algorithm. */
++
++  if (gesture == 1)
++    {
++      return PROBE_JUDGEMENT_GOOD;
++    }
++
++  if (gesture == 2)
++    {
++      return PROBE_JUDGEMENT_MISS;
++    }
++
++  return PROBE_JUDGEMENT_PERFECT;
++}
++
++static void probe_game_publish_result(const struct probe_game_result *result,
++                                      uint64_t imu_samples,
++                                      uint32_t imu_gaps)
++{
++  struct probe_ui_result ui;
++
++  ui.judgement = probe_test_judgement(result->gesture);
++  ui.combo = result->combo;
++  ui.imu_samples = imu_samples;
++  ui.imu_gaps = imu_gaps;
++
++  probe_local_feedback(result);
++  if (!probe_ui_submit(&ui))
++    {
++      __atomic_fetch_add(&g_ui_ring_full, 1, __ATOMIC_RELAXED);
++    }
++
++  if (!probe_game_submit_judgement(result))
++    {
++      __atomic_fetch_add(&g_result_ring_full, 1, __ATOMIC_RELAXED);
++    }
++}
++
++static void *probe_game_thread(void *arg)
++{
++  struct probe_imu_sample sample;
++  struct probe_game_command command;
++  struct probe_game_result result;
++  uint64_t imu_samples = 0;
++  uint64_t last_sample_us = 0;
++  uint32_t imu_gaps = 0;
++  uint32_t game_session = 1;
++  uint32_t combo = 0;
++
++  (void)arg;
++  printf("openvela_ble_probe: game thread entered\n");
++
++  for (;;)
++    {
++      while (sem_wait(&g_game_sem) < 0 && errno == EINTR)
++        {
++        }
++
++      while (probe_game_take_imu(&sample))
++        {
++          imu_samples++;
++          last_sample_us = sample.monotonic_us;
++          if ((sample.flags & PROBE_IMU_SAMPLE_FLAG_GAP) != 0)
++            {
++              imu_gaps++;
++            }
++        }
++
++      while (probe_game_take_command(&command))
++        {
++          memset(&result, 0, sizeof(result));
++          result.monotonic_us = last_sample_us;
++          result.connection_generation = command.connection_generation;
++          result.gesture = command.gesture;
++          result.confidence = command.confidence;
++          result.flags = command.flags;
++          result.battery = command.battery;
++          result.game_session = game_session;
++          result.timing_error_ms = 0;
++          if (probe_test_judgement(command.gesture) == PROBE_JUDGEMENT_MISS)
++            {
++              combo = 0;
++            }
++          else
++            {
++              combo++;
++            }
++
++          result.combo = combo;
++          probe_game_publish_result(&result, imu_samples, imu_gaps);
++          printf("openvela_ble_probe: game test judgement gesture=%u"
++                 " combo=%lu imu_time_us=%" PRIu64 "\n",
++                 command.gesture, (unsigned long)combo,
++                 last_sample_us);
++        }
++    }
++
++  return NULL;
++}
++
++int probe_game_start(void)
++{
++  int ret;
++
++  if (__atomic_exchange_n(&g_started, true, __ATOMIC_ACQ_REL))
++    {
++      return 0;
++    }
++
++  if (sem_init(&g_game_sem, 0, 0) < 0)
++    {
++      __atomic_store_n(&g_started, false, __ATOMIC_RELEASE);
++      return -errno;
++    }
++
++  ret = pthread_create(&g_game_thread, NULL, probe_game_thread, NULL);
++  if (ret != 0)
++    {
++      sem_destroy(&g_game_sem);
++      __atomic_store_n(&g_started, false, __ATOMIC_RELEASE);
++      return -ret;
++    }
++
++  pthread_detach(g_game_thread);
++  return 0;
++}
++
++bool probe_game_submit_imu(const struct probe_imu_sample *sample)
++{
++  uint32_t head = __atomic_load_n(&g_imu_head, __ATOMIC_RELAXED);
++  uint32_t tail = __atomic_load_n(&g_imu_tail, __ATOMIC_ACQUIRE);
++
++  if (!__atomic_load_n(&g_started, __ATOMIC_ACQUIRE))
++    {
++      return false;
++    }
++
++  if (head - tail >= PROBE_IMU_RING_DEPTH)
++    {
++      __atomic_fetch_add(&g_imu_ring_full, 1, __ATOMIC_RELAXED);
++      return false;
++    }
++
++  memcpy(&g_imu_ring[head % PROBE_IMU_RING_DEPTH], sample, sizeof(*sample));
++  __atomic_store_n(&g_imu_head, head + 1, __ATOMIC_RELEASE);
++  if ((sample->flags & PROBE_IMU_SAMPLE_FLAG_GAP) != 0)
++    {
++      __atomic_fetch_add(&g_imu_gap_samples, 1, __ATOMIC_RELAXED);
++    }
++
++  sem_post(&g_game_sem);
++  return true;
++}
++
++bool probe_game_submit_command(const struct probe_game_command *command)
++{
++  uint32_t head = __atomic_load_n(&g_command_head, __ATOMIC_RELAXED);
++  uint32_t tail = __atomic_load_n(&g_command_tail, __ATOMIC_ACQUIRE);
++
++  if (!__atomic_load_n(&g_started, __ATOMIC_ACQUIRE))
++    {
++      return false;
++    }
++
++  if (head - tail >= PROBE_COMMAND_RING_DEPTH)
++    {
++      __atomic_fetch_add(&g_command_ring_full, 1, __ATOMIC_RELAXED);
++      return false;
++    }
++
++  memcpy(&g_command_ring[head % PROBE_COMMAND_RING_DEPTH], command,
++         sizeof(*command));
++  __atomic_store_n(&g_command_head, head + 1, __ATOMIC_RELEASE);
++  sem_post(&g_game_sem);
++  return true;
++}
++
++bool probe_game_submit_judgement(const struct probe_game_result *result)
++{
++  uint32_t head = __atomic_load_n(&g_result_head, __ATOMIC_RELAXED);
++  uint32_t tail = __atomic_load_n(&g_result_tail, __ATOMIC_ACQUIRE);
++
++  if (!__atomic_load_n(&g_started, __ATOMIC_ACQUIRE))
++    {
++      return false;
++    }
++
++  if (head - tail >= PROBE_RESULT_RING_DEPTH)
++    {
++      return false;
++    }
++
++  memcpy(&g_result_ring[head % PROBE_RESULT_RING_DEPTH], result,
++         sizeof(*result));
++  __atomic_store_n(&g_result_head, head + 1, __ATOMIC_RELEASE);
++  return true;
++}
++
++bool probe_game_take_ble_result(struct probe_game_result *result)
++{
++  uint32_t tail = __atomic_load_n(&g_result_tail, __ATOMIC_RELAXED);
++  uint32_t head = __atomic_load_n(&g_result_head, __ATOMIC_ACQUIRE);
++
++  if (tail == head)
++    {
++      return false;
++    }
++
++  memcpy(result, &g_result_ring[tail % PROBE_RESULT_RING_DEPTH],
++         sizeof(*result));
++  __atomic_store_n(&g_result_tail, tail + 1, __ATOMIC_RELEASE);
++  return true;
++}
++
++void probe_game_get_imu_stats(struct probe_game_imu_stats *stats)
++{
++  stats->ring_full = __atomic_load_n(&g_imu_ring_full, __ATOMIC_RELAXED);
++  stats->gap_samples = __atomic_load_n(&g_imu_gap_samples,
++                                       __ATOMIC_RELAXED);
++}
++
++void probe_local_feedback(const struct probe_game_result *result)
++{
++  /* Intentionally empty: PA32 polarity/RGB mapping and motor hardware are
++   * not established for this board revision.
++   */
++
++  (void)result;
++}
+diff --git a/examples/openvela_ble_probe/probe_game.h b/examples/openvela_ble_probe/probe_game.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9d74abbc6b8bef4e947e0fbe8caf60946a0fbdf
+--- /dev/null
++++ b/examples/openvela_ble_probe/probe_game.h
+@@ -0,0 +1,55 @@
++#ifndef __APPS_EXAMPLES_OPENVELA_BLE_PROBE_PROBE_GAME_H
++#define __APPS_EXAMPLES_OPENVELA_BLE_PROBE_PROBE_GAME_H
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#define PROBE_IMU_SAMPLE_FLAG_ESTIMATED_TIME (1u << 0)
++#define PROBE_IMU_SAMPLE_FLAG_GAP            (1u << 1)
++
++struct probe_imu_sample
++{
++  uint64_t monotonic_us;
++  uint32_t sequence;
++  int16_t gyro[3];
++  int16_t accel[3];
++  uint16_t flags;
++};
++
++struct probe_game_command
++{
++  uint32_t connection_generation;
++  uint8_t gesture;
++  uint8_t confidence;
++  uint8_t flags;
++  uint8_t battery;
++};
++
++struct probe_game_result
++{
++  uint64_t monotonic_us;
++  uint32_t connection_generation;
++  uint8_t gesture;
++  uint8_t confidence;
++  uint8_t flags;
++  uint8_t battery;
++  uint32_t game_session;
++  uint32_t combo;
++  int32_t timing_error_ms;
++};
++
++struct probe_game_imu_stats
++{
++  uint32_t ring_full;
++  uint32_t gap_samples;
++};
++
++int probe_game_start(void);
++bool probe_game_submit_imu(const struct probe_imu_sample *sample);
++bool probe_game_submit_command(const struct probe_game_command *command);
++bool probe_game_submit_judgement(const struct probe_game_result *result);
++bool probe_game_take_ble_result(struct probe_game_result *result);
++void probe_game_get_imu_stats(struct probe_game_imu_stats *stats);
++void probe_local_feedback(const struct probe_game_result *result);
++
++#endif
+diff --git a/examples/openvela_ble_probe/probe_ui.c b/examples/openvela_ble_probe/probe_ui.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..668645ded0c6d46e531b408b62979ac42329b575
+--- /dev/null
++++ b/examples/openvela_ble_probe/probe_ui.c
+@@ -0,0 +1,200 @@
++#include <nuttx/config.h>
++
++#include <pthread.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include <unistd.h>
++
++#include <lvgl/lvgl.h>
++
++#include "probe_ui.h"
++
++#define PROBE_UI_RING_DEPTH 16
++
++static struct probe_ui_result g_ui_ring[PROBE_UI_RING_DEPTH];
++static uint32_t g_ui_head;
++static uint32_t g_ui_tail;
++static uint32_t g_ui_full;
++static pthread_t g_ui_thread;
++static probe_ui_ble_connected_t g_connected;
++static bool g_imu_available;
++static bool g_started;
++
++static bool probe_ui_take(struct probe_ui_result *result)
++{
++  uint32_t tail = __atomic_load_n(&g_ui_tail, __ATOMIC_RELAXED);
++  uint32_t head = __atomic_load_n(&g_ui_head, __ATOMIC_ACQUIRE);
++
++  if (tail == head)
++    {
++      return false;
++    }
++
++  memcpy(result, &g_ui_ring[tail % PROBE_UI_RING_DEPTH], sizeof(*result));
++  __atomic_store_n(&g_ui_tail, tail + 1, __ATOMIC_RELEASE);
++  return true;
++}
++
++static const char *probe_ui_judgement_text(enum probe_judgement_e judgement)
++{
++  switch (judgement)
++    {
++      case PROBE_JUDGEMENT_PERFECT:
++        return "PERFECT";
++      case PROBE_JUDGEMENT_GOOD:
++        return "GOOD";
++      case PROBE_JUDGEMENT_MISS:
++        return "MISS";
++      default:
++        return "READY";
++    }
++}
++
++static void *probe_ui_thread(void *arg)
++{
++  lv_nuttx_dsc_t info;
++  lv_nuttx_result_t init_result;
++  struct probe_ui_result result;
++  lv_obj_t *title;
++  lv_obj_t *judgement;
++  lv_obj_t *combo;
++  lv_obj_t *imu;
++  lv_obj_t *ble;
++  char text[64];
++  bool connected = false;
++  bool previous_connected = false;
++
++  (void)arg;
++  printf("openvela_ble_probe: UI thread entered\n");
++  if (lv_is_initialized())
++    {
++      printf("openvela_ble_probe: UI unavailable: LVGL already initialized\n");
++      return NULL;
++    }
++
++  lv_init();
++  lv_nuttx_dsc_init(&info);
++  info.fb_path = "/dev/lcd0";
++  info.input_path = "/dev/input0";
++  memset(&init_result, 0, sizeof(init_result));
++  lv_nuttx_init(&info, &init_result);
++  if (init_result.disp == NULL || init_result.indev == NULL)
++    {
++      printf("openvela_ble_probe: UI initialization failed"
++             " lcd=/dev/lcd0 input=/dev/input0\n");
++      lv_deinit();
++      return NULL;
++    }
++
++  title = lv_label_create(lv_screen_active());
++  judgement = lv_label_create(lv_screen_active());
++  combo = lv_label_create(lv_screen_active());
++  imu = lv_label_create(lv_screen_active());
++  ble = lv_label_create(lv_screen_active());
++  if (title == NULL || judgement == NULL || combo == NULL || imu == NULL ||
++      ble == NULL)
++    {
++      printf("openvela_ble_probe: UI label creation failed\n");
++      lv_nuttx_deinit(&init_result);
++      lv_deinit();
++      return NULL;
++    }
++
++  lv_label_set_text(title, "Motion Game");
++  lv_label_set_text(judgement, "READY");
++  lv_label_set_text(combo, "Combo: 0");
++  lv_label_set_text(imu, g_imu_available ? "IMU: samples=0 gaps=0" :
++                                           "IMU: unavailable");
++  lv_label_set_text(ble, "BLE: disconnected");
++  lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 12);
++  lv_obj_align(judgement, LV_ALIGN_CENTER, 0, -30);
++  lv_obj_align(combo, LV_ALIGN_CENTER, 0, 5);
++  lv_obj_align(imu, LV_ALIGN_CENTER, 0, 38);
++  lv_obj_align(ble, LV_ALIGN_BOTTOM_MID, 0, -12);
++  printf("openvela_ble_probe: UI initialized\n");
++
++  for (;;)
++    {
++      while (probe_ui_take(&result))
++        {
++          lv_label_set_text(judgement,
++                            probe_ui_judgement_text(result.judgement));
++          snprintf(text, sizeof(text), "Combo: %lu",
++                   (unsigned long)result.combo);
++          lv_label_set_text(combo, text);
++          if (g_imu_available)
++            {
++              snprintf(text, sizeof(text), "IMU: samples=%llu gaps=%lu",
++                       (unsigned long long)result.imu_samples,
++                       (unsigned long)result.imu_gaps);
++              lv_label_set_text(imu, text);
++            }
++        }
++
++      connected = g_connected != NULL && g_connected();
++      if (connected != previous_connected)
++        {
++          lv_label_set_text(ble, connected ? "BLE: connected" :
++                                             "BLE: disconnected");
++          previous_connected = connected;
++        }
++
++      {
++        uint32_t idle = lv_timer_handler();
++        idle = idle == 0 ? 1 : idle;
++        if (idle > 20)
++          {
++            idle = 20;
++          }
++
++        usleep(idle * 1000);
++      }
++    }
++
++  return NULL;
++}
++
++int probe_ui_start(probe_ui_ble_connected_t connected, bool imu_available)
++{
++  int ret;
++
++  if (__atomic_exchange_n(&g_started, true, __ATOMIC_ACQ_REL))
++    {
++      return 0;
++    }
++
++  g_connected = connected;
++  g_imu_available = imu_available;
++  ret = pthread_create(&g_ui_thread, NULL, probe_ui_thread, NULL);
++  if (ret != 0)
++    {
++      __atomic_store_n(&g_started, false, __ATOMIC_RELEASE);
++      return -ret;
++    }
++
++  pthread_detach(g_ui_thread);
++  return 0;
++}
++
++bool probe_ui_submit(const struct probe_ui_result *result)
++{
++  uint32_t head = __atomic_load_n(&g_ui_head, __ATOMIC_RELAXED);
++  uint32_t tail = __atomic_load_n(&g_ui_tail, __ATOMIC_ACQUIRE);
++
++  if (!__atomic_load_n(&g_started, __ATOMIC_ACQUIRE))
++    {
++      return false;
++    }
++
++  if (head - tail >= PROBE_UI_RING_DEPTH)
++    {
++      __atomic_fetch_add(&g_ui_full, 1, __ATOMIC_RELAXED);
++      return false;
++    }
++
++  memcpy(&g_ui_ring[head % PROBE_UI_RING_DEPTH], result, sizeof(*result));
++  __atomic_store_n(&g_ui_head, head + 1, __ATOMIC_RELEASE);
++  return true;
++}
+diff --git a/examples/openvela_ble_probe/probe_ui.h b/examples/openvela_ble_probe/probe_ui.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..b9c08c8ad76b4dbc949ff0d411e64bd2c448f1a2
+--- /dev/null
++++ b/examples/openvela_ble_probe/probe_ui.h
+@@ -0,0 +1,28 @@
++#ifndef __APPS_EXAMPLES_OPENVELA_BLE_PROBE_PROBE_UI_H
++#define __APPS_EXAMPLES_OPENVELA_BLE_PROBE_PROBE_UI_H
++
++#include <stdbool.h>
++#include <stdint.h>
++
++enum probe_judgement_e
++{
++  PROBE_JUDGEMENT_READY = 0,
++  PROBE_JUDGEMENT_PERFECT,
++  PROBE_JUDGEMENT_GOOD,
++  PROBE_JUDGEMENT_MISS
++};
++
++struct probe_ui_result
++{
++  enum probe_judgement_e judgement;
++  uint32_t combo;
++  uint64_t imu_samples;
++  uint32_t imu_gaps;
++};
++
++typedef bool (*probe_ui_ble_connected_t)(void);
++
++int probe_ui_start(probe_ui_ble_connected_t connected, bool imu_available);
++bool probe_ui_submit(const struct probe_ui_result *result);
++
++#endif
