@@ -1,0 +1,277 @@
+From 7f222a5a22e2628ba6844e242ef95c6244785db1 Mon Sep 17 00:00:00 2001
+From: yangshuxuan <yangshuxuan1024@gmail.com>
+Date: Sun, 30 Aug 2026 16:45:22 +0800
+Subject: [PATCH 1/2] fix(sf32lb52): protect Bluetooth IPC shared memory
+
+---
+ chips/sf32lb52/sifli_allocateheap.c |  5 +++--
+ chips/sf32lb52/sifli_start.c        | 34 +++++++++++++++++++++++++++++
+ 2 files changed, 37 insertions(+), 2 deletions(-)
+
+diff --git a/chips/sf32lb52/sifli_allocateheap.c b/chips/sf32lb52/sifli_allocateheap.c
+index 62371c5..1f5e584 100644
+--- a/chips/sf32lb52/sifli_allocateheap.c
++++ b/chips/sf32lb52/sifli_allocateheap.c
+@@ -31,6 +31,7 @@
+ #include "chip.h"
+ #include "arm_internal.h"
+ #include "bf0_hal.h"
++#include "mem_map.h"
+ 
+ extern void BSP_PIN_Init(void);
+ extern void BSP_Power_Up(bool is_deep_sleep);
+@@ -160,10 +161,10 @@ void HAL_PreInit(void)
+ 
+ void up_allocate_heap(FAR void **heap_start, size_t *heap_size)
+ {
+-  /* The heap starts at g_idle_topstack and extends to the end of SRAM */
++  /* Reserve the HCPU-to-LCPU Bluetooth mailbox at the end of SRAM. */
+   
+   *heap_start = (FAR void *)g_idle_topstack;
+-  *heap_size  = SRAM_END - g_idle_topstack;
++  *heap_size  = HCPU2LCPU_MB_CH1_BUF_START_ADDR - g_idle_topstack;
+ }
+ 
+ /******************************************************************************
+diff --git a/chips/sf32lb52/sifli_start.c b/chips/sf32lb52/sifli_start.c
+index 1ee5c85..e329004 100644
+--- a/chips/sf32lb52/sifli_start.c
++++ b/chips/sf32lb52/sifli_start.c
+@@ -49,6 +49,13 @@
+ 
+ #define HEAP_BASE      ((uintptr_t)_ebss + CONFIG_IDLETHREAD_STACKSIZE)
+ 
++#define SIFLI_LPSYS_RAM_BASE  0x203fc000
++#define SIFLI_LPSYS_RAM_LIMIT 0x204fffff
++#define SIFLI_MPU_ATTR_RAM_IDX 0
++#define SIFLI_MPU_ATTR_RAM \
++  ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, \
++               ARM_MPU_ATTR_NON_CACHEABLE)
++
+ extern uint32_t _siramfunc;
+ extern uint32_t _sramfunc;
+ extern uint32_t _eramfunc;
+@@ -141,6 +148,26 @@ const uintptr_t g_idle_topstack = HEAP_BASE;
+  * Private Functions
+  ****************************************************************************/
+ 
++static void sifli_lpsys_mpu_config(void)
++{
++  uint32_t region;
++
++  ARM_MPU_Disable();
++
++  for (region = 0; region < MPU_REGION_NUM; region++)
++    {
++      ARM_MPU_ClrRegion(region);
++    }
++
++  ARM_MPU_SetMemAttr(SIFLI_MPU_ATTR_RAM_IDX, SIFLI_MPU_ATTR_RAM);
++  ARM_MPU_SetRegion(
++    0,
++    ARM_MPU_RBAR(SIFLI_LPSYS_RAM_BASE, ARM_MPU_SH_NON, 0, 1, 0),
++    ARM_MPU_RLAR(SIFLI_LPSYS_RAM_LIMIT, SIFLI_MPU_ATTR_RAM_IDX));
++
++  ARM_MPU_Enable(MPU_CTRL_HFNMIENA_Msk | MPU_CTRL_PRIVDEFENA_Msk);
++}
++
+ /****************************************************************************
+  * Public Functions
+  ****************************************************************************/
+@@ -196,6 +223,13 @@ void __start(void)
+ 
+   arm_lowputc('A'); /* data segment init done */
+ 
++  /* The SiFli IPC rings are shared with LCPU and have producer and consumer
++   * indices in the same cache line.  Establish their non-cacheable memory
++   * attribute before either cache is enabled.
++   */
++
++  sifli_lpsys_mpu_config();
++
+ #ifdef CONFIG_ARMV8M_ICACHE
+   up_enable_icache();
+ #endif
+
+From 4518591ab91876aea505742d838e09449941d0b9 Mon Sep 17 00:00:00 2001
+From: yangshuxuan <yangshuxuan1024@gmail.com>
+Date: Sun, 30 Aug 2026 16:45:28 +0800
+Subject: [PATCH 2/2] feat(huangshan): add I2C3 and IMU interrupt support
+
+---
+ .../lckfb_huangshan_pi/configs/nsh/defconfig  | 20 ++++++---
+ .../lckfb_huangshan_pi/include/board.h        |  6 ++-
+ .../lckfb_huangshan_pi/src/bsp_pinmux.c       |  7 ++-
+ .../lckfb_huangshan_pi/src/sifli_ap.c         | 43 +++++++++++++++++++
+ 4 files changed, 68 insertions(+), 8 deletions(-)
+
+diff --git a/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig b/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig
+index 488ed2f..5a4b663 100644
+--- a/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig
++++ b/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig
+@@ -44,17 +44,18 @@ CONFIG_DEV_URANDOM=y
+ CONFIG_DEV_URANDOM_XORSHIFT128=y
+ CONFIG_DRIVERS_WIRELESS=y
+ CONFIG_DRIVERS_BLUETOOTH=y
+-# CONFIG_LIBUV is not set
++CONFIG_BLUETOOTH=y
++CONFIG_BLUETOOTH_GATT_SERVER=y
++CONFIG_LIBUV=y
+ CONFIG_LIBUV_THREADPOOL_SIZE=1
+ CONFIG_LIBUV_THREAD_STACKSIZE=8192
+ CONFIG_LIBUV_THREADPOOL_PRIORITY=100
+ CONFIG_LIBUV_STREAM_READ_BUF_SIZE=4096
+ # CONFIG_LIBUV_BACKEND_EPOLL is not set
+-# CONFIG_LIBUV_EXTENSION is not set
++CONFIG_LIBUV_EXTENSION=y
+ CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE=32768
+ CONFIG_SYSTEM_WORKQUEUE_NO_YIELD=y
+ CONFIG_UNQLITE=y
+-# CONFIG_BLUETOOTH is not set
+ CONFIG_BLUETOOTH_FRAMEWORK=y
+ CONFIG_BLUETOOTH_FRAMEWORK_LOCAL=y
+ CONFIG_BLUETOOTH_BLE_SUPPORT=y
+@@ -65,12 +66,16 @@ CONFIG_BLUETOOTH_STACK_BREDR_ZBLUE=y
+ CONFIG_BLUETOOTH_STACK_LE_ZBLUE=y
+ CONFIG_BLUETOOTH_STORAGE_UNQLITE_SUPPORT=y
+ CONFIG_BLUETOOTH_SERVICE_HCI_UART_NAME="/dev/ttyHCI0"
+-CONFIG_BLUETOOTH_TOOLS=y
++# CONFIG_BLUETOOTH_TOOLS is not set
+ # CONFIG_BLUETOOTH_LOG is not set
+ CONFIG_BT=y
++CONFIG_BT_PERIPHERAL=y
++CONFIG_BT_SMP=y
++CONFIG_BT_MAX_PAIRED=1
++CONFIG_BT_CONN=y
+ CONFIG_BT_CLASSIC=y
+ CONFIG_BT_H4=y
+-CONFIG_BT_EXT_ADV=y
++# CONFIG_BT_EXT_ADV is not set
+ # CONFIG_BT_HCI_ACL_FLOW_CONTROL is not set
+ CONFIG_BT_POWER_MODE_CONTROL=y
+ CONFIG_BT_GATT_CLIENT=y
+@@ -88,6 +93,9 @@ CONFIG_BT_UART_ON_DEV_NAME="/dev/ttyHCI0"
+ CONFIG_ETC_ROMFS=y
+ CONFIG_EXAMPLES_HELLO=y
+ CONFIG_EXAMPLES_HCITEST=y
++CONFIG_EXAMPLES_OPENVELA_BLE_PROBE=y
++CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_PROGNAME="openvela_ble_probe"
++CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_STACKSIZE=4096
+ CONFIG_EXAMPLES_IPCQTEST=y
+ CONFIG_EXAMPLES_ADC=y
+ CONFIG_EXAMPLES_ADC_SWTRIG=y
+@@ -150,7 +158,7 @@ CONFIG_TESTING_OSTEST_STACKSIZE=16384
+ CONFIG_PWM=y
+ CONFIG_TIMER=y
+ CONFIG_TIMER_ARCH=y
+-# CONFIG_UART_BTH4 is not set
++CONFIG_UART_BTH4=y
+ CONFIG_WATCHDOG=y
+ CONFIG_RAW_BINARY=y
+ CONFIG_DEBUG_FEATURES=y
+diff --git a/boards/sf32lb52/lckfb_huangshan_pi/include/board.h b/boards/sf32lb52/lckfb_huangshan_pi/include/board.h
+index 1a53882..8b1cb91 100644
+--- a/boards/sf32lb52/lckfb_huangshan_pi/include/board.h
++++ b/boards/sf32lb52/lckfb_huangshan_pi/include/board.h
+@@ -35,5 +35,9 @@
+ 
+ #define BUTTON_KEY2_BIT  (1 << BUTTON_KEY2)
+ 
+-#endif /* __VENDOR_SIFLI_BOARDS_SF32LB52_LCKFB_HUANGSHAN_PI_INCLUDE_BOARD_H */
++typedef void (*board_imu_int1_callback_t)(void *arg);
++
++int board_imu_int1_enable(board_imu_int1_callback_t callback, void *arg);
++int board_imu_int1_disable(void);
+ 
++#endif /* __VENDOR_SIFLI_BOARDS_SF32LB52_LCKFB_HUANGSHAN_PI_INCLUDE_BOARD_H */
+diff --git a/boards/sf32lb52/lckfb_huangshan_pi/src/bsp_pinmux.c b/boards/sf32lb52/lckfb_huangshan_pi/src/bsp_pinmux.c
+index 912eb63..84d49de 100644
+--- a/boards/sf32lb52/lckfb_huangshan_pi/src/bsp_pinmux.c
++++ b/boards/sf32lb52/lckfb_huangshan_pi/src/bsp_pinmux.c
+@@ -205,7 +205,13 @@ static void BSP_PIN_Common(void)
+     HAL_PIN_Set(PAD_PA26, GPIO_A26, PIN_NOPULL, 1);
+     HAL_PIN_Set(PAD_PA38, GPIO_A38, PIN_PULLDOWN, 1);
+     HAL_PIN_Set(PAD_PA30, GPIO_A30, PIN_PULLDOWN, 1);   // Sensor Power
++    HAL_PIN_Set(PAD_PA31, GPIO_A31, PIN_NOPULL, 1);     // IMU INT1
+     HAL_PIN_Set(PAD_PA44, GPIO_A44, PIN_NOPULL, 1);     // VBUS_DET
++
++#ifdef BSP_USING_I2C3
++    HAL_PIN_Set(PAD_PA40, I2C3_SCL, PIN_PULLUP, 1);
++    HAL_PIN_Set(PAD_PA39, I2C3_SDA, PIN_PULLUP, 1);
++#endif
+ #endif
+ 
+ }
+@@ -281,4 +287,3 @@ void BSP_PIN_Init(void)
+     BSP_PIN_LCD();
+ 
+ }
+-
+diff --git a/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c b/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c
+index 2622a25..ebb0cb6 100644
+--- a/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c
++++ b/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c
+@@ -43,6 +43,7 @@
+ 
+ #include <nuttx/arch.h>
+ #include <nuttx/board.h>
++#include <arch/board/board.h>
+ #include <nuttx/lcd/lcd.h>
+ #include <nuttx/lcd/lcd_dev.h>
+ #include <nuttx/timers/pwm.h>
+@@ -69,6 +70,26 @@ extern int sf32lb_adc_init(const char *devpath);
+ #  include <nuttx/usb/cdcacm.h>
+ #endif
+ 
++#define HUANGSHAN_IMU_INT1_PIN GET_PIN_2(hwp_gpio1, 31)
++
++int board_imu_int1_enable(board_imu_int1_callback_t callback, void *arg)
++{
++  if (callback == NULL)
++    {
++      return -EINVAL;
++    }
++
++  sifli_gpio_config(HUANGSHAN_IMU_INT1_PIN, GPIO_INPUT);
++  return sifli_gpio_set_event(HUANGSHAN_IMU_INT1_PIN, true, false,
++                              callback, arg);
++}
++
++int board_imu_int1_disable(void)
++{
++  return sifli_gpio_set_event(HUANGSHAN_IMU_INT1_PIN, false, false,
++                              NULL, NULL);
++}
++
+ #ifdef CONFIG_MTD
+ extern int sf32lb_nor_automount(int minor, int block_offset, int block_count);
+ #endif
+@@ -453,6 +474,28 @@ int lckfb_huangshan_pi_bringup(void)
+         }
+     }
+ #endif /* CONFIG_BSP_USING_I2C2 */
++
++#ifdef CONFIG_BSP_USING_I2C3
++  /* I2C1 and I2C2 occupy compressed ports 0 and 1, so physical I2C3 is
++   * port 2 and is exposed as /dev/i2c2 for the onboard sensors.
++   */
++  struct i2c_master_s *i2c2 = NULL;
++
++  i2c2 = sifli_i2cbus_initialize(2);
++  if (i2c2 == NULL)
++    {
++      syslog(LOG_ERR, "ERROR: sifli_i2cbus_initialize(2) failed\n");
++    }
++  else
++    {
++      ret = i2c_register(i2c2, 2);
++      if (ret < 0)
++        {
++          syslog(LOG_ERR, "ERROR: i2c_register(/dev/i2c2) failed: %d\n",
++                 ret);
++        }
++    }
++#endif /* CONFIG_BSP_USING_I2C3 */
+ #endif /* CONFIG_I2C */
+ 
+ #if defined(CONFIG_SPI) && defined(CONFIG_BSP_USING_SPI1) && \

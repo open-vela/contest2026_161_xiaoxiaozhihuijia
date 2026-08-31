@@ -1,148 +1,121 @@
-# contest2026_161_xiaoxiaozhihuijia
+# Huangshan Motion Game v2
 
-👋 欢迎参加 **2026 首届 openvela AI 硬件开发者大赛**！
+面向黄山派 SF32LB52 的 BLE 动作游戏可靠性原型。设备通过
+LSM6DS3TR-C FIFO 连续采集 IMU 数据，接收手机端 Gesture Event，执行测试判定，
+在屏幕显示 Game/UI 状态，并通过带 ACK/retry 的 BLE 通道返回结果。
 
-这是组委会为你的队伍创建的**专属参赛仓库**（本仓为样例/模板，队伍编号 `161`；你看到的将是你自己的 `contest2026_<编号>_<队伍名>`）。比赛期间，你的全部参赛代码、打包产物与 AI Coding 日志都提交到这里。
+本作品验证的是数据通路、跨时间回绕运行和可靠传输，不宣称已实现通用动作识别产品。
 
-> 本仓既是「代码仓」，又内置了一键拉取整套 openvela 工程的 `repo` 清单（manifest）。你只需跟它打交道，**自始至终只动一个文件夹**。
+## 架构与硬件
 
----
+- **BLE**：自定义 GATT 服务 `FFF0`；手机写入 RX `FFF1`，订阅 TX `FFF2`。
+  Gesture 使用包序号、ACK 和有限重试，重复包可被识别而不重复计入事件。
+- **IMU FIFO**：LSM6DS3TR-C 通过 I2C3 接入，水位中断驱动读取，单次块读
+  24 bytes，并维护 overrun、recovery、gap 和 I2C 错误统计。
+- **Game**：独立队列消费 Gesture 和 IMU 样本，当前使用确定性的测试判定逻辑，
+  用于端到端可靠性验收。
+- **UI**：LVGL 页面显示 Motion Game、判定和统计；它不是手机应用替代品。
 
-## 一、先读这些官方文档
+所需硬件：黄山派 SF32LB52、板载/连接的 LSM6DS3TR-C、USB-UART 和可运行
+BLE GATT 测试程序的手机。
 
-**通用（所有赛道必读）：**
+## 目录
 
-| 文档                                                                                                                                     | 用途                                           |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [《大赛总览》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/contest_overview.md)                        | 赛道、流程、评分、资源，建议先通读             |
-| [《参赛代码提交指南》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/code_submission_guide.md)           | 仓库获取、提交流程、时间与权限（**以此为准**） |
-| [《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md) | 如何导出 AI 对话日志并提交到 `logs/`           |
+- `patches/`：apps Probe 与 vendor/sifli 平台支持的独立补丁。
+- `scripts/`：安全应用补丁和构建脚本。
+- `artifacts/huangshan_motion_game_v2_20260831/`：不可变 v2 固件、配置、源码快照和验证证据。
+- `docs/SUBMISSION_VERIFICATION.md`：公共基线、补丁校验及未完成事项。
+- `logs/<your-github-login>/`：按官方手册导出并脱敏后的 AI Coding 日志位置；
+  提交前必须移除凭据、token、设备标识和无关私人信息，不提交原始串口全文日志。
 
-**按你的赛道选读（三选一）：**
+## 从同步到构建
 
-| 赛道                  | 教程导航                                                                                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 快应用 / 手表应用创新 | [快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)                         |
-| AI 硬件产品创新       | [AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)              |
-| 新硬件适配            | [新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md) |
-
----
-
-## 二、第一步：拉取完整工程
-
-用组委会提供的命令一键拉取「openvela 全量源码 + 你的专属仓」：
+以下命令从空目录开始。正式作品分支是
+`feat/huangshan-motion-game-submission`。
 
 ```bash
+mkdir openvela-motion-game && cd openvela-motion-game
 repo init -u https://github.com/open-vela/contest2026_161_xiaoxiaozhihuijia \
-  -b dev-ai-contest-2026 -m contest2026_161_xiaoxiaozhihuijia.xml
+  -b dev-ai-contest-2026 \
+  -m contest2026_161_xiaoxiaozhihuijia.xml
 repo sync -c -j8
+
+# Draft PR 合入前，从比赛专属 fork 取得正式作品分支。
+git -C contest2026_161_xiaoxiaozhihuijia fetch \
+  https://github.com/yangshuxuan1024/contest2026_161_xiaoxiaozhihuijia.git \
+  feat/huangshan-motion-game-submission
+git -C contest2026_161_xiaoxiaozhihuijia switch --detach FETCH_HEAD
+
+./contest2026_161_xiaoxiaozhihuijia/scripts/apply_openvela_patches.sh "$PWD"
+./contest2026_161_xiaoxiaozhihuijia/scripts/build_huangshan_motion_game.sh "$PWD"
+sha256sum cmake_out/huangshan_motion_game_submission/nuttx.bin
 ```
 
-同步后，你的整个仓库位于工作区的 `contest2026_161_xiaoxiaozhihuijia/`，openvela 全量源码在外层（`nuttx/`、`apps/`、`packages/`、`vendor/` 等）。
-
----
-
-## 三、第二步：在哪里写代码
-
-**只在自己的仓目录 `contest2026_161_xiaoxiaozhihuijia/` 里开发。** 不同作品形态放在对应子目录，manifest 会通过 `<linkfile>` 把它们**软链**到 openvela 编译树该在的位置——你不用手动 copy：
-
-| 作品形态 | 你的代码放这里             | 系统自动映射到                                 |
-| -------- | -------------------------- | ---------------------------------------------- |
-| 应用     | `app/hello_app/`           | `packages/demos/contest2026_161_hello_app`     |
-| 快应用   | `quickapp/hello_quickapp/` | `packages/apps/contest2026_161_hello_quickapp` |
-| 板级适配 | `board/contest_board/`     | `vendor/openvela/boards/contest2026_161_board` |
-
-> 用不到的形态目录可以删掉；新增作品时按同样规则加子目录，并在 `contest2026_161_xiaoxiaozhihuijia.xml` 里补一条 `<linkfile>` 映射即可。**生产仓库（packages/nuttx/vendor 等）零改动。**
-
-建议仓库目录约定（便于评委定位）：
+应用脚本要求 `apps` 和 `vendor/sifli` 均位于记录的干净
+`dev-ai-contest-2026` 基线；它会先检查两个补丁，全部成功后才应用。构建脚本拒绝
+覆盖已有构建目录，并以冻结的实际 `.config` 初始化新 CMake/Ninja 构建，其中必须有：
 
 ```text
-app/ | quickapp/ | board/   # 你的作品代码
-logs/                       # AI Coding 日志（主动导出后提交，格式见 logs/README.md）
-README.md                   # 作品说明（提交前请改成你自己的，见第六节）
+CONFIG_BSP_USING_I2C3=y
+CONFIG_EXAMPLES_OPENVELA_BLE_PROBE=y
 ```
 
-> 仓内附带了一个 `.gitignore.example`，给出了**编译产物**等不需要进仓的文件示例。如需启用，`cp .gitignore.example .gitignore` 后按需增删即可。**注意 `logs/` 下最终导出的 AI Coding 日志必须提交，不要忽略。**
->
-> `logs/` 的目录结构与提交格式见 [logs/README.md](logs/README.md)。
+当前已冻结固件位于
+`artifacts/huangshan_motion_game_v2_20260831/nuttx.bin`，SHA-256 为：
 
----
+```text
+aa7ce08ca7460c8effdd78ad410631d277c5bee438c1ff0cb5c21da9c8228f3b
+```
 
-## 四、第三步：编译与运行
+该 v2 固件是在已验证 v1 CMake 配置基础上重编译 Probe 并多阶段链接得到；本仓不
+伪称它已经过干净全量 configure。干净全量构建仍是待补充的可复现性证据。
 
-编译/运行步骤随作品形态不同而不同，请参考你所在赛道的教程导航：
+## 烧录与运行
 
-- 快应用 / 手表应用：[快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)（含模拟器与开发板部署）。
-- AI 硬件产品创新：[AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)（环境搭建、编译烧录、Skill 开发）。
-- 新硬件适配：[新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md)（BSP 移植、最小 NSH 基线）。
-
-子目录已通过 manifest 中的 `<linkfile>` 软链进 openvela 编译树，因此构建在 openvela 工作区**根目录**（即你这个仓的上一级）进行。openvela 使用 `build.sh` 作为统一入口，接收一个 **board config 路径**作为参数：
+构建产物或冻结固件写入 SF32LB52 NOR 的 `0x12010000`：
 
 ```bash
-# 进入 openvela 工作区根目录（你的仓的上一级）
-cd ..
+sftool -c SF32LB52 -p /dev/ttyUSB0 -b 1000000 \
+  --before default_reset --after soft_reset \
+  write_flash cmake_out/huangshan_motion_game_submission/nuttx.bin@0x12010000
 
-# 通用语法：第一个参数是 board config 路径，第二个参数可以是 menuconfig / distclean 等
-./build.sh <board-config-path> [menuconfig|distclean] [-j8]
+picocom -b 1000000 --noreset --lower-rts --lower-dtr /dev/ttyUSB0
 ```
 
-> 具体的 board config 路径、目标产物、模拟器/真机部署方式请以你所在赛道的教程导航为准。本仓 `app/` `quickapp/` `board/` 三个示例骨架对应的 Kconfig 选项可通过 `menuconfig` 启用。
+如仅复核已验证版本，把烧录命令中的路径替换为冻结 `nuttx.bin`，并在烧录前运行
+`sha256sum`，确认与上述 SHA 完全一致。启动后应用名为 `openvela_ble_probe`，设备
+广播名为 `ov_ble_probe`。
 
----
+## 手机端测试
 
-## 五、第四步：提交作品
+1. 扫描并连接 `ov_ble_probe`。
+2. 发现服务 `FFF0`，开启 TX 特征 `FFF2` 的 notification。
+3. 按协议向 RX 特征 `FFF1` 写入 Gesture Event；记录事件 packet ID。
+4. 验证 `FFF2` 返回对应 ACK/结果。测试端在超时场景重发相同 packet ID，设备应
+   ACK 重传但不得把同一事件重复入队。
+5. 同时观察串口 Gesture、FIFO 和连接统计；测试结束后的主动断开
+   `reason=0x13` 不计为异常。
 
-1. **fork** 你的专属仓 → 开发 → `git commit` 并推送 → 向专属仓发起 **Pull Request**，可**自行 review 并合入**（无需等组委会）。
-2. **AI Coding 日志**：与 AI 工具的对话会自动记录到本机 staging（不会自动上传），需你**主动导出/打包**选定会话到仓内 `logs/` 目录后一并提交。详见[《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md)。
-3. 若需改动 **nuttx 等公共仓库**，不在本仓改，而是 fork 对应公共仓、以 PR 提交到 `dev-ai-contest-2026` 分支，由组委会 review 后合入。
+手机端报文的确切字段、长度和类型常量以冻结的
+`openvela_ble_probe_main.c` 为准，避免客户端自行猜测协议布局。
 
-> ⏰ **提交作品截止：9 月 20 日**。截止后统一收回 push 权限，仍可查看 / clone。
->
-> 获奖后再按要求将作品 PR 至 openvela 上游对应仓库（走标准 PR + CI 流程）。
+## 已验证结果
 
-### 关于 PR 与 CLA
+- Gesture Event：3000/3000 成功，failed=0。
+- 600 次预期重传全部成功，`retry_proofs=600`、`retransmissions_seen=600`。
+- 运行约 4,758,490 ms，跨越旧 32-bit 微秒回绕点。
+- FIFO：overrun=0、recovery=0、gap=0、unexpected=0、i2c_errors=0。
+- FIFO 使用 24-byte 块读。
+- 首事件延迟：median `252.71 ms`、p95 `322.98 ms`、max `920.24 ms`。
+  最大值是待优化的尾延迟，不构成“低延迟保证”。
 
-- 本仓所有改动通过 **Pull Request** 合入（分支保护强制，可自行合入自己的 PR）。
-- 首次贡献需在[**官网签署 CLA**](https://openvela.com/#/community/cla)；PR 上会自动跑 `cla/signature` 检查，在官网签署成功后，在 PR 评论 `/check-cla` 复检即可通过。
+这些结论只适用于设备所烧录固件 SHA 与冻结 SHA 一致的情况。
 
----
+## 明确边界
 
-## 六、提交前：把本 README 改成你的作品说明
+尚未实现或未完成验收：真实动作识别、LED/马达反馈、OTA、多连接、Bond/配对/
+加密验收、低功耗。Framework GATTS、SAL、ZBlue、BTH4/H4、广告、heap 与
+Legacy HCI 的诊断实验也不属于本比赛基线，未包含在正式补丁中。
 
-本文件目前是组委会给的**使用说明书**。**作品提交前，请把它替换成你自己作品的说明**，方便评委快速了解你做了什么、怎么跑起来。建议至少包含以下内容：
-
-```markdown
-# <你的作品名>
-
-## 一、作品简介
-<一句话/一段话说明这个作品是什么、解决什么问题、亮点在哪>
-
-## 二、选题方向
-<快应用 / 手表应用创新 ｜ AI 硬件产品创新 ｜ 新硬件适配 ｜ 自定方向，并简述理由>
-
-## 三、目录结构
-<列出你这个仓里各目录/文件的作用，例如：>
-- `app/xxx/`        — <说明>
-- `board/xxx/`      — <说明>
-- `quickapp/xxx/`   — <说明>
-- `logs/`           — AI Coding 日志
-- `docs/` 或其他    — <说明>
-
-## 四、运行方式
-<拉取工程后，如何编译、烧录/部署、运行的完整步骤；最好能让评委照着一步步复现>
-
-## 五、AI Coding 使用说明
-<说明本作品如何借助 AI 辅助开发：
-- 在需求拆解 / 方案设计 / 编码 / 调试 / 文档等环节如何与 AI 协作；
-- AI 对开发效率或质量带来的实际帮助。
-完整对话日志见 logs/ 目录>
-```
-
-> 提示：将会根据「作品本身 + 你的 README 说明 + `logs/` 里的 AI Coding 日志」来理解和评估你的作品，README 写清楚很重要。
-
----
-
-## 附：仓库命名规范
-
-`contest2026_<编号>_<队伍名>` — 编号三位零填充；队名 slug（全小写、英文/拼音、连字符）。例：`contest2026_161_xiaoxiaozhihuijia`。
-（仓库由组委会统一创建，**每队仅一个仓**，无需自行命名。）
+AI Coding 对话需按官方手册导出和脱敏后放入 `logs/<your-github-login>/`；仓库当前
+只提供目录规范，不声称已提交本次会话的脱敏导出。
