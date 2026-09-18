@@ -1,0 +1,34 @@
+if(CONFIG_EXAMPLES_OPENVELA_BLE_PROBE)
+  nuttx_add_application(
+    NAME
+      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_PROGNAME}
+    PRIORITY
+      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_PRIORITY}
+    STACKSIZE
+      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE_STACKSIZE}
+    MODULE
+      ${CONFIG_EXAMPLES_OPENVELA_BLE_PROBE}
+    SRCS
+      openvela_ble_probe_main.c
+      beat_rank1.c
+      probe_fifo_time_estimator.c
+      probe_fifo_pair.c
+      probe_fifo_runtime.c
+      rank1_benchmark.c
+      probe_game.c
+      probe_ui.c
+      probe_ui_beat_mailbox.c
+      probe_ui_refresh_policy.c
+      probe_stop_control.c
+      probe_app_input.c
+      probe_rank_interval.c
+    DEPENDS
+      lvgl)
+
+  nuttx_add_dependencies(
+    TARGET
+      apps_openvela_ble_probe
+    DEPENDS
+      libbluetooth
+      libuv)
+endif()

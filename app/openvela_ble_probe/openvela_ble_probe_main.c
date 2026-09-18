@@ -77,7 +77,7 @@ extern void sf32lb52_bt_diag_dump_acl_tx(void);
 #define PROBE_CAPTURE_CONTROL_MAX_SIZE  20
 #define PROBE_CAPTURE_QUEUE_DEPTH       256
 #ifndef PROBE_EXPERIMENT_BUILD_ID
-#define PROBE_EXPERIMENT_BUILD_ID       "rank1_v28_original_20260917"
+#define PROBE_EXPERIMENT_BUILD_ID       "rank1_v28_bootfix_20260917"
 #endif
 /* A/B diagnostic only.  Set to 1 at compile time to preserve capture
  * control ACKs while suppressing capture sample production and sending.
@@ -462,20 +462,9 @@ struct probe_batch_archive_record { uint32_t session, batch_id, recovery_generat
 static struct probe_batch_archive_record g_batch_archive[PROBE_BATCH_ARCHIVE_DEPTH];
 static uint32_t g_batch_archive_count;
 static uint32_t g_batch_archive_next;
-/* Batch summaries are producer-owned records but are read by the consumer
- * and the dump worker.  Keep the short critical sections locked so an event
- * cannot observe a half-written key or summary. */
 static pthread_mutex_t g_batch_assoc_lock = PTHREAD_MUTEX_INITIALIZER;
-/* Event-owned pending associations.  These are not a second recent-batch
- * ring: each slot names one retained event and is consumed exactly once by
- * the matching batch completion. */
 #define PROBE_BATCH_PENDING_DEPTH PROBE_LATENCY_EVENT_DEPTH
-struct probe_batch_pending_assoc
-{
-  uint32_t event_index;
-  uint32_t session, batch_id, recovery_generation;
-  uint8_t used;
-};
+struct probe_batch_pending_assoc { uint32_t event_index; uint32_t session, batch_id, recovery_generation; uint8_t used; };
 static struct probe_batch_pending_assoc g_batch_pending[PROBE_BATCH_PENDING_DEPTH];
 static uint32_t g_batch_pending_count;
 static uint32_t g_batch_pending_overflow;
@@ -485,9 +474,6 @@ static volatile uint32_t g_batch_trace_count, g_batch_trace_dropped,
 
 static void probe_batch_trace_add(const struct probe_batch_trace_record *record)
 {
-  /* The persistent association record is written even while the verbose
-   * recent trace is frozen for export.  Export must never make completed
-   * batches disappear from event association. */
   pthread_mutex_lock(&g_batch_assoc_lock);
   g_batch_archive[g_batch_archive_next % PROBE_BATCH_ARCHIVE_DEPTH] = (struct probe_batch_archive_record){
     record->session, record->batch_id, record->recovery_generation,
@@ -522,11 +508,6 @@ static void probe_batch_trace_add(const struct probe_batch_trace_record *record)
    * exported and is independent of FIFO trace retention. */
 }
 
-/* Atomically resolve an event against the completed-batch archive, or
- * register it for completion.  The archive lookup and pending insertion must
- * share one critical section: otherwise a producer can commit the batch
- * between two separately locked operations and leave the event PENDING
- * forever. */
 static bool probe_batch_associate_or_defer(struct probe_latency_event_record *e,
                                            uint32_t event_index)
 {
@@ -548,8 +529,7 @@ static bool probe_batch_associate_or_defer(struct probe_latency_event_record *e,
           e->batch_enqueue_failed = b->enqueue_failed;
           e->batch_end_us = b->batch_end_us;
           e->batch_complete_valid = b->valid;
-          e->batch_assoc_reason = b->valid ? PROBE_BATCH_ASSOC_OK :
-                                  PROBE_BATCH_ASSOC_NOT_FOUND;
+          e->batch_assoc_reason = b->valid ? PROBE_BATCH_ASSOC_OK : PROBE_BATCH_ASSOC_NOT_FOUND;
           if (!b->valid)
             g_batch_association_failures++;
           found = true;
@@ -561,8 +541,7 @@ static bool probe_batch_associate_or_defer(struct probe_latency_event_record *e,
       for (i = 0; i < PROBE_BATCH_PENDING_DEPTH; i++)
         if (!g_batch_pending[i].used)
           {
-            g_batch_pending[i] = (struct probe_batch_pending_assoc){event_index,
-              e->session, e->batch_id, e->recovery_generation, 1};
+            g_batch_pending[i] = (struct probe_batch_pending_assoc){event_index, e->session, e->batch_id, e->recovery_generation, 1};
             g_batch_pending_count++;
             e->batch_assoc_reason = PROBE_BATCH_ASSOC_PENDING;
             pthread_mutex_unlock(&g_batch_assoc_lock);
@@ -581,13 +560,11 @@ static void probe_batch_pending_complete(const struct probe_batch_trace_record *
   uint32_t i;
   pthread_mutex_lock(&g_batch_assoc_lock);
   for (i = 0; i < PROBE_BATCH_PENDING_DEPTH; i++)
-    if (g_batch_pending[i].used &&
-        g_batch_pending[i].session == record->session &&
+    if (g_batch_pending[i].used && g_batch_pending[i].session == record->session &&
         g_batch_pending[i].batch_id == record->batch_id &&
         g_batch_pending[i].recovery_generation == record->recovery_generation)
       {
-        struct probe_latency_event_record *e =
-          &g_latency_events[g_batch_pending[i].event_index];
+        struct probe_latency_event_record *e = &g_latency_events[g_batch_pending[i].event_index];
         e->batch_complete_samples = record->complete_samples;
         e->batch_first_sequence = record->first_sequence;
         e->batch_last_sequence = record->last_sequence;
@@ -1749,9 +1726,8 @@ static void probe_latency_dump(void)
   for (i = 0; i < g_latency_event_count; i++)
     {
       struct probe_latency_event_record *r = &g_latency_events[i];
-      /* Association is immutable event-owned state.  Export never performs
-       * a late lookup in the bounded archive, so coverage and UART timing
-       * cannot change a previously resolved event. */
+      /* Association is immutable event-owned state; export never performs
+       * a late lookup in the bounded archive. */
       int64_t a = (int64_t)r->confirmation_sample_us - (int64_t)r->beat_us;
       int64_t s = (int64_t)r->enqueue_us - (int64_t)r->confirmation_sample_us;
       int64_t q = (int64_t)r->hb_begin_us - (int64_t)r->enqueue_us;
@@ -1966,8 +1942,6 @@ static void probe_latency_dump(void)
       (unsigned long long)(dump_end_us >= dump_begin_us ?
                            dump_end_us - dump_begin_us : 0),
       (unsigned long)__atomic_load_n(&g_rank_snapshot_fallbacks, __ATOMIC_ACQUIRE));
-      /* snapshot_fallbacks is reported separately from the counter deltas;
-       * a fallback is a diagnostic validity limitation, not a sample event. */
     pthread_mutex_lock(&g_uart_write_lock); (void)write(STDOUT_FILENO, line, strlen(line)); pthread_mutex_unlock(&g_uart_write_lock);
   }
 }
@@ -2154,9 +2128,6 @@ static void *probe_serial_output_thread(void *arg)
                 lr->estimator_period_q16 = sample.estimator_period_q16;
                 lr->estimator_slew_us = sample.estimator_slew_us;
                 lr->producer_context_valid = sample.producer_context_valid;
-                /* Resolve or defer atomically.  A separate archive lookup
-                 * followed by pending registration has a race with the
-                 * producer committing the batch between those operations. */
                 (void)probe_batch_associate_or_defer(lr,
                                                      g_latency_event_count - 1);
               }
@@ -3569,8 +3540,6 @@ static void *probe_imu_raw_thread(void *arg)
                 }
 
               fifo_recovery_failed++;
-              __atomic_store_n(&g_fifo_recovery_last_status_ret, recovery_ret,
-                               __ATOMIC_RELAXED);
               __atomic_fetch_add(&g_fifo_recovery_failure_total, 1,
                                  __ATOMIC_RELAXED);
               printf("openvela_ble_probe: IMU FIFO recovery end"
@@ -3596,9 +3565,8 @@ static void *probe_imu_raw_thread(void *arg)
             {
               printf("openvela_ble_probe: IMU producer stopped after"
                      " recovery failure\n");
-              /* Publish the interrupted batch before leaving the producer.
-               * Events already queued from this batch must reach a terminal
-               * NOT_FOUND state rather than remain PENDING forever. */
+              /* Publish the interrupted batch before leaving the producer so
+               * queued events become terminal rather than PENDING forever. */
               {
                 struct probe_batch_trace_record failed_batch;
                 uint64_t failed_end_us = 0;

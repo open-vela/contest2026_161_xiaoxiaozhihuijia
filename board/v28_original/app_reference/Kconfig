@@ -1,0 +1,23 @@
+config EXAMPLES_OPENVELA_BLE_PROBE
+        tristate "OpenVela BLE real-HCI probe"
+        default n
+        depends on BLUETOOTH_FRAMEWORK
+        depends on BLUETOOTH_FRAMEWORK_LOCAL
+        depends on BLUETOOTH_BLE_SUPPORT
+        depends on BLUETOOTH_BLE_ADV
+
+if EXAMPLES_OPENVELA_BLE_PROBE
+
+config EXAMPLES_OPENVELA_BLE_PROBE_PROGNAME
+        string "Program name"
+        default "openvela_ble_probe"
+
+config EXAMPLES_OPENVELA_BLE_PROBE_PRIORITY
+        int "Task priority"
+        default 100
+
+config EXAMPLES_OPENVELA_BLE_PROBE_STACKSIZE
+        int "Task stack size"
+        default 4096
+
+endif

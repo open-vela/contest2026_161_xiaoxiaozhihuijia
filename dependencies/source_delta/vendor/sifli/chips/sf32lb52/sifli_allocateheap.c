@@ -161,10 +161,10 @@ void HAL_PreInit(void)
 
 void up_allocate_heap(FAR void **heap_start, size_t *heap_size)
 {
-  /* Reserve the HCPU-to-LCPU Bluetooth mailbox at the end of SRAM. */
+  /* Reserve both HCPU-to-LCPU Bluetooth mailbox channels at SRAM end. */
   
   *heap_start = (FAR void *)g_idle_topstack;
-  *heap_size  = HCPU2LCPU_MB_CH1_BUF_START_ADDR - g_idle_topstack;
+  *heap_size  = HCPU2LCPU_MB_CH2_BUF_START_ADDR - g_idle_topstack;
 }
 
 /******************************************************************************

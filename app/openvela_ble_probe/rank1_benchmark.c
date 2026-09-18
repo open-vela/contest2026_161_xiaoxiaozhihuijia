@@ -5,7 +5,7 @@
 #include <time.h>
 #include <string.h>
 #ifndef PROBE_EXPERIMENT_BUILD_ID
-#define PROBE_EXPERIMENT_BUILD_ID "rank1_v23_original_20260916"
+#define PROBE_EXPERIMENT_BUILD_ID "rank1_v23_bootfix_20260916"
 #endif
 typedef struct { uint32_t session,sequence; uint64_t monotonic_us; int16_t a[3],g[3]; uint16_t flags; } bench_sample;
 static const bench_sample fixture[] = {

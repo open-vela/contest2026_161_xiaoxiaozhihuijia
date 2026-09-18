@@ -1,0 +1,189 @@
+{
+  "created_utc": "2026-09-18T08:26:02.741381+00:00",
+  "project": "D:\\上课专用\\综合实践课2\\小小指挥家",
+  "editor": "Tuanjie 1.10.0 / 2022.3.62t12",
+  "app_version": "bte-desktop-2-qpc",
+  "firmware_user_confirmed": "rank1_v28_bootfix_20260917",
+  "firmware_ready_captured": [
+    {
+      "kind": "ready",
+      "session": 29778,
+      "build_id": "rank1_v28_bootfix_20260917",
+      "raw": "@BTE1,READY,1,29778,build_id=rank1_v28_bootfix_20260917,model=rank1_t014_r012_restart_20260912_c1,clock=device_monotonic_us,stride=2,diag=0,mode=rank1_ui_ble,ui_refresh=paused,ui_refresh_limit_hz=0,sched_mode=c,consumer_policy=1,consumer_priority=101,consumer_requested=101,sched_setup_ret=0,sched_query_ret=0,fifo_policy=1,fifo_priority=102,fifo_requested=102,fifo_setup_ret=0,fifo_query_ret=0,input_policy=1,input_priority=100,input_query_ret=0,ui_policy=1,ui_priority=100,ui_query_ret=0,comm_policy=1,comm_priority=100,comm_query_ret=0,ble_service_priority=103,system_work_priority=110,hpwork_priority=224,stop=stop,stop_timeout_ms=8000",
+      "host_rx_ticks": 45867909421
+    }
+  ],
+  "firmware_baseline_sha256_user_supplied": "3aed7f0574e906820c364eef8412faaa25de92414de688615bafdc2bf8d1a8d1",
+  "firmware_not_read_or_modified": true,
+  "source_files": [
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scripts\\RhythmGame\\BLEBridge.cs",
+      "relative": "Assets/Scripts/RhythmGame/BLEBridge.cs",
+      "change": "modified",
+      "sha256": "56a1089d2dd01b20c6396d5c99ff12ba62ce96d60092e96ae5d825c9ccb79934",
+      "original_sha256": "21de8b9450441adc2f99972f798165d746e6f1dd07e0cc085add03c8d96c6d11",
+      "backup": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\backups\\20260918_1544\\Assets\\Scripts\\RhythmGame\\BLEBridge.cs"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scenes\\zhengquedu.cs",
+      "relative": "Assets/Scenes/zhengquedu.cs",
+      "change": "modified",
+      "sha256": "1916e49e80df3fc8b1c4c1705b02abfab48aaf5b64250c7b82b61c5d1357c361",
+      "original_sha256": "36a967deba71e00838aad305b048f813510a6dee9c3976ba1cfdb59692c9bcdd",
+      "backup": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\backups\\20260918_1544\\Assets\\Scenes\\zhengquedu.cs"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scenes\\kaishi1.cs",
+      "relative": "Assets/Scenes/kaishi1.cs",
+      "change": "modified",
+      "sha256": "65dad6c18ef283187586f44a9f048c2b978eb1c0e00239bf9147e40cb183abc0",
+      "original_sha256": "586300088c471313274d68f01e0312b869516679b7f58d6f1f109d54bca8480c",
+      "backup": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\backups\\20260918_1544\\Assets\\Scenes\\kaishi1.cs"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scenes\\kaishi2.cs",
+      "relative": "Assets/Scenes/kaishi2.cs",
+      "change": "modified",
+      "sha256": "e0dc3e8fc34dce80ef02333c044f40d05683c40880645bc85019ec053976e54a",
+      "original_sha256": "094e4d4ccf9c131d8d4d74c2aff303730c3604c14712b2bddd9b73b6daef6253",
+      "backup": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\backups\\20260918_1544\\Assets\\Scenes\\kaishi2.cs"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scenes\\kaishi3.cs",
+      "relative": "Assets/Scenes/kaishi3.cs",
+      "change": "modified",
+      "sha256": "2134440345adef1c65216eeded8ebb606d2d91ec50a3509c467e16062a343bd6",
+      "original_sha256": "86d871b6644897f3d124dd7c80f4e4c76dc98c03102adf6bdaa8225ba51ae690",
+      "backup": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\backups\\20260918_1544\\Assets\\Scenes\\kaishi3.cs"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scripts\\RhythmGame\\BteProtocol.cs",
+      "relative": "Assets/Scripts/RhythmGame/BteProtocol.cs",
+      "change": "added",
+      "sha256": "1c383b5a9bf1de9fba7866f3ef73c585ca1c40edcd45400ad2a4cfbb37cba154"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scripts\\RhythmGame\\BteDesktopInput.cs",
+      "relative": "Assets/Scripts/RhythmGame/BteDesktopInput.cs",
+      "change": "added",
+      "sha256": "27a18ef92c0b37c7925fc811ec892a468e60d2ace528bff98373a99ae4552399"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Scripts\\RhythmGame\\BteHostClock.cs",
+      "relative": "Assets/Scripts/RhythmGame/BteHostClock.cs",
+      "change": "added",
+      "sha256": "faac0c4765863b7c6a4c9a7db606ecb60c69080c3cec978d23d5cfc145c865c6"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\Assets\\Editor\\BteIntegrationEditor.cs",
+      "relative": "Assets/Editor/BteIntegrationEditor.cs",
+      "change": "added",
+      "sha256": "f8d90010bd994fc42bff8c72afc8d71a75e84af299c3caf16b7b06718be52b6c"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\audit.py",
+      "relative": "BteIntegration\\audit.py",
+      "change": "added",
+      "sha256": "46a6853bb75a4fa4b7640076c254461ff4c0a44fd3d2100f560ab015b241b4c8"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\bridge.py",
+      "relative": "BteIntegration\\bridge.py",
+      "change": "added",
+      "sha256": "9422598d60dfae49611cdfb34f742f36ddbeaded468123457de598c612e83d41"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\bte_protocol.py",
+      "relative": "BteIntegration\\bte_protocol.py",
+      "change": "added",
+      "sha256": "3069770d6e2e55fee86c3356e12a5c0517daf8e2fd1e4eeb8813d013a79c815d"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\finalize_evidence.py",
+      "relative": "BteIntegration\\finalize_evidence.py",
+      "change": "added",
+      "sha256": "6bc6a49cd2f406b60507ec9d69de581ce81f17134c0d40145bbc2c0c3a1dfbe0"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\ProtocolTests\\NuGet.Config",
+      "relative": "BteIntegration\\ProtocolTests\\NuGet.Config",
+      "change": "added",
+      "sha256": "35e55409c50b1d47d2218af34a901c377d785e77b9220d1cfef12070f38978ca"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\ProtocolTests\\Program.cs",
+      "relative": "BteIntegration\\ProtocolTests\\Program.cs",
+      "change": "added",
+      "sha256": "328aba0bb4001e9a3fa55f0c08bbe903a83c4b836ded7c6fcca98963f5e54943"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\ProtocolTests\\ProtocolTests.csproj",
+      "relative": "BteIntegration\\ProtocolTests\\ProtocolTests.csproj",
+      "change": "added",
+      "sha256": "002b3a0ad3bc59222392b75adb6e39818e9c896d70ec70d47427ab720e62767f"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\README.md",
+      "relative": "BteIntegration\\README.md",
+      "change": "added",
+      "sha256": "4049ae8801940bfd18808d787f5802eef706f9f5df66d37d8316af90ae532654"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\record_checks.py",
+      "relative": "BteIntegration\\record_checks.py",
+      "change": "added",
+      "sha256": "5a4dbbb88b586a20636fbc2bf4645e1bbbc2b62f6beb7096743181e6687499df"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\requirements.txt",
+      "relative": "BteIntegration\\requirements.txt",
+      "change": "added",
+      "sha256": "0b81718d1cbe8a7696e45a9388c9205272b5e345cd79d0cf1ccfb7a9fd1925e9"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\run_bridge.cmd",
+      "relative": "BteIntegration\\run_bridge.cmd",
+      "change": "added",
+      "sha256": "127d049b0171d0517086355dcdd6d167742142fac9a734d3c4bd0077be8ce52a"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\run_bridge.ps1",
+      "relative": "BteIntegration\\run_bridge.ps1",
+      "change": "added",
+      "sha256": "0fc09125884c903f09f61cee80f3457250fbb6131997752c4dfc7a6de752055e"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\skills\\v28-bte-desktop\\SKILL.md",
+      "relative": "BteIntegration\\skills\\v28-bte-desktop\\SKILL.md",
+      "change": "added",
+      "sha256": "5c4d539dcf7eeb00370d5072f608025fd41aa465195ccafc228280a302f018fd"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\test_protocol.py",
+      "relative": "BteIntegration\\test_protocol.py",
+      "change": "added",
+      "sha256": "9c171a450124f1d2ba2fac5d3869497d5e632df17e95553163ee0ebbb91a3fd6"
+    },
+    {
+      "path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\test_unity_transport.py",
+      "relative": "BteIntegration\\test_unity_transport.py",
+      "change": "added",
+      "sha256": "ab6de0b0b3d0fa966a9c33a0ea7d53dbdb5cb373dcbddca9edb9c20f1afd29cc"
+    }
+  ],
+  "dependencies": [
+    "Python 3.14 used",
+    "pyserial 3.5 vendored",
+    "Tuanjie Editor 1.10.0",
+    "NET SDK 10.0.100 for optional parser tests"
+  ],
+  "audit_path": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\evidence\\final_audit_20260918_162602.json",
+  "unity_logs": [
+    "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\evidence\\unity_20260918_080335_534_board_serial.jsonl",
+    "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\evidence\\unity_20260918_080848_168_board_serial.jsonl",
+    "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\evidence\\unity_20260918_081048_212_board_serial.jsonl",
+    "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\evidence\\unity_20260918_082335_291_board_serial.jsonl"
+  ],
+  "raw_serial": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\evidence\\20260918_160028_896cc4_board_serial\\serial.bin",
+  "bridge_log": "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\evidence\\20260918_160028_896cc4_board_serial\\bridge.jsonl"
+}

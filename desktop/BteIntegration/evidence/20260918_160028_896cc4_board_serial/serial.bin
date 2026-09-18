@@ -1,0 +1,77 @@
+openvela_ble_probe --ui-paused --diag-off -c
+openvela_ble_probe: monotonic 64-bit epoch extension enabled
+openvela_ble_probe: joint onboard rank1 + UI + BLE mode build_id=rank1_v28_bootfix_20260917 ui_refresh=paused ui_refresh_limit_hz=0 diag=0 sched_mode=c stop_timeout_ms=8000; BTE1 remains UART-only
+openvela_ble_probe: application input owner active command=stop echo=off canonical=preserved
+openvela_ble_probe: normal capture sample transmission build
+openvela_ble_probe: BLE startup target=6000 ms already satisfied
+openvela_ble_probe: IMU probe addr=0x6a transport=0 whoami=0x6a
+openvela_ble_probe: IMU detected addr=0x6a whoami=0x6a
+openvela_ble_probe: IMU probe addr=0x6b transport=-1 whoami=0x00
+[0m/data/misc/bt folder create: 0
+[0m[0mdev:0: Sending HCI_RESET
+[0m[0mov_ble_hci_init_cmd_diag opcode=0x0c03 phase=queued buf=0x20015d48
+[0m[0mov_ble_hci_init_cmd_diag opcode=0x0c03 phase=sent_wait buf=0x20015d48 sent=0x20015d48
+[0mopenvela_ble_probe: adapter state=1
+openvela_ble_probe: waiting for BLE adapter
+[0mov_ble_hci_init_cmd_diag event=0x0e opcode=0x0c03 ncmd=6 status=0x00 sent=0x20015d48 expected=0x0c03 match=1
+[0m[0mov_ble_hci_init_cmd_diag opcode=0x1003 phase=queued buf=0x20015d48
+[0m[0mov_ble_hci_init_cmd_diag opcode=0x1003 phase=sent_wait buf=0x20015d48 sent=0x20015d48
+[0m[0mov_ble_hci_init_cmd_diag event=0x0e opcode=0x1003 ncmd=6 status=0x00 sent=0x20015d48 expected=0x1003 match=1
+[0m[0mov_ble_hci_init_cmd_diag opcode=0x1001 phase=queued buf=0x20015d48
+[0m[0mov_ble_hci_init_cmd_diag opcode=0x1001 phase=sent_wait buf=0x20015d48 sent=0x20015d48
+[0m[0mov_ble_hci_init_cmd_diag event=0x0e opcode=0x1001 ncmd=6 status=0x00 sent=0x20015d48 expected=0x1001 match=1
+[0m[0mA4 ATT diagnostics active; bounded discovery trace enabled
+[0mopenvela_ble_probe: adapter state=2
+[0mA4_SC_RANGE start=0x000e end=0x0013 pending=0 changed=0
+[0mopenvela_ble_probe: GATT service FFF0, RX FFF1, TX FFF2
+openvela_ble_probe: delaying advertising 100 ms after GATT table setup
+[0mA4_SC_SUBMIT start=0x000e end=0x0013 err=-107 pending_before=0
+[0mopenvela_ble_probe: GATT table status=0 handle=1
+[0mov_ble_adv_diag: probe adv: request begin
+[0m[0mov_ble_adv_diag: probe adv: request returned status=0
+[0mopenvela_ble_probe: advertising as ov_ble_probe
+[0mov_ble_hci_adv_diag host opcode=0x2037 phase=queued buf=0x20015d48
+[0m[0mov_ble_hci_adv_diag host opcode=0x2037 phase=credit_acquired buf=0x20015d48
+[0m[0mov_ble_hci_adv_diag host opcode=0x2037 phase=sent_cmd_set buf=0x20015d48 sent=0x20015d48
+[0m[0mov_ble_hci_adv_diag adapter_tx opcode=0x2037 h4_len=11 phase=published rd=002d0000 wr=00380000 result=0
+[0m[0mov_ble_hci_adv_diag adapter_tx opcode=0x2037 h4_len=11 phase=consumed rd=00380000 wr=00380000 result=0
+[0m[0mov_ble_hci_adv_diag bth4_tx opcode=0x2037 h4_len=11 result=0
+[0m[0m[0mov_ble_hci_adv_diag adapter_rx mailbox=drained event=0x0e len=7 opcode=0x2037 rd=00480000 wr=00480000
+[0m[0mov_ble_hci_adv_diag bth4_rx event=0x0e len=7 opcode=0x2037 status=0x00 ncmd=6
+[0m[0mov_ble_hci_adv_diag zblue opcode=0x2037 phase=event_match sent=0x20015d48 expected=0x2037 match=1
+[0m[0mov_ble_hci_adv_diag zblue opcode=0x2037 phase=release_sync ready=1 status=0x00
+[0mov_ble_hci_adv_diag host opcode=0x2037 phase=wait_begin buf=0x20015d48
+[0m[0mov_ble_hci_adv_diag host opcode=0x2037 phase=wait_returned err=0 buf=0x20015d48
+[0m[0mov_ble_hci_adv_diag host opcode=0x2038 phase=queued buf=0x20015d48
+[0m[0mov_ble_hci_adv_diag host opcode=0x2038 phase=credit_acquired buf=0x20015d48
+[0m[0mov_ble_hci_adv_diag host opcode=0x2038 phase=sent_cmd_set buf=0x20015d48 sent=0x20015d48
+[0m[0mov_ble_hci_adv_diag adapter_tx opcode=0x2038 h4_len=22 phase=published rd=00380000 wr=004e0000 result=0
+[0m[0mov_ble_hci_adv_diag adapter_tx opcode=0x2038 h4_len=22 phase=consumed rd=004e0000 wr=004e0000 result=0
+[0m[0mov_ble_hci_adv_diag bth4_tx opcode=0x2038 h4_len=22 result=0
+[0m[0mov_ble_hci_adv_diag adapter_rx mailbox=drained event=0x0e len=7 opcode=0x2038 rd=004f0000 wr=004f0000
+[0m[0mov_ble_hci_adv_diag bth4_rx event=0x0e len=7 opcode=0x2038 status=0x00 ncmd=6
+[0m[0mov_ble_hci_adv_diag zblue opcode=0x2038 phase=event_match sent=0x20015d48 expected=0x2038 match=1
+[0m[0mov_ble_hci_adv_diag zblue opcode=0x2038 phase=release_sync ready=1 status=0x00
+[0m[0mov_ble_hci_adv_diag host opcode=0x2038 phase=wait_begin buf=0x20015d48
+[0m[0mov_ble_hci_adv_diag host opcode=0x2038 phase=wait_returned err=0 buf=0x20015d48
+[0m[0mov_ble_adv_diag: probe adv: callback id=1 status=0
+[0mopenvela_ble_probe: advertising start id=1 status=0
+openvela_ble_probe: IMU raw launch check detected=1 started=0 adv_id=1 status=0
+openvela_ble_probe: onboard rank1 consumer started build_id=rank1_v28_bootfix_20260917 stride=2 sched_mode=c policy=1 priority=101 requested_priority=101 setup_ret=0 query_ret=0
+openvela_ble_probe: rank1 consumer create status=0
+openvela_ble_probe: beat UI thread create status=0
+openvela_ble_probe: IMU raw pthread create ret=0
+openvela_ble_probe: UI thread entered mode=paused
+openvela_ble_probe: IMU FIFO thread entered
+@BTE1,READY,1,29778,build_id=rank1_v28_bootfix_20260917,model=rank1_t014_r012_restart_20260912_c1,clock=device_monotonic_us,stride=2,diag=0,mode=rank1_ui_ble,ui_refresh=paused,ui_refresh_limit_hz=0,sched_mode=c,consumer_policy=1,consumer_priority=101,consumer_requested=101,sched_setup_ret=0,sched_query_ret=0,fifo_policy=1,fifo_priority=102,fifo_requested=102,fifo_setup_ret=0,fifo_query_ret=0,input_policy=1,input_priority=100,input_query_ret=0,ui_policy=1,ui_priority=100,ui_query_ret=0,comm_policy=1,comm_priority=100,comm_query_ret=0,ble_service_priority=103,system_work_priority=110,hpwork_priority=224,stop=stop,stop_timeout_ms=8000
+openvela_ble_probe: IMU FIFO config watermark_words=120 fifo_ctrl3=0x09 fifo_ctrl5=0x26
+openvela_ble_probe: UI initialized refresh=paused limit_hz=0
+@BTE1,28,010101005274000001000000ce3a301e0000000005fd3c1e00000000,fcb0
+@BTE1,28,010101005274000002000000a9dc431e000000003eb24e1e00000000,9d7c
+@BTE1,28,0101010052740000030000005606893a00000000e1bf903a00000000,ec52
+@BTE1,28,01010100527400000400000036de983a000000002b62a03a00000000,ea82
+@BTE1,28,010101005274000005000000cd22a13a00000000bbbfa83a00000000,197c
+@BTE1,28,010101005274000006000000ae110b3b0000000049ed103b00000000,2d50
+@BTE1,28,010101005274000007000000943d6b65000000008d5c726500000000,cb68
+@BTE1,28,0101010052740000080000001a8e786500000000b16c7f6500000000,080a
+@BTE1,28,010101005274000009000000b8e97f65000000007991866500000000,7dda

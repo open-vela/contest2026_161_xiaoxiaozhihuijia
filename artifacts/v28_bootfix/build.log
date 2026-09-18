@@ -1,0 +1,17 @@
+ninja: Entering directory `cmake_out/v28_bootfix_20260917'
+[1/16] cd /vdb/huangshan-motion-game-clean.20260901/workspaces/v28_bootfix_20260917/nuttx && /usr/bin/cmake -DKCONFIG_CONFIG=/vdb/huangshan-motion-game-clean.20260901/workspaces/v28_bootfix_20260917/build_config/board_config_i2c3/defconfig -DNUTTX_DIR=/vdb/huangshan-motion-game-clean.20260901/workspaces/v28_bootfix_20260917/nuttx -DCMAKE_BINARY_DIR=/vdb/huangshan-motion-game-clean.20260901/cmake_out/v28_bootfix_20260917 -P /vdb/huangshan-motion-game-clean.20260901/workspaces/v28_bootfix_20260917/nuttx/cmake/nuttx_generate_dts.cmake
+[2/16] cd /vdb/huangshan-motion-game-clean.20260901/cmake_out/v28_bootfix_20260917/libs/libc/misc && /usr/bin/cmake -E touch /vdb/huangshan-motion-game-clean.20260901/workspaces/v28_bootfix_20260917/nuttx/libs/libc/misc/lib_utsname.c
+[3/16] Generating bin output directories
+[4/16] Linking C static library libs/libc/libc.a
+[5/16] Linking CXX executable nuttx
+[6/16] Generating nuttx.bin
+[7/16] Generating allsyms_first.c
+[8/16] Building C object CMakeFiles/first_link.dir/allsyms_first.c.o
+[9/16] Linking CXX executable first_link
+[10/16] Generating allsyms_second.c
+[11/16] Building C object CMakeFiles/second_link.dir/allsyms_second.c.o
+[12/16] Linking CXX executable second_link
+[13/16] Generating allsyms_final.c
+[14/16] Building C object CMakeFiles/final_nuttx.dir/allsyms_final.c.o
+[15/16] Linking CXX executable final_nuttx
+[16/16] Generating System.map

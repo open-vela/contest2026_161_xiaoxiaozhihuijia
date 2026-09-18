@@ -19,6 +19,6 @@
   <extend-project name="vendor_sifli" path="vendor/sifli" revision="f5bde0b5f99bfccf87faf791d8b51fdfcb963c9b" />
   <project path="contest2026_161_xiaoxiaozhihuijia" name="contest2026_161_xiaoxiaozhihuijia">
     <linkfile src="app/openvela_ble_probe" dest="apps/examples/openvela_ble_probe" />
-    <linkfile src="board/v28_original/board_config_i2c3" dest="vendor/sifli/boards/sf32lb52/lckfb_huangshan_pi/configs/contest2026_161_v28_original" />
+    <linkfile src="board/v28_bootfix/board_config_i2c3" dest="vendor/sifli/boards/sf32lb52/lckfb_huangshan_pi/configs/contest2026_161_v28_bootfix" />
   </project>
 </manifest>
