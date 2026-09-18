@@ -8,7 +8,7 @@
 
 最终运行基准为 `rank1_v28_bootfix_20260917`。其 ARM/allsyms 构建、固定启动 ABI 校验以及板端会话 5413、1388、桌面会话 29778 的原始证据随仓库提交。original 构建仅作原布局对照，不能替代 bootfix 运行镜像。
 
-bootfix BIN：2,557,596 字节，SHA-256：`3aed7f0574e906820c364eef8412faaa25de92414de688615bafdc2bf8d1a8d1`。实机 READY 与 build_id 对应；未记录当时已烧录 Flash 的逐字节哈希绑定。桌面 QPC 修正后七条事件全部产生反馈，前两条失败记录保留。该组测试发生在删曲前 scene8，不能改写为当前 scene9 的七条验收。
+bootfix BIN：2,557,596 字节，SHA-256：`3aed7f0574e906820c364eef8412faaa25de92414de688615bafdc2bf8d1a8d1`。实机 READY 与 build_id 对应；未记录当时已烧录 Flash 的逐字节哈希绑定。桌面 QPC 修正后七条事件全部产生反馈，前两条失败记录保留。该组测试发生在原实测 scene8，不能改写为当前 scene9 的七条验收。
 
 [演示视频](media/小小指挥家演示.mp4) 时长 2 分 17 秒（137.213 秒），团队确认包含硬件展示。[作品提交文档](docs/小小指挥家队-小小指挥家-作品提交文档.docx) · [实机证据](evidence/v28_bootfix/README.md) · [文件校验值](docs/最终交付文件校验.json)。
 
@@ -40,9 +40,8 @@ Unity 后端代码由 Qoder CN 生成；Codex 用于板端开发、诊断、联�
 
 已提交部分历史 Codex 日志：30 个会话、37,828 条记录，按原始日期分为 54 个 JSONL，未修改官方校验器结果 ALL OK。未改写原始内容，保留适配来源说明；不宣称全项目完整覆盖或官方认可有效工时。详见 [日志说明](logs/README.md)。Skill 位于 desktop/BteIntegration/skills/v28-bte-desktop/SKILL.md，尚未独立验证完整复现。
 
-已移除《义勇军进行曲》。scene1、scene2 跳转问题（ISS-051）暂不修复。算法、识别率、BLE、状态机保持冻结；Android BLE、精确双端同步和长期稳定性未完成验收。
+scene1、scene2 跳转问题（ISS-051）暂不修复。算法、识别率、BLE、状态机保持冻结；Android BLE、精确双端同步和长期稳定性未完成验收。
 
-官方手表应用指引要求快应用框架与模拟器验证；本项目当前为原生板端与 Windows 联动，尚无对应快应用工程，方向符合性须向组委会确认，不能仅靠 README 名称证明满足要求。
 
 ## 提交状态
 
