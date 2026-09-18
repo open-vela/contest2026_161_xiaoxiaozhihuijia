@@ -1,59 +1,49 @@
 # 小小指挥家
 
-小小指挥家队 · 手表应用创新赛道
+小小指挥家队 · 手表应用创新方向
 
-以腕部挥拍控制音乐节奏游戏：openvela 开发板采集惯性数据并输出拍点事件，Windows 团结引擎工程接收 28 字节 BTE1 事件，完成谱面判定和游戏反馈。当前交付包含 v28 original 板端应用、桌面工程、桥接工具、Skill 和作品文档。
+腕部挥拍驱动音乐节奏游戏：openvela 开发板采集惯性数据并输出 28 字节 BTE1 拍点事件，Windows 团结工程完成谱面判定与游戏反馈。团队原创代码、工具、Skill 和文档采用 [Apache 2.0](LICENSE)，第三方组件保留原许可，见 [许可范围](LICENSES/README.md)。
 
-## 当前验证范围
+## 最终运行版本与证据
 
-v28 original 已完成 ARM/allsyms 构建，仅通过 const-allsyms 修复符号表引起的 SRAM 溢出，原有链接布局不变。尚未完成启动布局兼容性、全新目录构建及 original 实机验收，不作为固定启动区烧录候选。bootfix 不提交。
+最终运行基准为 `rank1_v28_bootfix_20260917`。其 ARM/allsyms 构建、固定启动 ABI 校验以及板端会话 5413、1388、桌面会话 29778 的原始证据随仓库提交。original 构建仅作原布局对照，不能替代 bootfix 运行镜像。
 
-历史 bootfix 桌面联调修正 QPC 原点后，7 条事件均产生游戏反馈；该结果不作为 original 或本次删曲后版本的验收。已移除《义勇军进行曲》，默认联调入口为 scene9。录屏中发现 scene1、scene2 跳转问题（ISS-051），暂不修复。视频已录制并包含硬件展示，视频文件单独交付。
+bootfix BIN：2,557,596 字节，SHA-256：`3aed7f0574e906820c364eef8412faaa25de92414de688615bafdc2bf8d1a8d1`。实机 READY 与 build_id 对应；未记录当时已烧录 Flash 的逐字节哈希绑定。桌面 QPC 修正后七条事件全部产生反馈，前两条失败记录保留。该组测试发生在删曲前 scene8，不能改写为当前 scene9 的七条验收。
+
+[演示视频](media/小小指挥家演示.mp4) 时长 2 分 17 秒（137.213 秒），团队确认包含硬件展示。[作品提交文档](docs/小小指挥家队-小小指挥家-作品提交文档.docx) · [实机证据](evidence/v28_bootfix/README.md) · [文件校验值](docs/最终交付文件校验.json)。
 
 ## 目录
 
-|目录|用途|
+|目录|内容|
 |---|---|
-|app/openvela_ble_probe/|团队板端应用源码、Kconfig、CMake入口|
-|board/v28_original/|original板配置及配置叠加记录|
-|desktop/|团结工程Assets、Packages、ProjectSettings及BteIntegration工具与Skill|
-|dependencies/|构建涉及仓库的固定版本及公共代码修改快照|
-|patches/|公共仓补丁；不替代对应公共仓PR|
-|artifacts/v28_original/|最终original固件、配置、构建结果|
-|tools/|保持手工同步的数据采集工具|
-|docs/|作品提交文档、依赖说明、已知问题和映射说明|
-|logs/|AI日志提交位置，见目录说明|
+|app/openvela_ble_probe|最终 bootfix 板端应用源码|
+|board/v28_bootfix|运行版本配置|
+|artifacts/v28_bootfix|固件、符号、构建记录及固定引导镜像|
+|board/v28_original、artifacts/v28_original|original 对照源码差异、配置及构建产物|
+|desktop|团结工程、BteIntegration 桥接与 Skill|
+|dependencies、patches|固定基线、公共源码修改与补丁|
+|tools|固定引导构建与校验；手工同步的原采集工具|
+|evidence、media、docs|原始测试证据、演示视频与文档|
+|logs/yangshuxuan1024|实际 AI 日志和 manifest|
 
-## 拉取与板端构建
+## 复现
 
-合并本次变更后，可在 Linux 使用比赛仓 manifest 拉取工作区：
+完整步骤见 [通用复现步骤](docs/通用复现步骤.md)。在已安装兼容固定引导的目标板使用交付 bootfix；电脑用团结引擎 1.10.0／2022.3.62t12 打开 desktop，进入 `Assets/Scenes/scene9.scene`，选择 `RhythmGame / v28 / Run real board input`。
 
-```sh
-repo init -u https://github.com/open-vela/contest2026_161_xiaoxiaozhihuijia -b dev-ai-contest-2026 -m contest2026_161_xiaoxiaozhihuijia.xml
-repo sync -c -j8
-```
+在 desktop/BteIntegration 运行 `python -X utf8 bridge.py --port <实际串口名>`。串口只允许一个读取者；仅在确认 NSH 状态且应用未启动时使用 `--start-app`。按 session/event_id 核对日志。不要自动复位、重复启动或将模拟输入当作实机证据。
 
-本地未推送时，上述远端命令仍得到旧版。manifest 将团队应用映射到 `apps/examples/openvela_ble_probe`，并为 original 配置建立独立命名入口；16 个相关公共仓固定到归档基线。公共依赖补丁及新增源码仍须按对应仓处理，不能仅 repo sync 就认定等价于历史构建。
+manifest 默认映射 bootfix 应用和配置，16 个公共依赖固定基线。公共修改仍需应用补丁／新增文件；仅 repo sync 不等于已完成全部修改。全新环境构建尚未验证，通用源码准备流程与已完成的历史 ARM 构建分别说明。
 
-已完成构建来自原有 CMake/Ninja 环境。本次没有把历史绝对路径缓存当作可移植入口，也没有验证新的干净配置或标准 build.sh 构建。详见 [映射与复现边界](docs/仓库映射与复现边界.md)。烧录前须单独确认目标启动布局，不提供未经验证的烧录步骤。
+## AI 使用与已知限制
 
-BIN：2,557,620 字节；SHA-256：`77b8bb24c4e4dd136d0d6a406433986c06681edbb3ac2fb18c253d3ffd7bf5ea`。
+Unity 后端代码由 Qoder CN 生成；Codex 用于板端开发、诊断、联调及工具整理；图片和动画由即梦 AI 生成。音乐性质按团队确认，为公开、超过版权保护年限的音乐；第三方录音和素材不自动取得 Apache 授权。
 
-## 电脑端运行
+已提交部分历史 Codex 日志：30 个会话、37,828 条记录，按原始日期分为 54 个 JSONL，未修改官方校验器结果 ALL OK。未改写原始内容，保留适配来源说明；不宣称全项目完整覆盖或官方认可有效工时。详见 [日志说明](logs/README.md)。Skill 位于 desktop/BteIntegration/skills/v28-bte-desktop/SKILL.md，尚未独立验证完整复现。
 
-1. 用团结引擎 1.10.0／2022.3.62t12 打开 `desktop/`，等待导入；准备 Python 3，工具已携带 pyserial 3.5。
-2. 打开 `Assets/Scenes/scene9.scene`，使用 `RhythmGame / v28 / Run real board input` 进入真实输入模式。
-3. 在 `desktop/BteIntegration/` 运行 `python -X utf8 bridge.py --port <实际串口名>`，关闭其他串口读取者。板端未运行时，先核对 NSH 状态，再按工具说明使用 `--start-app`；不要重复启动、自动复位或烧录。
-4. 按 session/event_id 核对串口、桥接和游戏日志。Ctrl+C 关闭桥接，再停止 Play。模拟输入不作为真实板验收。
+已移除《义勇军进行曲》。scene1、scene2 跳转问题（ISS-051）暂不修复。算法、识别率、BLE、状态机保持冻结；Android BLE、精确双端同步和长期稳定性未完成验收。
 
-Android BLE、精确双端同步、识别率和长期稳定性尚未完成验收；本次不优化算法、BLE或状态机。
+官方手表应用指引要求快应用框架与模拟器验证；本项目当前为原生板端与 Windows 联动，尚无对应快应用工程，方向符合性须向组委会确认，不能仅靠 README 名称证明满足要求。
 
-## AI 使用
+## 提交状态
 
-Unity 后端代码由 Qoder CN 生成；Codex 用于板端开发、联调和工具整理；图片及动画由即梦 AI 生成。音乐来源按团队确认，为公开且超过版权保护年限的音乐。团队负责需求、集成与验证。
-
-Skill 位于 `desktop/BteIntegration/skills/v28-bte-desktop/SKILL.md`，是可复用联调规范。手动适配的部分 Codex 日志已通过官方格式校验，但尚未完成人工公开审阅，未装入此源码审阅目录；不宣称完整归集或官方认可有效工时。Qoder CN 不冒充 Codex 日志，即梦素材不计作编码日志。
-
-## PR 与依赖
-
-所有仓库变更经 PR 和实际配置的检查合入。NuttX、LVGL、ZBlue、Bluetooth、vendor/sifli 的公共修改需要各自的依赖 PR。源码目录和补丁可供审阅，不表示依赖已合入。此次仅本地准备，没有推送或合并。
+通过 [PR #3](https://github.com/open-vela/contest2026_161_xiaoxiaozhihuijia/pull/3) 提交，是否合入及检查结果以 PR 页面为准。CLA 不代替构建验证。NuttX、LVGL、ZBlue、Bluetooth、vendor/sifli 修改仍需对应公共仓 PR；本仓补丁不替代公共仓审核。

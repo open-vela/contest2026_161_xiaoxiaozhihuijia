@@ -1,0 +1,186 @@
+{
+  "build_id": "rank1_v28_bootfix_20260917",
+  "video_duration_seconds": 137.213,
+  "files": [
+    {
+      "path": "artifacts/v28_bootfix/.config",
+      "bytes": 99488,
+      "sha256": "7534a0aad20d35808402ea8f92a4d477b73405fa91282fc827e0060bbf9341f3"
+    },
+    {
+      "path": "artifacts/v28_bootfix/build.log",
+      "bytes": 1459,
+      "sha256": "b82a57b3e1d6ab677066907712752233c2c1b642a564a4a3f368b573a3ae27cd"
+    },
+    {
+      "path": "artifacts/v28_bootfix/check_app.json",
+      "bytes": 150,
+      "sha256": "17be9f9438e8cdcf62558ef6c1201a819662914bc2bbb56dd07aedea36c10d46"
+    },
+    {
+      "path": "artifacts/v28_bootfix/config.h",
+      "bytes": 38938,
+      "sha256": "3f471ec472784506827773dbc3f18c5f7772aac852d47db4bacc9587bc8654b2"
+    },
+    {
+      "path": "artifacts/v28_bootfix/final_nuttx",
+      "bytes": 20588508,
+      "sha256": "6880c700c07b10cd5d8b07e545a4bc32569903337443200580ce79cb3b5b8618"
+    },
+    {
+      "path": "artifacts/v28_bootfix/fixed_boot.bin",
+      "bytes": 196,
+      "sha256": "6b03c643225d232a967c6c9e51a834969d61253d8eff0d23e9c6b03231481f5b"
+    },
+    {
+      "path": "artifacts/v28_bootfix/fixed_boot.elf",
+      "bytes": 66224,
+      "sha256": "8dbda9de331852674d12c3bf07b9bc3799f34afd310c6065d97751f9d760371a"
+    },
+    {
+      "path": "artifacts/v28_bootfix/ftab_fixed.bin",
+      "bytes": 11280,
+      "sha256": "94c50e54134f1422d780b98b793820c667eb9043d69a21ac61f260457e8705bd"
+    },
+    {
+      "path": "artifacts/v28_bootfix/nuttx.bin",
+      "bytes": 2557596,
+      "sha256": "3aed7f0574e906820c364eef8412faaa25de92414de688615bafdc2bf8d1a8d1"
+    },
+    {
+      "path": "artifacts/v28_bootfix/System.map",
+      "bytes": 22138111,
+      "sha256": "f23770c2406459c40cb99b19d8a0b19276aed7be3d3768830cc5a0f2a89f701f"
+    },
+    {
+      "path": "media/小小指挥家演示.mp4",
+      "bytes": 10180023,
+      "sha256": "71105d596aed4c1f1defd9695abd70eaff0735993fdfcf48699619b3bef12a13"
+    },
+    {
+      "path": "evidence/v28_bootfix/board/ARCHIVE_IDENTITY_CORRECTION_20260917.md",
+      "bytes": 1473,
+      "sha256": "7e8adc78f5923e6cbda75242cdc97ef310e17e4094339a4d62a9d8b0ccbf8dc5"
+    },
+    {
+      "path": "evidence/v28_bootfix/board/BACKLOG_ACCEPTANCE_20260917.md",
+      "bytes": 3027,
+      "sha256": "25646a873f26c3f68c07c92d8485bd6cded38761dea8ef7254906152f2e11e10"
+    },
+    {
+      "path": "evidence/v28_bootfix/board/hardware_session_1388_user_supplied.txt",
+      "bytes": 662,
+      "sha256": "0592e2a7293b496b806d2374f75f285fbff57f00a65f177681695273369e0f3e"
+    },
+    {
+      "path": "evidence/v28_bootfix/board/hardware_session_5413_user_supplied.txt",
+      "bytes": 662,
+      "sha256": "664914a40019f9556d95c45e1f785d214e0d3d87dbe322a8471b914bca2519ec"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/20260918_155534_b11aba_board_serial/bridge.jsonl",
+      "bytes": 3720,
+      "sha256": "0542e9bb320f71de9c838b5670e1855eae22a429f66b4c76193292f8a70e4b0e"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/20260918_155534_b11aba_board_serial/serial.bin",
+      "bytes": 344,
+      "sha256": "2cea1aa089df7434f51a7c843fa4d268764d4eed883a5c1cc66e840b86582d8c"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/20260918_155534_b11aba_board_serial/summary.json",
+      "bytes": 69,
+      "sha256": "3ecc6162540488e50b46b6085b3c27f819f6bb528430472a6ee51b9def19fa18"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/20260918_160028_896cc4_board_serial/bridge.jsonl",
+      "bytes": 812680,
+      "sha256": "3d46d1d5f95a58e889352732c2fa43ca24fe77ad3e55e88f4719ba285de2efac"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/20260918_160028_896cc4_board_serial/serial.bin",
+      "bytes": 6622,
+      "sha256": "c07aed739892273ba549cd1a90e453723aedf5a656e38a7a98f9520ab740a48e"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/20260918_160028_896cc4_board_serial/summary.json",
+      "bytes": 159,
+      "sha256": "90f79338c257016e48b851edc0e65fe19a7b0e9b034b13045d1f9af69ec9ca1f"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/audit_first_small_motion.json",
+      "bytes": 1514,
+      "sha256": "3800647457d53ac34ea30198befdeb6a14529f0b675ae195c2a6d2d185d2be4d"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/delivery_manifest_20260918_162602.json",
+      "bytes": 10580,
+      "sha256": "9f745117dd0bc9f85a9ac4353bc271a020b70dcd17f0ce479104df41927f4120"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/delivery_manifest_20260918_163109.json",
+      "bytes": 10862,
+      "sha256": "fbbafff109abffc8c505ae89966a67c6a2f0d17c80a554e76b509ca67e401ddc"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/final_audit_20260918_162602.json",
+      "bytes": 7495,
+      "sha256": "ecee6a7bdc57784baa2002044a611073cd0c848315543471e68f6973a959c52d"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/final_audit_20260918_163109.json",
+      "bytes": 7584,
+      "sha256": "6a1484141a38a245bd52387f6465a48895e91d8d2ab056e8f5fa829d61768904"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/game_20260918_082536_825.png",
+      "bytes": 188362,
+      "sha256": "a0fed7e3a56650c7110e46bc3fee527f30e0eb7f43c6af28226a39d01d8f9ff3"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/operator_notes.md",
+      "bytes": 2417,
+      "sha256": "e61aaaecabbae4cfc7a90e69c8a57ded37002f33486f2463750582b47f6993a1"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/simulation_transport_e2d7c884.json",
+      "bytes": 12162,
+      "sha256": "b3d451373bd99caaabbcc7942be5e8feff249cd59272f91b9c4b500b51f1d13e"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/software_checks_20260918_162219.json",
+      "bytes": 1822,
+      "sha256": "9d706ea266e145579e32caf0365f7681d1390280323c88aeb93c9ffe79c96043"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/unity_20260918_080335_534_board_serial.jsonl",
+      "bytes": 186269,
+      "sha256": "ca323aaf3f3fa9953d8136ad1301c3639dcb15e25f515635d72e112be1b04d48"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/unity_20260918_080848_168_board_serial.jsonl",
+      "bytes": 49148,
+      "sha256": "f63b0f13d4cb34c93afc712b2b974a5a5eb7c79b0a4e724cac4b4b26620e9f2c"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/unity_20260918_081048_212_board_serial.jsonl",
+      "bytes": 319988,
+      "sha256": "91d4a83ba94c8ddce0d0b5809c4bf7c5bdea68971174dd75964ac6586e79195b"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/unity_20260918_081802_661_simulation.jsonl",
+      "bytes": 18844,
+      "sha256": "cb7ed573f0ea53852b95e974457cf2ed3186d28bd3f67d72dc8f10a206caace2"
+    },
+    {
+      "path": "evidence/v28_bootfix/desktop/unity_20260918_082335_291_board_serial.jsonl",
+      "bytes": 134680,
+      "sha256": "3fed94d2df1426c37a67205a93dd77ac87f21149b5987996be5288d1b49ee592"
+    },
+    {
+      "path": "evidence/v28_bootfix/README.md",
+      "bytes": 1098,
+      "sha256": "17de5a4044df7e8b9153f52f17301c69aef33b7b76b147678046e06838967a8f"
+    }
+  ]
+}

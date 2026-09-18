@@ -1,0 +1,38 @@
+{
+  "source": "board_serial",
+  "run": "20260918_160028_896cc4_board_serial",
+  "ready": [
+    {
+      "kind": "ready",
+      "session": 29778,
+      "build_id": "rank1_v28_bootfix_20260917",
+      "raw": "@BTE1,READY,1,29778,build_id=rank1_v28_bootfix_20260917,model=rank1_t014_r012_restart_20260912_c1,clock=device_monotonic_us,stride=2,diag=0,mode=rank1_ui_ble,ui_refresh=paused,ui_refresh_limit_hz=0,sched_mode=c,consumer_policy=1,consumer_priority=101,consumer_requested=101,sched_setup_ret=0,sched_query_ret=0,fifo_policy=1,fifo_priority=102,fifo_requested=102,fifo_setup_ret=0,fifo_query_ret=0,input_policy=1,input_priority=100,input_query_ret=0,ui_policy=1,ui_priority=100,ui_query_ret=0,comm_policy=1,comm_priority=100,comm_query_ret=0,ble_service_priority=103,system_work_priority=110,hpwork_priority=224,stop=stop,stop_timeout_ms=8000",
+      "host_rx_ticks": 45867909421
+    }
+  ],
+  "valid_serial_events": 2,
+  "unique_valid_serial_events": 2,
+  "forwarded_events": 2,
+  "unity_received": 2,
+  "unity_processed": 0,
+  "unity_rejected": 2,
+  "scored_feedback": 0,
+  "repeated_processed": [],
+  "forwarded_not_received": [],
+  "received_not_processed": [
+    [
+      "board_serial",
+      29778,
+      2
+    ],
+    [
+      "board_serial",
+      29778,
+      1
+    ]
+  ],
+  "outcomes": {},
+  "serial_to_unity_process_ms": null,
+  "event_records": [],
+  "scope": "Link transport only; no recognition accuracy, device-clock synchronization or Android BLE acceptance."
+}

@@ -1,0 +1,15 @@
+Source: user-provided serial-log evidence in the task message; the raw capture file
+was not present in the workspace and is not reconstructed here.
+
+build_id=rank1_v28_bootfix_20260917
+session=1388
+mode=ui-paused,diag-off,sched-c
+consumer_priority=101 fifo_priority=102 setup=query=success
+READY=22:02:34.271
+DUMP_BEGIN=22:06:25.904 window_us=231633000
+fifo_max_words=126 overrun=0 recovery=0
+queue_full=0 GAP=0 sequence_gap=0 reset_reasons=0
+generated=24767 enqueued=24767 consumed=24767 depth=0 high_water=57
+event_queue_wait_max_us=218193
+export_elapsed_us=226463 delta_generated=25 delta_enqueued=25 delta_consumed=25 delta_queue_full=0
+snapshot_fallbacks=0

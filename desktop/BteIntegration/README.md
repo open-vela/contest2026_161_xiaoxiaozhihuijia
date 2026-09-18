@@ -1,21 +1,21 @@
 # 小小指挥家 v28 电脑联调
 
-工程：`D:\上课专用\综合实践课2\小小指挥家`。团结引擎 1.10.0 / 2022.3.62t12。
+工程：仓库 `desktop/`。团结引擎 1.10.0 / 2022.3.62t12。
 路线：真实开发板 BTE1 串口 → Python 本地桥接 → TCP 127.0.0.1:9877 → 原工程 BeatJudgeManager → 原游戏反馈。
 
 ## 启动
 
-1. 保持开发板连接，关闭其他 COM7 读取者。电脑需 Python 3；本目录 vendor 已带 pyserial 3.5，不修改原采集工具。
+1. 保持开发板连接，关闭其他 <实际串口名> 读取者。电脑需 Python 3；本目录 vendor 已带 pyserial 3.5，不修改原采集工具。
 2. 团结 Hub 打开上述正式工程。等待编译；若刚从外部修改脚本，点击编辑器后使用 Assets / Refresh，确认 Console 无编译错误。
 3. 打开 `Assets/Scenes/scene9.scene`，通过菜单 `RhythmGame / v28 / Run real board input` 进入真实输入模式。所有 Windows 场景默认启用真实 BTE1，不启动原39字节模拟器。scene7 是音量页，不能用于拍点验收。
 4. PowerShell 执行以下命令（应用已经在板端运行时，不加 `--start-app`）：
 
 ```powershell
-Set-Location 'D:\上课专用\综合实践课2\小小指挥家\BteIntegration'
-python -X utf8 bridge.py --port COM7
+Set-Location '<工程目录>/BteIntegration'
+python -X utf8 bridge.py --port <实际串口名>
 ```
 
-如果本次准备捕获冷启动 READY，可执行 `python -X utf8 bridge.py --port COM7 --start-app`，再由用户手动复位板。工具只在捕获 NSH 提示符时发送一次已验证命令 `openvela_ble_probe --ui-paused --diag-off -c`，不自动复位，不自动stop，不烧录。若没有新提示符也没有READY，先查原始日志和板端状态，不盲发命令。
+如果本次准备捕获冷启动 READY，可执行 `python -X utf8 bridge.py --port <实际串口名> --start-app`，再由用户手动复位板。工具只在捕获 NSH 提示符时发送一次已验证命令 `openvela_ble_probe --ui-paused --diag-off -c`，不自动复位，不自动stop，不烧录。若没有新提示符也没有READY，先查原始日志和板端状态，不盲发命令。
 
 `--observed-nsh-evidence` 仅用于刚捕获NSH后关闭并重新打开主机串口的恢复操作；要求证据末尾为NSH且不超过5分钟。普通启动不需要这个参数。
 

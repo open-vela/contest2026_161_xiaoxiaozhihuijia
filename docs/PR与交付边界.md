@@ -1,12 +1,9 @@
-# PR与交付边界
+# PR 与交付边界
 
-官方仓说明：https://github.com/open-vela/contest2026_161_xiaoxiaozhihuijia/blob/dev-ai-contest-2026/README.md
-旧提交参考：https://github.com/open-vela/contest2026_161_xiaoxiaozhihuijia/pull/3
+最终运行基准为 v28 bootfix，original 作为原布局对照保留。本次包含板端源码与配置、公共依赖修改、固件、Unity删曲工程、桥接工具、Skill、实机证据、作品文档、演示视频及选定的AI日志。
 
-标准PR-CI：作品变更提交自己的fork，经PR进入专属仓；公共仓的修改需分别fork对应公共仓并向dev-ai-contest-2026提交PR，由组委会review。需完成CLA及相关检查。源码归档里的依赖补丁不等于公共仓PR已经通过。
-本轮没有push、PR修改、评论、GitHub登录配置变更，也没有编译、烧录和算法/连接优化。
+采用 fork → PR → review → 合入；当前仍更新 PR #3，不自动合并。公共仓修改须另行提交对应 dev-ai-contest-2026 PR，补丁不替代其审核。CLA 不等于编译或实机测试通过。
 
-submission为本地提交候选，不是已经可最终上传的包。review_only不进入提交：历史bootfix桌面证据、特定机器/会话的历史汇总工具、完整源码审计归档等。
-bootfix固件、固定启动区程序和相关构建脚本均不提交。原方式失败前的中间nuttx.bin也不提交。
-目前缺项：v28 original启动布局兼容性检查与实机验收；独立目录干净构建；官方AI日志补录；公共依赖PR-CI。
-已有7条事件联调使用的是排除的bootfix版本，因此不能移用为original版验收。
+已提交的30个Codex会话仅覆盖选定快照，原始私有会话与排除记录不上传。构建缓存、整片Flash备份、账号与密钥不提交。原始实机证据保留历史版本、路径和失败窗口；七条成功反馈对应bootfix与删曲前scene8。
+
+全新目录构建、当前scene9逐事件验收、Android BLE、识别率、长期稳定性及公共依赖PR仍未完成。本次没有编译或烧录。官方手表快应用方向与当前原生板端／电脑形态的符合性仍需确认。

@@ -1,0 +1,10 @@
+{
+  "source": "board_serial",
+  "counts": {
+    "lines": 77,
+    "ready": 1,
+    "valid_events": 9,
+    "accepted": 9,
+    "forwarded_events": 9
+  }
+}

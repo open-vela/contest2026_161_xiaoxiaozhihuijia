@@ -1,0 +1,47 @@
+{
+  "source": "simulation_and_static_checks",
+  "utc": "2026-09-18T08:22:19.552773+00:00",
+  "checks": [
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "unittest",
+        "-v",
+        "test_protocol"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_bad_frames (test_protocol.Tests.test_bad_frames) ... ok\ntest_bounded_framer (test_protocol.Tests.test_bounded_framer) ... ok\ntest_fragments_multiline_crlf_diagnostics (test_protocol.Tests.test_fragments_multiline_crlf_diagnostics) ... ok\ntest_known_crc (test_protocol.Tests.test_known_crc) ... ok\ntest_persistent_dedup_session_gap (test_protocol.Tests.test_persistent_dedup_session_gap) ... ok\ntest_ready (test_protocol.Tests.test_ready) ... ok\ntest_reference (test_protocol.Tests.test_reference) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.057s\n\nOK\n"
+    },
+    {
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "ProtocolTests",
+        "--no-restore",
+        "--",
+        "@BTE1,28,010101000a0000000100000087d612000000000020d6130000000000,EE1E"
+      ],
+      "returncode": 0,
+      "stdout": "SIMULATION_ONLY: production C# BteProtocol decoded fixed sample and rejected bad CRC/length.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-X",
+        "utf8",
+        "C:\\Users\\xiaoyang1024\\.codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+        "D:\\上课专用\\综合实践课2\\小小指挥家\\BteIntegration\\skills\\v28-bte-desktop"
+      ],
+      "returncode": 0,
+      "stdout": "Skill is valid!\n",
+      "stderr": ""
+    }
+  ],
+  "passed": true
+}

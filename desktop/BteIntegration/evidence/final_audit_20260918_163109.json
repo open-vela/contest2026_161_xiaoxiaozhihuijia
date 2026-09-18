@@ -1,0 +1,200 @@
+{
+  "source": "board_serial",
+  "run": "20260918_160028_896cc4_board_serial",
+  "ready": [
+    {
+      "kind": "ready",
+      "session": 29778,
+      "build_id": "rank1_v28_bootfix_20260917",
+      "raw": "@BTE1,READY,1,29778,build_id=rank1_v28_bootfix_20260917,model=rank1_t014_r012_restart_20260912_c1,clock=device_monotonic_us,stride=2,diag=0,mode=rank1_ui_ble,ui_refresh=paused,ui_refresh_limit_hz=0,sched_mode=c,consumer_policy=1,consumer_priority=101,consumer_requested=101,sched_setup_ret=0,sched_query_ret=0,fifo_policy=1,fifo_priority=102,fifo_requested=102,fifo_setup_ret=0,fifo_query_ret=0,input_policy=1,input_priority=100,input_query_ret=0,ui_policy=1,ui_priority=100,ui_query_ret=0,comm_policy=1,comm_priority=100,comm_query_ret=0,ble_service_priority=103,system_work_priority=110,hpwork_priority=224,stop=stop,stop_timeout_ms=8000",
+      "host_rx_ticks": 45867909421
+    }
+  ],
+  "valid_serial_events": 9,
+  "unique_valid_serial_events": 9,
+  "forwarded_events": 9,
+  "unity_received": 9,
+  "unity_processed": 7,
+  "unity_rejected": 2,
+  "scored_feedback": 7,
+  "repeated_processed": [],
+  "forwarded_not_received": [],
+  "received_not_processed": [
+    [
+      "board_serial",
+      29778,
+      1
+    ],
+    [
+      "board_serial",
+      29778,
+      2
+    ]
+  ],
+  "outcomes": {
+    "Perfect": 3,
+    "Good": 3,
+    "Miss": 1
+  },
+  "serial_to_unity_process_ms": {
+    "min": 7.1345,
+    "max": 13.7183,
+    "mean": 8.972871428571429
+  },
+  "event_records": [
+    {
+      "stage": "processed",
+      "source": "board_serial",
+      "raw": "@BTE1,28,0101010052740000030000005606893a00000000e1bf903a00000000,ec52",
+      "outcome": "Perfect; score=100; combo=1; song_s=12.980150; delta_s=0.019850; skipped=22; clock=audio_samples_host_rx",
+      "run_id": "20260918_160028_896cc4_board_serial",
+      "app_version": "bte-desktop-2-qpc",
+      "scene": "Assets/Scenes/scene8.scene",
+      "session": 29778,
+      "event_id": 3,
+      "beat_time_us": 982058582,
+      "detected_time_us": 982564833,
+      "host_rx_ticks": 52714338555,
+      "forward_ticks": 52714400012,
+      "unity_rx_ticks": 52714401696,
+      "unity_process_ticks": 52714475738,
+      "qpc_frequency": 10000000
+    },
+    {
+      "stage": "processed",
+      "source": "board_serial",
+      "raw": "@BTE1,28,01010100527400000400000036de983a000000002b62a03a00000000,ea82",
+      "outcome": "Good; score=150; combo=2; song_s=13.690949; delta_s=0.190949; skipped=0; clock=audio_samples_host_rx",
+      "run_id": "20260918_160028_896cc4_board_serial",
+      "app_version": "bte-desktop-2-qpc",
+      "scene": "Assets/Scenes/scene8.scene",
+      "session": 29778,
+      "event_id": 4,
+      "beat_time_us": 983096886,
+      "detected_time_us": 983589419,
+      "host_rx_ticks": 52724363944,
+      "forward_ticks": 52724420494,
+      "unity_rx_ticks": 52724421625,
+      "unity_process_ticks": 52724437831,
+      "qpc_frequency": 10000000
+    },
+    {
+      "stage": "processed",
+      "source": "board_serial",
+      "raw": "@BTE1,28,010101005274000005000000cd22a13a00000000bbbfa83a00000000,197c",
+      "outcome": "Perfect; score=250; combo=3; song_s=14.067306; delta_s=0.067306; skipped=0; clock=audio_samples_host_rx",
+      "run_id": "20260918_160028_896cc4_board_serial",
+      "app_version": "bte-desktop-2-qpc",
+      "scene": "Assets/Scenes/scene8.scene",
+      "session": 29778,
+      "event_id": 5,
+      "beat_time_us": 983638733,
+      "detected_time_us": 984137659,
+      "host_rx_ticks": 52729761752,
+      "forward_ticks": 52729820608,
+      "unity_rx_ticks": 52729822177,
+      "unity_process_ticks": 52729837168,
+      "qpc_frequency": 10000000
+    },
+    {
+      "stage": "processed",
+      "source": "board_serial",
+      "raw": "@BTE1,28,010101005274000006000000ae110b3b0000000049ed103b00000000,2d50",
+      "outcome": "Good; score=300; combo=1; song_s=18.899294; delta_s=0.100706; skipped=9; clock=audio_samples_host_rx",
+      "run_id": "20260918_160028_896cc4_board_serial",
+      "app_version": "bte-desktop-2-qpc",
+      "scene": "Assets/Scenes/scene8.scene",
+      "session": 29778,
+      "event_id": 6,
+      "beat_time_us": 990581166,
+      "detected_time_us": 990965065,
+      "host_rx_ticks": 52798201194,
+      "forward_ticks": 52798257748,
+      "unity_rx_ticks": 52798260690,
+      "unity_process_ticks": 52798274020,
+      "qpc_frequency": 10000000
+    },
+    {
+      "stage": "processed",
+      "source": "board_serial",
+      "raw": "@BTE1,28,010101005274000007000000943d6b65000000008d5c726500000000,cb68",
+      "outcome": "Good; score=50; combo=1; song_s=17.677683; delta_s=0.177683; skipped=31; clock=audio_samples_host_rx",
+      "run_id": "20260918_160028_896cc4_board_serial",
+      "app_version": "bte-desktop-2-qpc",
+      "scene": "Assets/Scenes/scene8.scene",
+      "session": 29778,
+      "event_id": 7,
+      "beat_time_us": 1701526932,
+      "detected_time_us": 1701993613,
+      "host_rx_ticks": 59907488358,
+      "forward_ticks": 59907548955,
+      "unity_rx_ticks": 59907550203,
+      "unity_process_ticks": 59907609059,
+      "qpc_frequency": 10000000
+    },
+    {
+      "stage": "processed",
+      "source": "board_serial",
+      "raw": "@BTE1,28,0101010052740000080000001a8e786500000000b16c7f6500000000,080a",
+      "outcome": "Miss; score=50; combo=0; song_s=18.281936; delta_s=0.218064; skipped=1; clock=audio_samples_host_rx",
+      "run_id": "20260918_160028_896cc4_board_serial",
+      "app_version": "bte-desktop-2-qpc",
+      "scene": "Assets/Scenes/scene8.scene",
+      "session": 29778,
+      "event_id": 8,
+      "beat_time_us": 1702399514,
+      "detected_time_us": 1702849713,
+      "host_rx_ticks": 59916030556,
+      "forward_ticks": 59916088343,
+      "unity_rx_ticks": 59916089752,
+      "unity_process_ticks": 59916107299,
+      "qpc_frequency": 10000000
+    },
+    {
+      "stage": "processed",
+      "source": "board_serial",
+      "raw": "@BTE1,28,010101005274000009000000b8e97f65000000007991866500000000,7dda",
+      "outcome": "Perfect; score=150; combo=1; song_s=18.598341; delta_s=0.098341; skipped=0; clock=audio_samples_host_rx",
+      "run_id": "20260918_160028_896cc4_board_serial",
+      "app_version": "bte-desktop-2-qpc",
+      "scene": "Assets/Scenes/scene8.scene",
+      "session": 29778,
+      "event_id": 9,
+      "beat_time_us": 1702881720,
+      "detected_time_us": 1703317881,
+      "host_rx_ticks": 59920485403,
+      "forward_ticks": 59920544372,
+      "unity_rx_ticks": 59920545494,
+      "unity_process_ticks": 59920556748,
+      "qpc_frequency": 10000000
+    }
+  ],
+  "scope": "Link transport only; no recognition accuracy, device-clock synchronization or Android BLE acceptance.",
+  "operator_motion_counts": {
+    "first_group": "user estimated approximately 15 small movements",
+    "second_group": "user subsequently reported approximately 30 movements; no per-motion timestamps or exact mapping to gameplay windows; not an accuracy measurement"
+  },
+  "corrected_window": {
+    "app_version": "bte-desktop-2-qpc",
+    "event_ids": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "note": "Events 1-2 were received but rejected by the old host clock check. Never replayed."
+  },
+  "closed_bridge_summary": {
+    "source": "board_serial",
+    "counts": {
+      "lines": 77,
+      "ready": 1,
+      "valid_events": 9,
+      "accepted": 9,
+      "forwarded_events": 9
+    }
+  }
+}

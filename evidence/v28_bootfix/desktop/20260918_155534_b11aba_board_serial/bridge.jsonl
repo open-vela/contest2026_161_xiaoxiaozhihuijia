@@ -1,0 +1,23 @@
+{"stage": "run", "source": "board_serial", "utc": "2026-09-18T07:55:34.713771+00:00", "args": {"port": "COM7", "baud": 1000000, "tcp_port": 9877, "duration": 6000.0, "start_app": true}, "version": "bte-desktop-1", "qpc_frequency": 10000000, "python": "3.14.3 (tags/v3.14.3:323c59a, Feb  3 2026, 16:04:56) [MSC v.1944 64 bit (AMD64)]"}
+{"stage": "serial_open", "source": "board_serial", "utc": "2026-09-18T07:55:34.715113+00:00", "port": "COM7", "baud": 1000000, "dtr": false, "rts": false}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:34.881192+00:00", "host_rx_ticks": 42846645725, "offset": 0, "length": 5}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:38.989595+00:00", "host_rx_ticks": 42887731019, "offset": 5, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:38.993090+00:00", "host_rx_ticks": 42887766024, "offset": 6, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.199326+00:00", "host_rx_ticks": 42889828299, "offset": 7, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.199611+00:00", "host_rx_ticks": 42889831827, "offset": 8, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.235004+00:00", "host_rx_ticks": 42890183673, "offset": 9, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.235772+00:00", "host_rx_ticks": 42890192509, "offset": 10, "length": 95}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.236770+00:00", "host_rx_ticks": 42890201271, "offset": 105, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.237522+00:00", "host_rx_ticks": 42890210078, "offset": 106, "length": 31}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.238288+00:00", "host_rx_ticks": 42890216897, "offset": 137, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.238976+00:00", "host_rx_ticks": 42890225136, "offset": 138, "length": 18}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.574793+00:00", "host_rx_ticks": 42893581414, "offset": 156, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.575556+00:00", "host_rx_ticks": 42893590474, "offset": 157, "length": 63}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.576273+00:00", "host_rx_ticks": 42893596379, "offset": 220, "length": 32}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.576772+00:00", "host_rx_ticks": 42893602819, "offset": 252, "length": 32}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.577198+00:00", "host_rx_ticks": 42893607163, "offset": 284, "length": 32}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.578078+00:00", "host_rx_ticks": 42893615706, "offset": 316, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.578613+00:00", "host_rx_ticks": 42893621234, "offset": 317, "length": 2}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.604522+00:00", "host_rx_ticks": 42893879135, "offset": 319, "length": 1}
+{"stage": "serial_chunk", "source": "board_serial", "utc": "2026-09-18T07:55:39.605250+00:00", "host_rx_ticks": 42893887425, "offset": 320, "length": 24}
+{"stage": "summary", "source": "board_serial", "utc": "2026-09-18T07:57:57.331302+00:00", "counts": {"lines": 8}, "elapsed_seconds": 142.6173534999998}

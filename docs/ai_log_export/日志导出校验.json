@@ -1,0 +1,20 @@
+{
+  "validator": "unmodified official validate-log.py (dev-ai-contest-2026)",
+  "exit_code": 0,
+  "result": "ALL OK",
+  "files_checked": 30,
+  "events_checked": 37828,
+  "original_hashes_checked": 37,
+  "original_payload_and_timestamp_verified": true,
+  "sensitive_pattern_hits_in_export": 0,
+  "sessions_excluded": 6,
+  "official_acceptance_claimed": false,
+  "coverage": "selected snapshot 20260918T094209Z only",
+  "official_files": {
+    "schema/event.schema.json": "36c9cce5cf8530cb3055e0e26d67cd3969272e4df5c13004ecfc92fe861c3af3",
+    "schema/manifest.schema.json": "22a9dee6b179df0bd8a9be843df4fb639f2630a3db9a72d3c016878ec5b2bc2d",
+    "tools/validate-log.py": "23e601bfe316bedc8ce45b7a69a09e30536314d41c79ff2c5ed3320a59a0a495",
+    "adapters/shared/get_github_login.py": "615afe699ac5e199783e4225288097dba27b24ab2e986a6709a3c6572e424e83",
+    "adapters/shared/snapshot_core.py": "a60f01b931aa73d8bf3a1b1f15042256ac216a466c141d36f51af3480e5cf84c"
+  }
+}

@@ -1,0 +1,519 @@
+{
+  "schema_version": "1.0",
+  "team_id": "contest2026_161_xiaoxiaozhihuijia",
+  "github_login": "yangshuxuan1024",
+  "generator": "codex-manual-adapter@1 (official append_events unchanged)",
+  "updated_at": "2026-09-18T12:23:58.803Z",
+  "sessions": [
+    {
+      "session_id": "01a03b96-5b16-7b22-973e-9c5e3c582c1f",
+      "tool": "codex",
+      "started_at": "2026-08-26T01:02:48.786Z",
+      "last_event_at": "2026-09-18T08:49:20.727Z",
+      "event_count": 929,
+      "file_path": "logs/yangshuxuan1024/2026-09-18/codex__01a03b96-5b16-7b22-973e-9c5e3c582c1f.jsonl",
+      "collection_mode": "vscode_extension_partial",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Desktop uses closest schema collection_mode; not a VS Code provenance claim. Original cwd is retained; .repo gate was not fabricated. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "local",
+      "original_capture_source": "vscode",
+      "source_hashes": [
+        "465e616ed854f85bcfb2c39e3adfce206aebf534fa23fbc750fcf972b021107f"
+      ]
+    },
+    {
+      "session_id": "01a04c74-2b9d-79b3-8b1d-5a087f5a7e32",
+      "tool": "codex",
+      "started_at": "2026-08-29T07:37:57.594Z",
+      "last_event_at": "2026-08-29T07:43:19.738Z",
+      "event_count": 86,
+      "file_path": "logs/yangshuxuan1024/2026-08-29/codex__01a04c74-2b9d-79b3-8b1d-5a087f5a7e32.jsonl",
+      "collection_mode": "vscode_extension_partial",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Desktop uses closest schema collection_mode; not a VS Code provenance claim. Original cwd is retained; .repo gate was not fabricated. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "local",
+      "original_capture_source": "vscode",
+      "source_hashes": [
+        "bd0d2e98149a801c2e6cbedcc3ab2848d1a58d86dc0f1b9fc8ec3bb32afa7f3f"
+      ]
+    },
+    {
+      "session_id": "019f6568-0852-7430-9510-89955188bb8a",
+      "tool": "codex",
+      "started_at": "2026-07-15T10:52:37.224Z",
+      "last_event_at": "2026-07-15T10:52:56.038Z",
+      "event_count": 23,
+      "file_path": "logs/yangshuxuan1024/2026-07-15/codex__019f6568-0852-7430-9510-89955188bb8a.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "beb67e58125163a1fa4b48608f0ecf200244900b0e86a016eb481edfdb76c20b"
+      ]
+    },
+    {
+      "session_id": "019f6571-469c-7fc0-a48d-5e105205445e",
+      "tool": "codex",
+      "started_at": "2026-07-15T11:02:40.085Z",
+      "last_event_at": "2026-07-15T11:02:59.859Z",
+      "event_count": 23,
+      "file_path": "logs/yangshuxuan1024/2026-07-15/codex__019f6571-469c-7fc0-a48d-5e105205445e.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "9309af5a8822a17866e20327dfae56d64684e37e21e882bbaf64ffe5c1baafa0"
+      ]
+    },
+    {
+      "session_id": "019f657e-37bc-7433-a758-254ea5537a8e",
+      "tool": "codex",
+      "started_at": "2026-07-15T11:16:51.828Z",
+      "last_event_at": "2026-07-15T11:17:26.206Z",
+      "event_count": 27,
+      "file_path": "logs/yangshuxuan1024/2026-07-15/codex__019f657e-37bc-7433-a758-254ea5537a8e.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "3f97d4eb070fdae0efc7fcda51009e6c9334fe8499338fafe1b576d4f222df11"
+      ]
+    },
+    {
+      "session_id": "019f7e45-69f6-7811-a3ff-9f3a0de1217a",
+      "tool": "codex",
+      "started_at": "2026-07-20T06:45:26.859Z",
+      "last_event_at": "2026-07-20T06:48:31.531Z",
+      "event_count": 12,
+      "file_path": "logs/yangshuxuan1024/2026-07-20/codex__019f7e45-69f6-7811-a3ff-9f3a0de1217a.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "cfe5887e0bbf1d81aea00585cbaddb90d7a01472bf9b4edbfa23b7517335411c"
+      ]
+    },
+    {
+      "session_id": "019f7e4e-48d6-7870-a740-6d9e75fdb954",
+      "tool": "codex",
+      "started_at": "2026-07-20T06:55:10.040Z",
+      "last_event_at": "2026-07-20T06:55:16.043Z",
+      "event_count": 19,
+      "file_path": "logs/yangshuxuan1024/2026-07-20/codex__019f7e4e-48d6-7870-a740-6d9e75fdb954.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "741f5a03bdc3e2c78258c4141a7d5c62d8f7500d69b28856a45b0c153603106f"
+      ]
+    },
+    {
+      "session_id": "019f91bd-7ec2-73e1-80f8-a6a27b1f9e29",
+      "tool": "codex",
+      "started_at": "2026-07-24T01:29:23.527Z",
+      "last_event_at": "2026-07-24T01:31:25.079Z",
+      "event_count": 21,
+      "file_path": "logs/yangshuxuan1024/2026-07-24/codex__019f91bd-7ec2-73e1-80f8-a6a27b1f9e29.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "98a83f27cb69a44fc00c8133ba5605de80eb0867db9ece2b660d6b3eb572f7f1"
+      ]
+    },
+    {
+      "session_id": "019f91de-7442-7122-a063-38d01843a074",
+      "tool": "codex",
+      "started_at": "2026-07-24T02:05:43.006Z",
+      "last_event_at": "2026-07-24T02:13:36.583Z",
+      "event_count": 21,
+      "file_path": "logs/yangshuxuan1024/2026-07-24/codex__019f91de-7442-7122-a063-38d01843a074.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "02ca334634be933f12e6e57bf2c4276c3847cee2941a227618dafa99d0b7c744"
+      ]
+    },
+    {
+      "session_id": "019f91e1-b63c-7d52-86a6-67ccdef55ab6",
+      "tool": "codex",
+      "started_at": "2026-07-24T02:08:46.301Z",
+      "last_event_at": "2026-07-24T02:09:03.525Z",
+      "event_count": 22,
+      "file_path": "logs/yangshuxuan1024/2026-07-24/codex__019f91e1-b63c-7d52-86a6-67ccdef55ab6.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "ab0ff92eea8d1d934d89e558190899bc6c209b87377bc4743c06e37e8df98a51"
+      ]
+    },
+    {
+      "session_id": "019f91ec-c481-7500-9cae-505c24f693c9",
+      "tool": "codex",
+      "started_at": "2026-07-24T02:20:55.029Z",
+      "last_event_at": "2026-07-24T02:23:09.161Z",
+      "event_count": 32,
+      "file_path": "logs/yangshuxuan1024/2026-07-24/codex__019f91ec-c481-7500-9cae-505c24f693c9.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "98d930ad5d978fab44ad7e5847b13be97917fe8ee203e178115c56468a0423b8"
+      ]
+    },
+    {
+      "session_id": "019f92c1-9f04-7670-8334-3b6589b7b8ba",
+      "tool": "codex",
+      "started_at": "2026-07-24T06:17:58.580Z",
+      "last_event_at": "2026-07-24T06:18:21.172Z",
+      "event_count": 17,
+      "file_path": "logs/yangshuxuan1024/2026-07-24/codex__019f92c1-9f04-7670-8334-3b6589b7b8ba.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "d6432afcff8aa863c003d106484181abdbae8cb86016fb7417419118d5f19cf9"
+      ]
+    },
+    {
+      "session_id": "01a01913-c168-7262-8ad8-33abf10b2509",
+      "tool": "codex",
+      "started_at": "2026-08-19T08:12:47.256Z",
+      "last_event_at": "2026-08-19T09:00:47.420Z",
+      "event_count": 23,
+      "file_path": "logs/yangshuxuan1024/2026-08-19/codex__01a01913-c168-7262-8ad8-33abf10b2509.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "d776764f28877962ada432ae561d21c4e5a6689c77e3fa45579defcfff88b089"
+      ]
+    },
+    {
+      "session_id": "01a0195b-3cd5-79d2-af3f-e548ef895527",
+      "tool": "codex",
+      "started_at": "2026-08-19T09:31:27.721Z",
+      "last_event_at": "2026-08-19T09:31:37.136Z",
+      "event_count": 11,
+      "file_path": "logs/yangshuxuan1024/2026-08-19/codex__01a0195b-3cd5-79d2-af3f-e548ef895527.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "d15ff17c729578abd6fbefaaa3ba1dcd17b9c293529bda672d205cb3f1d1bde4"
+      ]
+    },
+    {
+      "session_id": "01a0195f-a8f4-7280-b1a6-c484ed538163",
+      "tool": "codex",
+      "started_at": "2026-08-19T09:35:41.997Z",
+      "last_event_at": "2026-08-31T01:24:34.046Z",
+      "event_count": 8782,
+      "file_path": "logs/yangshuxuan1024/2026-08-31/codex__01a0195f-a8f4-7280-b1a6-c484ed538163.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "6e573f1d7e896583704989b1526c75325a80765d30c67788e7439cd73097abf2"
+      ]
+    },
+    {
+      "session_id": "01a01cc4-27f1-7052-ab85-58be5157199e",
+      "tool": "codex",
+      "started_at": "2026-08-20T01:23:48.630Z",
+      "last_event_at": "2026-08-20T01:24:44.031Z",
+      "event_count": 12,
+      "file_path": "logs/yangshuxuan1024/2026-08-20/codex__01a01cc4-27f1-7052-ab85-58be5157199e.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "a51a02bcc13c92c63c45c31ee924376cd5cc335f439eaed24b05094521c52599"
+      ]
+    },
+    {
+      "session_id": "01a01cc5-b4dd-78c2-abff-cc8eb5117914",
+      "tool": "codex",
+      "started_at": "2026-08-20T01:25:37.437Z",
+      "last_event_at": "2026-08-20T01:28:24.844Z",
+      "event_count": 12,
+      "file_path": "logs/yangshuxuan1024/2026-08-20/codex__01a01cc5-b4dd-78c2-abff-cc8eb5117914.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "e7e894281d339fd1263ce24bb4fcf7ae9d16d1d181024a81b8b4eba7823d47a1"
+      ]
+    },
+    {
+      "session_id": "01a01ccb-4d83-7180-9095-8aad92f53f98",
+      "tool": "codex",
+      "started_at": "2026-08-20T01:31:43.102Z",
+      "last_event_at": "2026-08-20T01:31:57.999Z",
+      "event_count": 20,
+      "file_path": "logs/yangshuxuan1024/2026-08-20/codex__01a01ccb-4d83-7180-9095-8aad92f53f98.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "56b3e2c8bc45e686a7de34dfb013b951795b7242118a33fab991355fefc9f6f8"
+      ]
+    },
+    {
+      "session_id": "01a01e04-fc54-7e73-9f1d-7e885572d426",
+      "tool": "codex",
+      "started_at": "2026-08-20T07:14:23.194Z",
+      "last_event_at": "2026-08-20T07:14:30.138Z",
+      "event_count": 20,
+      "file_path": "logs/yangshuxuan1024/2026-08-20/codex__01a01e04-fc54-7e73-9f1d-7e885572d426.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "72a5b014ff21a91455d9e753ba2261196f75a14873581cb0737c381e69622ff4"
+      ]
+    },
+    {
+      "session_id": "01a02209-1a51-7670-a2cb-edd3f33e6df8",
+      "tool": "codex",
+      "started_at": "2026-08-21T01:57:14.168Z",
+      "last_event_at": "2026-08-21T01:58:33.740Z",
+      "event_count": 12,
+      "file_path": "logs/yangshuxuan1024/2026-08-21/codex__01a02209-1a51-7670-a2cb-edd3f33e6df8.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "627d4702bbbcc63ef883aad3912d4daf595c45866d237f09a0f681d547437788"
+      ]
+    },
+    {
+      "session_id": "01a0220b-68a4-7f60-b697-c693f1bdb33c",
+      "tool": "codex",
+      "started_at": "2026-08-21T01:59:33.022Z",
+      "last_event_at": "2026-08-21T01:59:47.536Z",
+      "event_count": 12,
+      "file_path": "logs/yangshuxuan1024/2026-08-21/codex__01a0220b-68a4-7f60-b697-c693f1bdb33c.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "7ea33a7123d649f1af36f6a717026030648be3137d03bd8254c3ccdfac02cd3b"
+      ]
+    },
+    {
+      "session_id": "01a03686-df90-75c1-9ab2-9537d222b342",
+      "tool": "codex",
+      "started_at": "2026-08-25T01:26:56.440Z",
+      "last_event_at": "2026-08-25T01:26:56.440Z",
+      "event_count": 2,
+      "file_path": "logs/yangshuxuan1024/2026-08-25/codex__01a03686-df90-75c1-9ab2-9537d222b342.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "df17a80aaa1f67cc17199027c5bde032376d902363106b9b7314fab1857c8001"
+      ]
+    },
+    {
+      "session_id": "01a03687-a6aa-7d13-8cd9-eb717ad07d8b",
+      "tool": "codex",
+      "started_at": "2026-08-25T01:27:50.826Z",
+      "last_event_at": "2026-08-25T02:12:47.335Z",
+      "event_count": 138,
+      "file_path": "logs/yangshuxuan1024/2026-08-25/codex__01a03687-a6aa-7d13-8cd9-eb717ad07d8b.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "6f0bce35d7cb2a4b4a95ae887c5c66105a69677fb34b28ca527f6c4f28d2e7aa"
+      ]
+    },
+    {
+      "session_id": "01a051d2-ebbf-73a2-aeaf-c440588afed7",
+      "tool": "codex",
+      "started_at": "2026-08-30T08:39:37.892Z",
+      "last_event_at": "2026-08-30T10:00:53.662Z",
+      "event_count": 444,
+      "file_path": "logs/yangshuxuan1024/2026-08-30/codex__01a051d2-ebbf-73a2-aeaf-c440588afed7.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "de9b8f926582d2a0321afe286f78c56156aa7c520da89336cc9368354db4d75f"
+      ]
+    },
+    {
+      "session_id": "01a0568b-b28e-7551-8b35-a94d60102967",
+      "tool": "codex",
+      "started_at": "2026-08-31T06:40:01.483Z",
+      "last_event_at": "2026-08-31T07:38:26.844Z",
+      "event_count": 360,
+      "file_path": "logs/yangshuxuan1024/2026-08-31/codex__01a0568b-b28e-7551-8b35-a94d60102967.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "f5156813bd27f1047f070780068bf91204c6e51533327449a7bc56265578ab33"
+      ]
+    },
+    {
+      "session_id": "01a06505-ccf7-7a83-a6f9-b8ced7a9bd39",
+      "tool": "codex",
+      "started_at": "2026-09-03T02:07:59.218Z",
+      "last_event_at": "2026-09-03T02:10:41.338Z",
+      "event_count": 68,
+      "file_path": "logs/yangshuxuan1024/2026-09-03/codex__01a06505-ccf7-7a83-a6f9-b8ced7a9bd39.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "7ec870238419278e0c6618f24af1987c2573a45a1359586a642986d0bf869a26"
+      ]
+    },
+    {
+      "session_id": "01a07ab1-e1b5-7671-b86e-571154f052f9",
+      "tool": "codex",
+      "started_at": "2026-09-07T07:08:35.001Z",
+      "last_event_at": "2026-09-08T03:31:13.321Z",
+      "event_count": 988,
+      "file_path": "logs/yangshuxuan1024/2026-09-08/codex__01a07ab1-e1b5-7671-b86e-571154f052f9.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "f3b3c25ff7f69c5fb9a9bc368d7ae595260a8c575a294ce57d38ed999d783a3b"
+      ]
+    },
+    {
+      "session_id": "01a07f11-e144-78f1-bdd2-c916bbfc2c9f",
+      "tool": "codex",
+      "started_at": "2026-09-08T03:31:13.390Z",
+      "last_event_at": "2026-09-17T14:21:32.074Z",
+      "event_count": 25422,
+      "file_path": "logs/yangshuxuan1024/2026-09-17/codex__01a07f11-e144-78f1-bdd2-c916bbfc2c9f.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "07ddebe57c2424e97bc212dc5564d8316c885bbd1c49b5fafeb508bdc61cd0ff"
+      ]
+    },
+    {
+      "session_id": "01a099ad-6b47-7031-809a-d5ea8fb2b0a0",
+      "tool": "codex",
+      "started_at": "2026-09-13T07:31:14.513Z",
+      "last_event_at": "2026-09-13T07:31:18.606Z",
+      "event_count": 4,
+      "file_path": "logs/yangshuxuan1024/2026-09-13/codex__01a099ad-6b47-7031-809a-d5ea8fb2b0a0.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "61dab625cad9e631df0516ccf5cfbf1f07e919e9deb1652fbb20404c9165b0f9"
+      ]
+    },
+    {
+      "session_id": "01a09d7b-31bd-76e3-8b46-7054fd33250a",
+      "tool": "codex",
+      "started_at": "2026-09-14T01:14:51.790Z",
+      "last_event_at": "2026-09-14T01:29:05.803Z",
+      "event_count": 266,
+      "file_path": "logs/yangshuxuan1024/2026-09-14/codex__01a09d7b-31bd-76e3-8b46-7054fd33250a.jsonl",
+      "collection_mode": "cli",
+      "data_completeness_warning": "Manual historical Codex rollout adaptation; snapshot only, not live official hook capture. Original payload and source hashes retained. No official acceptance claimed. Distributed by original UTC event date; ordered concatenation is byte-identical to the reviewed export.",
+      "health": "degraded",
+      "manual_export": true,
+      "source_host": "server",
+      "original_capture_source": "cli",
+      "source_hashes": [
+        "1a564f1c88ff5a05fec0b6f512e31da3457d00f66692b279fe2f33e668b60aaa"
+      ]
+    }
+  ]
+}
