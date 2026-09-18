@@ -1,16 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <manifest>
-  <!--
-    Team repo manifest. Includes the full openvela base project set
-    (openvela.xml in this same repo) and adds this team repo as a self-ref
-    project, exposing its work-form subdirectories to openvela working-tree
-    locations via <linkfile>. remote/default come from the included openvela.xml.
-  -->
-  <include name="openvela.xml"/>
-
+  <include name="openvela.xml" />
+  <extend-project name="nuttx-apps" path="apps" revision="dcc6a95c3b323e533c98fde8fb209f99e24f0fdd" />
+  <extend-project name="apps_crypto_mbedtls" path="apps/crypto/mbedtls/mbedtls" revision="8dc7407815e718db0a96ac53793c9438894c33aa" />
+  <extend-project name="apps_graphics_lvgl" path="apps/graphics/lvgl/lvgl" revision="0f2a49f588505a00e8b46e25a34581c87291a62a" />
+  <extend-project name="apps_system_libuv" path="apps/system/libuv/libuv" revision="c6dfc6d3af3fd38cdbaac112cf62d8fb71c8eaef" />
+  <extend-project name="build" path="build" revision="305cea66a8efc749a958d8410f736e640c49496b" />
+  <extend-project name="external" path="external" revision="9ae61d24354f0da52245f3103aa52bffaaeb21a3" />
+  <extend-project name="external_unqlite" path="external/unqlite/unqlite" revision="2bdd14826b0ff758648c1110340673bde395a440" />
+  <extend-project name="external_zblue" path="external/zblue/zblue" revision="2e5bddcc5284534aaca189346570d32f1a5509f3" />
+  <extend-project name="frameworks" path="frameworks" revision="9118a9e05fb9d2b8523564fd30531fa44c627201" />
+  <extend-project name="frameworks_connectivity" path="frameworks/connectivity" revision="205dccf118647b759fcc7033f085c5f8933e73b7" />
+  <extend-project name="frameworks_bluetooth" path="frameworks/connectivity/bluetooth" revision="028b4ba7e39328acdf23fed0921b7c65aba2001a" />
+  <extend-project name="frameworks_system_utils_uv" path="frameworks/system/utils/uv" revision="e35e285309fcd4a13134a3495eac545750c59645" />
+  <extend-project name="nuttx" path="nuttx" revision="1c99d835c289b562993c62912f0ef85f80167824" />
+  <extend-project name="nuttx_fs_littlefs_littlefs" path="nuttx/fs/littlefs/littlefs" revision="70ab38f68bd97304647d938ffd5be904a22b9fab" />
+  <extend-project name="vendor" path="vendor" revision="306db14707f55b7dadaa59053443a22e1f17959b" />
+  <extend-project name="vendor_sifli" path="vendor/sifli" revision="f5bde0b5f99bfccf87faf791d8b51fdfcb963c9b" />
   <project path="contest2026_161_xiaoxiaozhihuijia" name="contest2026_161_xiaoxiaozhihuijia">
-    <linkfile src="app/hello_app" dest="packages/demos/contest2026_161_hello_app"/>
-    <linkfile src="quickapp/hello_quickapp" dest="packages/apps/contest2026_161_hello_quickapp"/>
-    <linkfile src="board/contest_board" dest="vendor/openvela/boards/contest2026_161_board"/>
+    <linkfile src="app/openvela_ble_probe" dest="apps/examples/openvela_ble_probe" />
+    <linkfile src="board/v28_original/board_config_i2c3" dest="vendor/sifli/boards/sf32lb52/lckfb_huangshan_pi/configs/contest2026_161_v28_original" />
   </project>
 </manifest>

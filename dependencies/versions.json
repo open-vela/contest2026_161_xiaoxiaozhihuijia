@@ -1,0 +1,90 @@
+{
+  "tools": {
+    "gcc": "arm-none-eabi-gcc (15:10.3-2021.07-4) 10.3.1 20210621 (release)",
+    "cmake": "cmake version 3.22.1",
+    "ninja": "1.10.1",
+    "python": "Python 3.10.12"
+  },
+  "repositories": [
+    {
+      "project": "apps",
+      "baseline_commit": "dcc6a95c3b323e533c98fde8fb209f99e24f0fdd",
+      "old_directory_commit": "dcc6a95c3b323e533c98fde8fb209f99e24f0fdd"
+    },
+    {
+      "project": "apps/crypto/mbedtls/mbedtls",
+      "baseline_commit": "8dc7407815e718db0a96ac53793c9438894c33aa",
+      "old_directory_commit": "8dc7407815e718db0a96ac53793c9438894c33aa"
+    },
+    {
+      "project": "apps/graphics/lvgl/lvgl",
+      "baseline_commit": "0f2a49f588505a00e8b46e25a34581c87291a62a",
+      "old_directory_commit": "0f2a49f588505a00e8b46e25a34581c87291a62a"
+    },
+    {
+      "project": "apps/system/libuv/libuv",
+      "baseline_commit": "c6dfc6d3af3fd38cdbaac112cf62d8fb71c8eaef",
+      "old_directory_commit": "c6dfc6d3af3fd38cdbaac112cf62d8fb71c8eaef"
+    },
+    {
+      "project": "build",
+      "baseline_commit": "305cea66a8efc749a958d8410f736e640c49496b",
+      "old_directory_commit": "305cea66a8efc749a958d8410f736e640c49496b"
+    },
+    {
+      "project": "external",
+      "baseline_commit": "9ae61d24354f0da52245f3103aa52bffaaeb21a3",
+      "old_directory_commit": "9ae61d24354f0da52245f3103aa52bffaaeb21a3"
+    },
+    {
+      "project": "external/unqlite/unqlite",
+      "baseline_commit": "2bdd14826b0ff758648c1110340673bde395a440",
+      "old_directory_commit": "2bdd14826b0ff758648c1110340673bde395a440"
+    },
+    {
+      "project": "external/zblue/zblue",
+      "baseline_commit": "2e5bddcc5284534aaca189346570d32f1a5509f3",
+      "old_directory_commit": "2e5bddcc5284534aaca189346570d32f1a5509f3"
+    },
+    {
+      "project": "frameworks",
+      "baseline_commit": "9118a9e05fb9d2b8523564fd30531fa44c627201",
+      "old_directory_commit": "9118a9e05fb9d2b8523564fd30531fa44c627201"
+    },
+    {
+      "project": "frameworks/connectivity",
+      "baseline_commit": "205dccf118647b759fcc7033f085c5f8933e73b7",
+      "old_directory_commit": "205dccf118647b759fcc7033f085c5f8933e73b7"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "baseline_commit": "028b4ba7e39328acdf23fed0921b7c65aba2001a",
+      "old_directory_commit": "028b4ba7e39328acdf23fed0921b7c65aba2001a"
+    },
+    {
+      "project": "frameworks/system/utils/uv",
+      "baseline_commit": "e35e285309fcd4a13134a3495eac545750c59645",
+      "old_directory_commit": "e35e285309fcd4a13134a3495eac545750c59645"
+    },
+    {
+      "project": "nuttx",
+      "baseline_commit": "1c99d835c289b562993c62912f0ef85f80167824",
+      "old_directory_commit": "1c99d835c289b562993c62912f0ef85f80167824"
+    },
+    {
+      "project": "nuttx/fs/littlefs/littlefs",
+      "baseline_commit": "70ab38f68bd97304647d938ffd5be904a22b9fab",
+      "old_directory_commit": "70ab38f68bd97304647d938ffd5be904a22b9fab"
+    },
+    {
+      "project": "vendor",
+      "baseline_commit": "306db14707f55b7dadaa59053443a22e1f17959b",
+      "old_directory_commit": "306db14707f55b7dadaa59053443a22e1f17959b"
+    },
+    {
+      "project": "vendor/sifli",
+      "baseline_commit": "f5bde0b5f99bfccf87faf791d8b51fdfcb963c9b",
+      "old_directory_commit": "4518591ab91876aea505742d838e09449941d0b9"
+    }
+  ]
+}

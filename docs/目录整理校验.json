@@ -1,0 +1,12 @@
+{
+  "manifest_xml_valid": true,
+  "linkfile_sources_exist": true,
+  "linkfile_destinations_unique": true,
+  "pinned_projects": 16,
+  "application_byte_identical": true,
+  "desktop_assets_byte_identical": true,
+  "original_artifacts_byte_identical": true,
+  "repo_sync_build_flash_run": false,
+  "github_modified": false,
+  "cmake_source_files_exist": 13
+}
