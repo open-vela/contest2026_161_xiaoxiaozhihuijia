@@ -1,0 +1,134 @@
+[
+  {
+    "repo": "apps_graphics_lvgl",
+    "key": "lvgl-buffer-ownership",
+    "title": "fix(nuttx): release owned LCD pixel buffers",
+    "target_head": "0f2a49f588505a00e8b46e25a34581c87291a62a",
+    "commit": "75b9ccf4077439b6f4b2b9a8dc9bfc298c86c8ec",
+    "branch": "contest161/lvgl-buffer-ownership",
+    "diffstat": " src/drivers/nuttx/lv_nuttx_lcd.c | 25 ++++++++++++++++++-------\n 1 file changed, 18 insertions(+), 7 deletions(-)\n",
+    "files": [
+      "src/drivers/nuttx/lv_nuttx_lcd.c"
+    ],
+    "whitespace_exit": 0,
+    "tests": {},
+    "patch_sha256": "ac31c20126256a6b56bdbe52465882a4e1dff2d05b146f77e6064808121719d9",
+    "published": false
+  },
+  {
+    "repo": "external_zblue",
+    "key": "zblue-cleanup-diagnostics",
+    "title": "bluetooth: retain host cleanup state and bounded diagnostics",
+    "target_head": "2e5bddcc5284534aaca189346570d32f1a5509f3",
+    "commit": "b46e044a24d8ee4ac244201a1c06cf832624caea",
+    "branch": "contest161/zblue-cleanup-diagnostics",
+    "diffstat": " include/zephyr/bluetooth/bluetooth.h |   1 +\n subsys/bluetooth/host/att.c          | 207 +++++++++++++++++++\n subsys/bluetooth/host/gatt.c         |  18 +-\n subsys/bluetooth/host/hci_core.c     | 385 ++++++++++++++++++++++++++++++++++-\n 4 files changed, 603 insertions(+), 8 deletions(-)\n",
+    "files": [
+      "include/zephyr/bluetooth/bluetooth.h",
+      "subsys/bluetooth/host/att.c",
+      "subsys/bluetooth/host/gatt.c",
+      "subsys/bluetooth/host/hci_core.c"
+    ],
+    "whitespace_exit": 0,
+    "tests": {},
+    "patch_sha256": "07cdcab7991c20b8c4b204a339f1d62735464600b62930910a916083c8e44408",
+    "published": false
+  },
+  {
+    "repo": "frameworks_bluetooth",
+    "key": "bluetooth-h4-cleanup",
+    "title": "bluetooth: close H4 transport and propagate cleanup results",
+    "target_head": "028b4ba7e39328acdf23fed0921b7c65aba2001a",
+    "commit": "238c974d78a969122b0dc361a3d85771c6cd95a7",
+    "branch": "contest161/bluetooth-h4-cleanup",
+    "diffstat": " framework/api/bluetooth.c                          | 37 ++++++++-\n service/common/service_loop.c                      | 36 +++++++++\n service/common/service_trace.h                     |  9 +++\n service/src/adapter_service.c                      |  5 ++\n service/stacks/include/sal_adapter_le_interface.h  |  2 +\n service/stacks/zephyr/hci_h4.c                     | 90 +++++++++++++++++++++-\n service/stacks/zephyr/sal_adapter_le_interface.c   | 58 +++++++++++++-\n service/stacks/zephyr/sal_gatt_db_ownership.h      | 29 +++++++\n service/stacks/zephyr/sal_gatt_server_interface.c  | 36 +++++++--\n service/stacks/zephyr/sal_le_advertise_interface.c | 37 +++++++--\n 10 files changed, 317 insertions(+), 22 deletions(-)\n",
+    "files": [
+      "framework/api/bluetooth.c",
+      "service/common/service_loop.c",
+      "service/common/service_trace.h",
+      "service/src/adapter_service.c",
+      "service/stacks/include/sal_adapter_le_interface.h",
+      "service/stacks/zephyr/hci_h4.c",
+      "service/stacks/zephyr/sal_adapter_le_interface.c",
+      "service/stacks/zephyr/sal_gatt_db_ownership.h",
+      "service/stacks/zephyr/sal_gatt_server_interface.c",
+      "service/stacks/zephyr/sal_le_advertise_interface.c"
+    ],
+    "whitespace_exit": 0,
+    "tests": {},
+    "patch_sha256": "2b22471eb275a267a76d86df44835db4a3521626defb290f8709be80564107cf",
+    "published": false
+  },
+  {
+    "repo": "nuttx",
+    "key": "nuttx-const-allsyms",
+    "title": "tools: honor const mode in generated allsyms declarations",
+    "target_head": "dd92bcf425738734d1b8aed09c2bd4dbe3f2e438",
+    "commit": "1174b2d59d46710745f9d955f728908c215da9ac",
+    "branch": "contest161/nuttx-const-allsyms",
+    "diffstat": " tools/mkallsyms.py | 6 +++---\n 1 file changed, 3 insertions(+), 3 deletions(-)\n",
+    "files": [
+      "tools/mkallsyms.py"
+    ],
+    "whitespace_exit": 0,
+    "tests": {
+      "default_const": {
+        "exit_code": 0,
+        "passed": true
+      },
+      "explicit_noconst": {
+        "exit_code": 0,
+        "passed": true
+      }
+    },
+    "patch_sha256": "1301409d3a1cf6b65f57914e5e798961701d2120b1494a6be34ed7d1e2b40db9",
+    "published": false
+  },
+  {
+    "repo": "nuttx",
+    "key": "nuttx-hci-rx-snapshot",
+    "title": "wireless: define HCI RX ring diagnostic snapshot",
+    "target_head": "dd92bcf425738734d1b8aed09c2bd4dbe3f2e438",
+    "commit": "8d633733d3d140a658d12a3fcc717383e57445b6",
+    "branch": "contest161/nuttx-hci-rx-snapshot",
+    "diffstat": " .../nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h  | 32 ++++++++++++++++++++++\n 1 file changed, 32 insertions(+)\n",
+    "files": [
+      "include/nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h"
+    ],
+    "whitespace_exit": 0,
+    "tests": {},
+    "patch_sha256": "8e5a4c17b7b3e07a023064a6f2897725b4c9cf44b3564c3a498b0cc31359fcc2",
+    "published": false
+  },
+  {
+    "repo": "vendor_sifli",
+    "key": "sifli-v28-platform",
+    "title": "sf32lb52: prepare Huangshan IMU and v28 boot support",
+    "target_head": "af6f365eaa04a674af0467aa1a803bc4c77691ba",
+    "commit": "867c9b49f9a0bbb2691f783f30cc30c545d547d5",
+    "branch": "contest161/sifli-v28-platform",
+    "files": [
+      "boards/sf32lb52/lckfb_huangshan_pi/include/board.h",
+      "boards/sf32lb52/lckfb_huangshan_pi/scripts/ld.script",
+      "boards/sf32lb52/lckfb_huangshan_pi/src/bsp_pinmux.c",
+      "boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c",
+      "chips/sf32lb52/sf32lb52_bt_adapter.c",
+      "chips/sf32lb52/sf32lb52_bt_adapter.h",
+      "chips/sf32lb52/sf32lb52_bth4.c",
+      "chips/sf32lb52/sf32lb52_lcpu_boot.c",
+      "chips/sf32lb52/sifli_allocateheap.c",
+      "chips/sf32lb52/sifli_start.c"
+    ],
+    "diffstat": " boards/sf32lb52/lckfb_huangshan_pi/include/board.h |   6 +-\n .../sf32lb52/lckfb_huangshan_pi/scripts/ld.script  |  10 +-\n .../sf32lb52/lckfb_huangshan_pi/src/bsp_pinmux.c   |   7 +-\n boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c  |  43 ++\n chips/sf32lb52/sf32lb52_bt_adapter.c               | 393 ++++++++++++++++\n chips/sf32lb52/sf32lb52_bt_adapter.h               |   5 +\n chips/sf32lb52/sf32lb52_bth4.c                     | 500 +++++++++++++++++++++\n chips/sf32lb52/sf32lb52_lcpu_boot.c                |  31 +-\n chips/sf32lb52/sifli_allocateheap.c                |   5 +-\n chips/sf32lb52/sifli_start.c                       |  34 ++\n 10 files changed, 1028 insertions(+), 6 deletions(-)\n",
+    "whitespace_exit": 0,
+    "tests": {},
+    "rebase_notes": [
+      "Preserved upstream default nsh configuration; contest configuration stays in team repo",
+      "Integrated IMU INT1 and I2C3 blocks around upstream bringup additions",
+      "Preserved upstream async LCD, LSM6DS3 and SPI_DRIVER conditions",
+      "No build or hardware validation on rebased target"
+    ],
+    "patch_sha256": "494b17919c00bc678a5bc63dfb20f289fd87fb301a8196fc4efc84206faba9e6",
+    "published": false
+  }
+]
