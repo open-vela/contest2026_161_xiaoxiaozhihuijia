@@ -1,9 +1,9 @@
-From 8d633733d3d140a658d12a3fcc717383e57445b6 Mon Sep 17 00:00:00 2001
-From: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
-Date: Fri, 18 Sep 2026 21:50:26 +0800
+From 44ef43643cf8e9e46b1ccb55aa0aaa3198641bbe Mon Sep 17 00:00:00 2001
+From: yangshuxuan1024 <yangshuxuan1024@gmail.com>
+Date: Fri, 18 Sep 2026 22:17:26 +0800
 Subject: [PATCH] wireless: define HCI RX ring diagnostic snapshot
 
-Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
+Signed-off-by: yangshuxuan1024 <yangshuxuan1024@gmail.com>
 ---
  .../wireless/bluetooth/bt_hci_rx_snapshot.h   | 32 +++++++++++++++++++
  1 file changed, 32 insertions(+)
@@ -11,7 +11,7 @@ Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.c
 
 diff --git a/include/nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h b/include/nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h
 new file mode 100644
-index 00000000000..6a846e1c13c
+index 0000000..6a846e1
 --- /dev/null
 +++ b/include/nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h
 @@ -0,0 +1,32 @@
@@ -48,5 +48,5 @@ index 00000000000..6a846e1c13c
 +
 +#endif
 -- 
-2.34.1
+2.53.0.windows.3
 

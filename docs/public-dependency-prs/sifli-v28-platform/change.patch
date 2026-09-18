@@ -1,9 +1,9 @@
-From 867c9b49f9a0bbb2691f783f30cc30c545d547d5 Mon Sep 17 00:00:00 2001
-From: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
-Date: Fri, 18 Sep 2026 21:52:36 +0800
+From a821dbaa48f4606a9bde8d8364e4bd1b7a6ae3fd Mon Sep 17 00:00:00 2001
+From: yangshuxuan1024 <yangshuxuan1024@gmail.com>
+Date: Fri, 18 Sep 2026 22:17:32 +0800
 Subject: [PATCH] sf32lb52: prepare Huangshan IMU and v28 boot support
 
-Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
+Signed-off-by: yangshuxuan1024 <yangshuxuan1024@gmail.com>
 ---
  .../lckfb_huangshan_pi/include/board.h        |   6 +-
  .../lckfb_huangshan_pi/scripts/ld.script      |  10 +-

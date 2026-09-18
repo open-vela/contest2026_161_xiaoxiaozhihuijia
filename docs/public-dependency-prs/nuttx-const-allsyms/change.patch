@@ -1,15 +1,15 @@
-From 1174b2d59d46710745f9d955f728908c215da9ac Mon Sep 17 00:00:00 2001
-From: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
-Date: Fri, 18 Sep 2026 21:50:25 +0800
+From d17023a728dfcc7193733d8f2ab61b3ac20a56ad Mon Sep 17 00:00:00 2001
+From: yangshuxuan1024 <yangshuxuan1024@gmail.com>
+Date: Fri, 18 Sep 2026 22:17:20 +0800
 Subject: [PATCH] tools: honor const mode in generated allsyms declarations
 
-Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
+Signed-off-by: yangshuxuan1024 <yangshuxuan1024@gmail.com>
 ---
  tools/mkallsyms.py | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/tools/mkallsyms.py b/tools/mkallsyms.py
-index bddf29ccf4d..e3628aa5ebb 100755
+index bddf29c..e3628aa 100755
 --- a/tools/mkallsyms.py
 +++ b/tools/mkallsyms.py
 @@ -60,14 +60,14 @@ class SymbolTables(object):
@@ -31,5 +31,5 @@ index bddf29ccf4d..e3628aa5ebb 100755
          self.emitline("%s int g_nallsyms = %d + 2;" % (noconst, len(self.symbol_list)))
          self.emitline(
 -- 
-2.34.1
+2.53.0.windows.3
 

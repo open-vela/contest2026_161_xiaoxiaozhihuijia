@@ -4,7 +4,7 @@
 
 目标分支：`dev-ai-contest-2026`；准备时目标提交：`dd92bcf425738734d1b8aed09c2bd4dbe3f2e438`。
 
-提交分支：`contest161/nuttx-const-allsyms`；签署提交：`1174b2d59d46710745f9d955f728908c215da9ac`。
+提交分支：`contest161/nuttx-const-allsyms`；签署提交：`d17023a728dfcc7193733d8f2ab61b3ac20a56ad`。
 
 ## Summary
 

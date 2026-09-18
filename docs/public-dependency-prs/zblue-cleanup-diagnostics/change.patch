@@ -1,9 +1,9 @@
-From b46e044a24d8ee4ac244201a1c06cf832624caea Mon Sep 17 00:00:00 2001
-From: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
-Date: Fri, 18 Sep 2026 21:50:24 +0800
+From 656111c983147a554aeacec7b2429271b29d5441 Mon Sep 17 00:00:00 2001
+From: yangshuxuan1024 <yangshuxuan1024@gmail.com>
+Date: Fri, 18 Sep 2026 22:17:06 +0800
 Subject: [PATCH] bluetooth: retain host cleanup state and bounded diagnostics
 
-Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
+Signed-off-by: yangshuxuan1024 <yangshuxuan1024@gmail.com>
 ---
  include/zephyr/bluetooth/bluetooth.h |   1 +
  subsys/bluetooth/host/att.c          | 207 ++++++++++++++
@@ -12,7 +12,7 @@ Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.c
  4 files changed, 603 insertions(+), 8 deletions(-)
 
 diff --git a/include/zephyr/bluetooth/bluetooth.h b/include/zephyr/bluetooth/bluetooth.h
-index 93eeba9ddc8..8a6f07cc96c 100644
+index 93eeba9..8a6f07c 100644
 --- a/include/zephyr/bluetooth/bluetooth.h
 +++ b/include/zephyr/bluetooth/bluetooth.h
 @@ -275,6 +275,7 @@ static inline int bt_disable(void)
@@ -24,7 +24,7 @@ index 93eeba9ddc8..8a6f07cc96c 100644
  static inline bool bt_is_ready(void)
  {
 diff --git a/subsys/bluetooth/host/att.c b/subsys/bluetooth/host/att.c
-index a3281b012d1..8a323a4a2fd 100644
+index a3281b0..8a323a4 100644
 --- a/subsys/bluetooth/host/att.c
 +++ b/subsys/bluetooth/host/att.c
 @@ -10,6 +10,7 @@
@@ -328,7 +328,7 @@ index a3281b012d1..8a323a4a2fd 100644
  	bt_gatt_init(hdev);
  
 diff --git a/subsys/bluetooth/host/gatt.c b/subsys/bluetooth/host/gatt.c
-index 27707175e57..c2b86d48d6a 100644
+index 2770717..c2b86d4 100644
 --- a/subsys/bluetooth/host/gatt.c
 +++ b/subsys/bluetooth/host/gatt.c
 @@ -11,6 +11,7 @@
@@ -387,7 +387,7 @@ index 27707175e57..c2b86d48d6a 100644
  	}
  
 diff --git a/subsys/bluetooth/host/hci_core.c b/subsys/bluetooth/host/hci_core.c
-index 34afd9c3b83..9cb54854291 100644
+index 34afd9c..9cb5485 100644
 --- a/subsys/bluetooth/host/hci_core.c
 +++ b/subsys/bluetooth/host/hci_core.c
 @@ -12,6 +12,7 @@
@@ -978,5 +978,5 @@ index 34afd9c3b83..9cb54854291 100644
  			return true;
  		}
 -- 
-2.34.1
+2.53.0.windows.3
 

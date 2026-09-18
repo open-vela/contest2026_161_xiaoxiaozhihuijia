@@ -4,7 +4,7 @@
 
 目标分支：`dev-ai-contest-2026`；准备时目标提交：`0f2a49f588505a00e8b46e25a34581c87291a62a`。
 
-提交分支：`contest161/lvgl-buffer-ownership`；签署提交：`75b9ccf4077439b6f4b2b9a8dc9bfc298c86c8ec`。
+提交分支：`contest161/lvgl-buffer-ownership`；签署提交：`6935b1f97ce2d3499c0ca9ed676fded9bde122ad`。
 
 ## Summary
 
