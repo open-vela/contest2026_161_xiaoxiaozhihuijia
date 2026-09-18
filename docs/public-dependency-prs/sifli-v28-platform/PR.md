@@ -4,7 +4,7 @@
 
 目标分支：`dev-ai-contest-2026`；准备时目标提交：`af6f365eaa04a674af0467aa1a803bc4c77691ba`。
 
-计划分支：`contest161/sifli-v28-platform`；本地签署提交：`867c9b49f9a0bbb2691f783f30cc30c545d547d5`（尚未发布）。
+提交分支：`contest161/sifli-v28-platform`；签署提交：`867c9b49f9a0bbb2691f783f30cc30c545d547d5`。
 
 ## Summary
 
@@ -24,7 +24,7 @@
 
 ## 提交状态
 
-建议以 Draft 提交并如实保留未验证项。提交后填入实际依赖 PR 链接，检查各仓 CLA、代码规范和实际 CI；不能把补丁可应用视为 CI 或完整集成测试通过。
+本 PR 以 Draft 发布，保留上述未验证项。等待维护者审核及实际 CLA / CI 结果；补丁可应用不代表 CI 或完整集成测试通过。
 
 涉及文件：
 
@@ -38,3 +38,15 @@
 - `chips/sf32lb52/sf32lb52_lcpu_boot.c`
 - `chips/sf32lb52/sifli_allocateheap.c`
 - `chips/sf32lb52/sifli_start.c`
+
+
+## 公共依赖关联
+
+LVGL 与 const-allsyms 可独立审阅；HCI 快照接口、SiFli、ZBlue 与 Bluetooth 需协调审阅及集成验证。
+
+- lvgl-buffer-ownership: https://github.com/open-vela/apps_graphics_lvgl/pull/44
+- zblue-cleanup-diagnostics: https://github.com/open-vela/external_zblue/pull/233
+- bluetooth-h4-cleanup: https://github.com/open-vela/frameworks_bluetooth/pull/593
+- nuttx-const-allsyms: https://github.com/open-vela/nuttx/pull/388
+- nuttx-hci-rx-snapshot: https://github.com/open-vela/nuttx/pull/389
+- sifli-v28-platform: https://github.com/open-vela/vendor_sifli/pull/35

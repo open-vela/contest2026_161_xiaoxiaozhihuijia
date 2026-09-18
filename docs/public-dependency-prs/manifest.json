@@ -13,7 +13,10 @@
     "whitespace_exit": 0,
     "tests": {},
     "patch_sha256": "ac31c20126256a6b56bdbe52465882a4e1dff2d05b146f77e6064808121719d9",
-    "published": false
+    "published": true,
+    "pr_url": "https://github.com/open-vela/apps_graphics_lvgl/pull/44",
+    "pr_number": 44,
+    "draft": true
   },
   {
     "repo": "external_zblue",
@@ -32,7 +35,10 @@
     "whitespace_exit": 0,
     "tests": {},
     "patch_sha256": "07cdcab7991c20b8c4b204a339f1d62735464600b62930910a916083c8e44408",
-    "published": false
+    "published": true,
+    "pr_url": "https://github.com/open-vela/external_zblue/pull/233",
+    "pr_number": 233,
+    "draft": true
   },
   {
     "repo": "frameworks_bluetooth",
@@ -57,7 +63,10 @@
     "whitespace_exit": 0,
     "tests": {},
     "patch_sha256": "2b22471eb275a267a76d86df44835db4a3521626defb290f8709be80564107cf",
-    "published": false
+    "published": true,
+    "pr_url": "https://github.com/open-vela/frameworks_bluetooth/pull/593",
+    "pr_number": 593,
+    "draft": true
   },
   {
     "repo": "nuttx",
@@ -82,7 +91,10 @@
       }
     },
     "patch_sha256": "1301409d3a1cf6b65f57914e5e798961701d2120b1494a6be34ed7d1e2b40db9",
-    "published": false
+    "published": true,
+    "pr_url": "https://github.com/open-vela/nuttx/pull/388",
+    "pr_number": 388,
+    "draft": true
   },
   {
     "repo": "nuttx",
@@ -98,7 +110,10 @@
     "whitespace_exit": 0,
     "tests": {},
     "patch_sha256": "8e5a4c17b7b3e07a023064a6f2897725b4c9cf44b3564c3a498b0cc31359fcc2",
-    "published": false
+    "published": true,
+    "pr_url": "https://github.com/open-vela/nuttx/pull/389",
+    "pr_number": 389,
+    "draft": true
   },
   {
     "repo": "vendor_sifli",
@@ -129,6 +144,9 @@
       "No build or hardware validation on rebased target"
     ],
     "patch_sha256": "494b17919c00bc678a5bc63dfb20f289fd87fb301a8196fc4efc84206faba9e6",
-    "published": false
+    "published": true,
+    "pr_url": "https://github.com/open-vela/vendor_sifli/pull/35",
+    "pr_number": 35,
+    "draft": true
   }
 ]
