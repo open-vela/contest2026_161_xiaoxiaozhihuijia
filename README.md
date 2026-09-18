@@ -45,6 +45,6 @@ scene1、scene2 跳转问题（ISS-051）暂不修复。算法、识别率、BLE
 
 ## 提交状态
 
-通过 [PR #3](https://github.com/open-vela/contest2026_161_xiaoxiaozhihuijia/pull/3) 提交，是否合入及检查结果以 PR 页面为准。CLA 不代替构建验证。NuttX、LVGL、ZBlue、Bluetooth、vendor/sifli 修改仍需对应公共仓 PR；本仓补丁不替代公共仓审核。
+通过 [PR #3](https://github.com/open-vela/contest2026_161_xiaoxiaozhihuijia/pull/3) 提交，是否合入及检查结果以 PR 页面为准。CLA 不代替构建验证。NuttX、LVGL、ZBlue、Bluetooth、vendor/sifli 对应的六个公共仓 Draft PR 已发布，尚待审核与验证；本仓补丁不替代公共仓审核。
 
-公共依赖已整理为[六份 PR 准备材料](docs/public-dependency-prs/README.md)，包含独立补丁、目标版本和验证边界，尚未在公共仓发布。
+公共依赖的[六个 PR 及交付材料](docs/public-dependency-prs/README.md)已同步实际链接，包含独立补丁、目标版本和验证边界。运行 manifest 继续保留已交付固件的固定基线。
