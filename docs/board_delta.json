@@ -1,0 +1,521 @@
+{
+  "repositories": [
+    {
+      "project": "apps",
+      "untracked_source_files": [
+        "examples/openvela_ble_probe/CMakeLists.txt",
+        "examples/openvela_ble_probe/Kconfig",
+        "examples/openvela_ble_probe/beat_rank1.c",
+        "examples/openvela_ble_probe/beat_rank1.h",
+        "examples/openvela_ble_probe/openvela_ble_probe_main.c",
+        "examples/openvela_ble_probe/probe_app_input.c",
+        "examples/openvela_ble_probe/probe_app_input.h",
+        "examples/openvela_ble_probe/probe_fifo_pair.c",
+        "examples/openvela_ble_probe/probe_fifo_pair.h",
+        "examples/openvela_ble_probe/probe_fifo_runtime.c",
+        "examples/openvela_ble_probe/probe_fifo_runtime.h",
+        "examples/openvela_ble_probe/probe_fifo_time_estimator.c",
+        "examples/openvela_ble_probe/probe_fifo_time_estimator.h",
+        "examples/openvela_ble_probe/probe_game.c",
+        "examples/openvela_ble_probe/probe_game.h",
+        "examples/openvela_ble_probe/probe_rank_interval.c",
+        "examples/openvela_ble_probe/probe_rank_interval.h",
+        "examples/openvela_ble_probe/probe_stop_control.c",
+        "examples/openvela_ble_probe/probe_stop_control.h",
+        "examples/openvela_ble_probe/probe_ui.c",
+        "examples/openvela_ble_probe/probe_ui.h",
+        "examples/openvela_ble_probe/probe_ui_beat_mailbox.c",
+        "examples/openvela_ble_probe/probe_ui_beat_mailbox.h",
+        "examples/openvela_ble_probe/probe_ui_refresh_policy.c",
+        "examples/openvela_ble_probe/probe_ui_refresh_policy.h",
+        "examples/openvela_ble_probe/rank1_benchmark.c",
+        "examples/openvela_ble_probe/rank1_benchmark.h",
+        "examples/openvela_ble_probe/tools/capture_front_camera_ble_accel.py",
+        "examples/openvela_ble_probe/tools/serial_beat_link_test.py",
+        "examples/openvela_ble_probe/tools/serial_imu_capture.py",
+        "frameworks/CMakeLists.txt",
+        "frameworks/Makefile"
+      ],
+      "old_commit": "dcc6a95c3b323e533c98fde8fb209f99e24f0fdd",
+      "new_commit": "dcc6a95c3b323e533c98fde8fb209f99e24f0fdd",
+      "commit_transition_patch": ""
+    },
+    {
+      "project": "apps/graphics/lvgl/lvgl",
+      "untracked_source_files": [],
+      "old_commit": "0f2a49f588505a00e8b46e25a34581c87291a62a",
+      "new_commit": "0f2a49f588505a00e8b46e25a34581c87291a62a",
+      "commit_transition_patch": ""
+    },
+    {
+      "project": "external/zblue/zblue",
+      "untracked_source_files": [],
+      "old_commit": "2e5bddcc5284534aaca189346570d32f1a5509f3",
+      "new_commit": "2e5bddcc5284534aaca189346570d32f1a5509f3",
+      "commit_transition_patch": ""
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "untracked_source_files": [
+        "service/common/service_trace.h",
+        "service/stacks/zephyr/sal_gatt_db_ownership.h"
+      ],
+      "old_commit": "028b4ba7e39328acdf23fed0921b7c65aba2001a",
+      "new_commit": "028b4ba7e39328acdf23fed0921b7c65aba2001a",
+      "commit_transition_patch": ""
+    },
+    {
+      "project": "vendor/sifli",
+      "untracked_source_files": [],
+      "old_commit": "4518591ab91876aea505742d838e09449941d0b9",
+      "new_commit": "f5bde0b5f99bfccf87faf791d8b51fdfcb963c9b",
+      "commit_transition_patch": ""
+    },
+    {
+      "project": "nuttx",
+      "untracked_source_files": [
+        "include/nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h"
+      ],
+      "old_commit": "1c99d835c289b562993c62912f0ef85f80167824",
+      "new_commit": "1c99d835c289b562993c62912f0ef85f80167824",
+      "commit_transition_patch": ""
+    }
+  ],
+  "files": [
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/CMakeLists.txt",
+      "sha256": "5cfe566e468f168dfd79a383026df1c76f83f456835ae044b9f3c61c4c9d07e4",
+      "old_sha256": "de413a645740e84ffa29abc5f8a46b3dbd2530e6af804217f9b789f283df41ba",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/Kconfig",
+      "sha256": "5a2ad5ee7601847ab8fa3e9f94dc25657ddd158f16d89b1a22227608ebaca1b0",
+      "old_sha256": "5a2ad5ee7601847ab8fa3e9f94dc25657ddd158f16d89b1a22227608ebaca1b0",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/beat_rank1.c",
+      "sha256": "878cad0e8a97ab640fc558da84c841ef9f4b3d30c51aec7bf9c5d402bb2776bb",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/beat_rank1.h",
+      "sha256": "bfe43e49456446f341195fde2da4ec37a6d9b3f35921ef2807261d87ee1065bc",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/openvela_ble_probe_main.c",
+      "sha256": "8e838dca22628546450a637ffadabcce6d703f0b31884925f9cacf368557ac8d",
+      "old_sha256": "c04978af22a014c3935cb5b6ec99eafbe95adbbe8f7a2d50956070688bc37153",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_app_input.c",
+      "sha256": "31d42446f4fc4a25fd08abfe556af34a382d3f4847c1ed97b46e15edaf0ead49",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_app_input.h",
+      "sha256": "e19bacba52a06aac16b8a08e4d4ce0172a85a1e14049cd6c3b8571d23c5eceec",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_fifo_pair.c",
+      "sha256": "d0c0ba60884ebf2f2b9293e15834288eff7546688830323015119b4275fc0229",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_fifo_pair.h",
+      "sha256": "7e4ca600d9f05c5840506d1758f827ab81000ef4adbe4989660b7c5cd9c24210",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_fifo_runtime.c",
+      "sha256": "2a64b615c4e571934416caf0838598dc87861eb264e9829b1a7b11e9d49b7afa",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_fifo_runtime.h",
+      "sha256": "8ff0246a71d69c42980b5698396193af1bf859af767c7ebaafbfd5af93237048",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_fifo_time_estimator.c",
+      "sha256": "8418c258792f53385246b35ba4d5c46ee54449614b66998c3516af630ad3609e",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_fifo_time_estimator.h",
+      "sha256": "04f5abbed1df8e63c2840c8dac442c8e1436a8438776042759b410790bc03e8b",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_game.c",
+      "sha256": "1dd83e80d87b4293f0e1e56d736389898ef02e1079c6b488a9cb7969ce86000f",
+      "old_sha256": "1dd83e80d87b4293f0e1e56d736389898ef02e1079c6b488a9cb7969ce86000f",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_game.h",
+      "sha256": "2bcc066a84e6929cfd09796c01ce2df20fd89449a4719fa144554a05a21a4647",
+      "old_sha256": "e124aa2fdd2ff7c53e351c9f4b8fe93c6ef9555412a63e164b3f40dc7985b768",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_rank_interval.c",
+      "sha256": "7a2e3993cb774050b9e3c2a3a68d9fa897e82ad3931b95eb6ba8005b96583c04",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_rank_interval.h",
+      "sha256": "1f174c26203902f38cae39b8993994f8c8e2b95832fc89470e66b8b2cb6a77e7",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_stop_control.c",
+      "sha256": "515818b64aa04f27aa8fbda8f2fe9bd4edc1995e9b8b95ffd28fa8ce5cb9a04c",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_stop_control.h",
+      "sha256": "c2ff6f3eeb974f5d95da5d44d0fc7d2e2fad2f25f6306eab3de5381d7f1196d5",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_ui.c",
+      "sha256": "7d1a886c657eb4206f5a023407d2584e5925c1769a66b6accede90f4f640a9cb",
+      "old_sha256": "bf57c63425df3038033763a8a1039090d1bec9655f36b4412c72440d9a61e426",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_ui.h",
+      "sha256": "16a6941188fcd4d5b0a21dfee98faaeb6797c52bc835237fc701837f51f931a5",
+      "old_sha256": "c42f4a77fa75691185b42cc0e949a6d28c2fdf895a05adaace91e685885689ff",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_ui_beat_mailbox.c",
+      "sha256": "e10fc5eeb0a4bc80a48d1e467201b51409170fa7491cd4570c5c447857aec837",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_ui_beat_mailbox.h",
+      "sha256": "e51a65ea785d59395a933045630e8737b51aded560a3b5a53b03de52a79ceaa2",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_ui_refresh_policy.c",
+      "sha256": "33c157cb690043edfe02297d16d98c5b84808b2a296148cfb7ec4f536ccdd22e",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/probe_ui_refresh_policy.h",
+      "sha256": "9863ee257e83bcee4c2380df153f32ca3e00a65ee346d9e42b44cc1dce5c5ee3",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/rank1_benchmark.c",
+      "sha256": "603373a8a5bc88260724d79dfc41857efbc483b52d288253d7f053646728b8c3",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/rank1_benchmark.h",
+      "sha256": "8c8b3317b7b573a8190f53d10cb98563bfd44314859b58f2c03ded612efe1289",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/tools/capture_front_camera_ble_accel.py",
+      "sha256": "80f182172d4392960609a1d4c0d1986160ce92d48ce343e14dcc437ee6e98ce5",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/tools/serial_beat_link_test.py",
+      "sha256": "3e29f2fc8921df43a18ae9e818faeb9f66ee50433cc7f21277f3db9b7791cc3a",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "examples/openvela_ble_probe/tools/serial_imu_capture.py",
+      "sha256": "7e9126a48e2af2409b91e686e21dadbc7b267d709761bc8ba55d6eda32f798fd",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "apps",
+      "relative": "frameworks/CMakeLists.txt",
+      "sha256": "5111bc453239793103c0b61fed48312e90be916781f3f56b8d6e4a66fb38d0d7",
+      "old_sha256": "5111bc453239793103c0b61fed48312e90be916781f3f56b8d6e4a66fb38d0d7",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "apps",
+      "relative": "frameworks/Makefile",
+      "sha256": "0d64977d941cb3158058df1b9b7cbbfa9eaf92e8b581dfc5e642ff856e7664c4",
+      "old_sha256": "0d64977d941cb3158058df1b9b7cbbfa9eaf92e8b581dfc5e642ff856e7664c4",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "apps/graphics/lvgl/lvgl",
+      "relative": "src/drivers/nuttx/lv_nuttx_lcd.c",
+      "sha256": "78d0f13157798ebac0ff8ba8b23f8b621d6f9ca690a4cb464ecbb33b4cf070a6",
+      "old_sha256": "1e4bfca53add5bad0be517968cdb5abb70c05abdffc62bc0eb15d6b11bc4d228",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "external/zblue/zblue",
+      "relative": "include/zephyr/bluetooth/bluetooth.h",
+      "sha256": "e05568923b5c17efac8604ee12ece526500000deae6495fa658829a857b3fc8a",
+      "old_sha256": "f974038fa5f33d5a83d7e58371038b83c48895022d87e212ae0b08f39a3c428c",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "external/zblue/zblue",
+      "relative": "subsys/bluetooth/host/adv.c",
+      "sha256": "3c5656d113f02037ce1dc016ac4713e4c60923555874dcbed6091afc4578bdc9",
+      "old_sha256": "6950deafeb760238cbdcfb35c9ff1c17cbe134cc321d14aab1bdc0cbc334c748",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "external/zblue/zblue",
+      "relative": "subsys/bluetooth/host/adv.h",
+      "sha256": "46d665adf51e40bd0dfcefa691fbde32b9481f6c4eed2bb84d6185cccbc2199c",
+      "old_sha256": "5fa58eb99b8554f4af1827d0025d64c5d1f2f4e627b83c1cce76d9430abca1ed",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "external/zblue/zblue",
+      "relative": "subsys/bluetooth/host/att.c",
+      "sha256": "361ddf6aa7ed15dec489004f32eeaba8e1cd68774731e8b8d157ef2ea9f45871",
+      "old_sha256": "784d15807fa60ed57bc6961dfe1370cd1382b15109e9ac451a040096e0c9e5aa",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "external/zblue/zblue",
+      "relative": "subsys/bluetooth/host/gatt.c",
+      "sha256": "78f79cd48306bb92b00c073a34774fb775d8eb57bd4c8284c76d278870e836a3",
+      "old_sha256": "f529be29eb916bbc9361076da13621a551eeed3c781a6188e94bcd3e14d8e352",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "external/zblue/zblue",
+      "relative": "subsys/bluetooth/host/hci_core.c",
+      "sha256": "5f969133e19ed4a7e901089d619c6f6d99ff41c3912647d606bb975a6091da9b",
+      "old_sha256": "20b542dd8a8ff9e434d6db963a081dc9e956caed76976a18abd3efd6e053f9df",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "framework/api/bluetooth.c",
+      "sha256": "177631f8a3e76a9a232f2ed12d3bd549324f1a9c4afa1d666a179ff6fa5e2df0",
+      "old_sha256": "581fe2262df06484626d96de0b3d9a4e1c14830d7c21bf97621aeaa0b2fdde06",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/common/service_loop.c",
+      "sha256": "182161fa4b0f0d9fe19dbca5b444d8b8059dee44172268e23879a9055c91818b",
+      "old_sha256": "1b40edabd6657ccd3a1f9e7b4dfba705a053b692ed13e75a77f34e56e73b0de4",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/common/service_trace.h",
+      "sha256": "c0185be6286f2113f9bd8fb207c210e32ab54499d86c191152cd816ae20d4014",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/profiles/gatt/gatts_service.c",
+      "sha256": "3331a91b6e996a3b8dc1c649cdd9a89b41a5c0fce154d44d237d543f1d4421c2",
+      "old_sha256": "7e825d4968da9ae215553c48329c9940ca30f5b721b7c813a4b4adc3ea5907cf",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/src/adapter_service.c",
+      "sha256": "a18630bdb942152dbb2dec960d5d312ed0cf776bcd0b0cc45f927bbe0d49179c",
+      "old_sha256": "4a6453ccec230ab9abcfc7e4956ebf33304ec6af869f1f9be2c295a6e3ae09c5",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/stacks/include/sal_adapter_le_interface.h",
+      "sha256": "a976a88ca2f6b39b67c45aeec03dc8fb23a778b7e05543d407465f65343b5218",
+      "old_sha256": "250a534374f6e5d3000bca3d120ba0fd86399ddf76c74795021cd6cccbfab710",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/stacks/zephyr/hci_h4.c",
+      "sha256": "6c2e80efdb7a8913fb09fea51f0c9d487ae118e92319d35cefb271c6f53eb6c9",
+      "old_sha256": "b35703f6b91659a09c4a95d86917903354150e3d2f5af6c00821188016f7c0fd",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/stacks/zephyr/sal_adapter_le_interface.c",
+      "sha256": "c684b58f87550ec8fbb99671cf404a2cd7d3d3df5e7bc0ede043c19eacc429b7",
+      "old_sha256": "5e9de40b4f13b0bd985b6abe26f396246c5133846a7fc50098e973141475f198",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/stacks/zephyr/sal_gatt_db_ownership.h",
+      "sha256": "474da90015161ba1539e107be08eb62d512d2f5e0b34706c6c8984a22cdd16af",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/stacks/zephyr/sal_gatt_server_interface.c",
+      "sha256": "3f69343a14390d362e312a636c4dfedc83f8859bcb1ccecc22910cef02a7ced7",
+      "old_sha256": "8bce4f78dc2c5ad1f40d6b438acfa3c14630cab379ebcdbcf48a13147420ea7f",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "frameworks/connectivity/bluetooth",
+      "relative": "service/stacks/zephyr/sal_le_advertise_interface.c",
+      "sha256": "bd5e73b30fae0451292d81b98a8dabf5826fffe8cca6de6ecfcf4bb9294f1116",
+      "old_sha256": "3c479af5aa9b0c279193552b7d0c3d18c53cac0a68b6ffbcd8d9b24e48708586",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig",
+      "sha256": "2500b3837bd05a8bddc8475b436bffa87da3a4548b6ae8a9cae09fb115ed21e6",
+      "old_sha256": "2500b3837bd05a8bddc8475b436bffa87da3a4548b6ae8a9cae09fb115ed21e6",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "boards/sf32lb52/lckfb_huangshan_pi/include/board.h",
+      "sha256": "58c47a0ea606013c81a3d3d06ee0c4cd64656061c26fd5701f11415e11bc6122",
+      "old_sha256": "58c47a0ea606013c81a3d3d06ee0c4cd64656061c26fd5701f11415e11bc6122",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "boards/sf32lb52/lckfb_huangshan_pi/src/bsp_pinmux.c",
+      "sha256": "9a0ef1d285d82e89f182dbf3de91c61d414aedc8a40d44dfc1be1362b80b000e",
+      "old_sha256": "9a0ef1d285d82e89f182dbf3de91c61d414aedc8a40d44dfc1be1362b80b000e",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c",
+      "sha256": "5c22bc880dbafa37444539808a015f7f1185c522600e281daf1f927330767a8d",
+      "old_sha256": "5c22bc880dbafa37444539808a015f7f1185c522600e281daf1f927330767a8d",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "chips/sf32lb52/sf32lb52_bt_adapter.c",
+      "sha256": "bc2e9df139dc980067c11a98bb2f8657f9d115aa80ed9362456a3eacd69d9edb",
+      "old_sha256": "e0d25ec3e3287bc31afb7c2379dbd3dbe18a7cb05290ba5097d2c199b544d95d",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "chips/sf32lb52/sf32lb52_bt_adapter.h",
+      "sha256": "59fef374111fbf774ae68fa953a13fc7e26290fc10cd4a2db75f6e43ba0fde7d",
+      "old_sha256": "d3f263da5d2ec4191f3497ac3107de817c3b3d571708c9bdfc53094bc762de04",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "chips/sf32lb52/sf32lb52_bth4.c",
+      "sha256": "9b046e8a8c2e95f6ae579eebae7d31b3ba8ca243ea19511aac1b2cc66ab46179",
+      "old_sha256": "0157aaebfc0ce06b905ca5e4f66c997dd658460460d0fce4a1c3800a08ee019a",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "chips/sf32lb52/sf32lb52_lcpu_boot.c",
+      "sha256": "ac18644f00251e49412b378eeeb075774640d0ec573eeacab4cef983b69020c8",
+      "old_sha256": "dcc14e4eaf44357006feb748d7aff0d7ff35a55c5be9f367eb7cfa36ff23b30a",
+      "status_vs_old_worktree": "modified"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "chips/sf32lb52/sifli_allocateheap.c",
+      "sha256": "c729ef0ae23ab96199826a93416d1fcec3b163946cd7b898d538255a2dbb6850",
+      "old_sha256": "c729ef0ae23ab96199826a93416d1fcec3b163946cd7b898d538255a2dbb6850",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "vendor/sifli",
+      "relative": "chips/sf32lb52/sifli_start.c",
+      "sha256": "2928c232ad7da02e784c1829e08aabe137b4c36310ee240abac34983fb464d08",
+      "old_sha256": "2928c232ad7da02e784c1829e08aabe137b4c36310ee240abac34983fb464d08",
+      "status_vs_old_worktree": "unchanged"
+    },
+    {
+      "project": "nuttx",
+      "relative": "include/nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h",
+      "sha256": "f349800961d71e0e73c747ff62fdc067953fe9ecfd4b8d756ec1205d7f3270cf",
+      "old_sha256": null,
+      "status_vs_old_worktree": "added"
+    },
+    {
+      "project": "nuttx",
+      "relative": "tools/mkallsyms.py",
+      "status_vs_old_worktree": "modified",
+      "sha256": "8d6e8b101f774127962f4b137fedea01f8011c1e4cf1ab5a29560a0b8e859cce",
+      "old_sha256": "d2d6bbec9234223d8f0420471b3ca047d50c744d97b6f0e677109a619608b7a5"
+    }
+  ],
+  "build_fix_note": "const-allsyms only; original layout retained; boot compatibility unchecked"
+}

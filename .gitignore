@@ -1,0 +1,10 @@
+# Generated editor/runtime caches
+desktop/Library/
+desktop/Temp/
+desktop/Logs/
+desktop/UserSettings/
+**/__pycache__/
+**/bin/
+**/obj/
+*.sqlite3
+# Intentionally keep artifacts/v28_original and official-format logs visible.

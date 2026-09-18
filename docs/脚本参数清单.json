@@ -1,0 +1,227 @@
+[
+  {
+    "path": "desktop_project/BteIntegration/audit.py",
+    "description": "Read-only cross-stage identity audit; test and board sources stay separate.",
+    "parameters": [
+      "ap.add_argument('bridge',type=Path)",
+      "ap.add_argument('--unity',type=Path,nargs='+',required=True)",
+      "ap.add_argument('--output',type=Path)"
+    ],
+    "imports": [
+      "argparse",
+      "collections",
+      "json",
+      "pathlib"
+    ],
+    "sha256": "46a6853bb75a4fa4b7640076c254461ff4c0a44fd3d2100f560ab015b241b4c8"
+  },
+  {
+    "path": "desktop_project/BteIntegration/bridge.py",
+    "description": "Single-reader v28 serial -> localhost JSONL bridge. No firmware operations.\nCtrl+C closes host handles only. Events are never replayed on TCP reconnect.",
+    "parameters": [
+      "ap.add_argument('--port', default='COM7')",
+      "ap.add_argument('--baud', type=int, default=1000000)",
+      "ap.add_argument('--tcp-port', type=int, default=9877)",
+      "ap.add_argument('--duration', type=float, default=0, help='0: until Ctrl+C')",
+      "ap.add_argument('--start-app', action='store_true', help='Send approved command ONCE, only after observing NSH prompt and no READY/event')",
+      "ap.add_argument('--observed-nsh-evidence', type=Path, help='Recent saved serial evidence ending in NSH prompt; permits one startup after reopening host port')"
+    ],
+    "imports": [
+      "argparse",
+      "bte_protocol",
+      "collections",
+      "ctypes",
+      "datetime",
+      "json",
+      "pathlib",
+      "re",
+      "serial",
+      "socket",
+      "sqlite3",
+      "sys",
+      "time",
+      "uuid"
+    ],
+    "sha256": "9422598d60dfae49611cdfb34f742f36ddbeaded468123457de598c612e83d41"
+  },
+  {
+    "path": "desktop_project/BteIntegration/bte_protocol.py",
+    "description": "BTE1 v1 / 28-byte payload. Matches the local board_rank1 parse_bte1.py.\nThis module never opens serial ports or transmits board commands.",
+    "parameters": [],
+    "imports": [
+      "collections",
+      "re",
+      "struct"
+    ],
+    "sha256": "3069770d6e2e55fee86c3356e12a5c0517daf8e2fd1e4eeb8813d013a79c815d"
+  },
+  {
+    "path": "desktop_project/BteIntegration/test_protocol.py",
+    "description": "见脚本用途表",
+    "parameters": [],
+    "imports": [
+      "bridge",
+      "bte_protocol",
+      "importlib.util",
+      "pathlib",
+      "struct",
+      "tempfile",
+      "unittest"
+    ],
+    "sha256": "9c171a450124f1d2ba2fac5d3869497d5e632df17e95553163ee0ebbb91a3fd6"
+  },
+  {
+    "path": "desktop_project/BteIntegration/test_unity_transport.py",
+    "description": "Explicit SIMULATION test on port 9878. Never opens serial or uses board source.",
+    "parameters": [],
+    "imports": [
+      "bridge",
+      "json",
+      "pathlib",
+      "socket",
+      "test_protocol",
+      "time",
+      "uuid"
+    ],
+    "sha256": "ab6de0b0b3d0fa966a9c33a0ea7d53dbdb5cb373dcbddca9edb9c20f1afd29cc"
+  },
+  {
+    "path": "tools/capture_legacy/capture_front_camera_ble_accel.py",
+    "description": "Record front-camera video and raw BLE accelerometer samples.",
+    "parameters": [
+      "parser.add_argument(\"--address\", required=True)",
+      "parser.add_argument(\"--camera-index\", type=int, default=0)",
+      "parser.add_argument(\"--scan-timeout-s\", type=float, default=10.0)",
+      "parser.add_argument(\"--connect-timeout-s\", type=float, default=20.0)",
+      "parser.add_argument(\"--control-timeout-s\", type=float, default=5.0)",
+      "parser.add_argument(\"--ping-preflight\", action=\"store_true\")",
+      "parser.add_argument(\"--ping-timeout-s\", type=float, default=5.0)",
+      "parser.add_argument(\"--ack-only-test\", action=\"store_true\",                         help=\"Label this run as an A firmware control-only diagnostic; expect zero samples\")",
+      "parser.add_argument(\"--winrt-service-changed-retry\", action=\"store_true\",                         help=\"Diagnostic workaround: enable the WinRT backend's existing service-change discovery retry\")",
+      "parser.add_argument(\"--duration-s\", type=float, default=30.0)",
+      "parser.add_argument(\"--output-dir\", type=Path, required=True)",
+      "parser.add_argument(\"--session-id\",                         default=datetime.now().strftime(\"%Y%m%d_%H%M%S\"))",
+      "parser.add_argument(\"--meter\", required=True)",
+      "parser.add_argument(\"--bpm\", type=float, required=True)",
+      "parser.add_argument(\"--hand\", choices=[\"right\"], default=\"right\")",
+      "parser.add_argument(\"--watch-face\", choices=[\"back-of-hand\"],                         default=\"back-of-hand\")",
+      "parser.add_argument(\"--serial-port\")",
+      "parser.add_argument(\"--baud\", type=int, default=115200)"
+    ],
+    "imports": [
+      "argparse",
+      "asyncio",
+      "bleak",
+      "codecs",
+      "csv",
+      "cv2",
+      "datetime",
+      "importlib.util",
+      "json",
+      "linecache",
+      "pathlib",
+      "serial",
+      "struct",
+      "sys",
+      "time",
+      "traceback",
+      "zlib"
+    ],
+    "sha256": "d1163b66c8b07a60340deb497ef3dd3e32e1be85eed9241d3c701f86daae92e7"
+  },
+  {
+    "path": "tools/capture_legacy/serial_imu_capture.py",
+    "description": "Bounded host recording for the foreground @IMU1 firmware (no firmware stop).",
+    "parameters": [
+      "ap.add_argument('--serial-port', default='COM7')",
+      "ap.add_argument('--baud', type=int, default=1000000)",
+      "ap.add_argument('--camera-index', type=int, default=0)",
+      "ap.add_argument('--duration-s', type=float, default=30)",
+      "ap.add_argument('--ready-timeout-s', type=float, default=20)",
+      "ap.add_argument('--warmup-s', type=float, default=1.0,                     help='Mark samples within this interval after READY as warm-up; keep all raw data')",
+      "ap.add_argument('--require-six-axis', action='store_true',                     help='Fail if the firmware sends legacy acceleration-only samples')",
+      "ap.add_argument('--stationary-test', action='store_true',                     help='Record a stationary test without asking for synchronization gestures')",
+      "ap.add_argument('--output-dir', type=Path, required=True)"
+    ],
+    "imports": [
+      "argparse",
+      "csv",
+      "cv2",
+      "datetime",
+      "json",
+      "math",
+      "pathlib",
+      "queue",
+      "re",
+      "serial",
+      "struct",
+      "threading",
+      "time",
+      "traceback",
+      "video_timeline"
+    ],
+    "sha256": "6911197e14b3165da4fc98b88d91c9beabfdacd900ca5b640de8d2e44123fb3d"
+  },
+  {
+    "path": "desktop_project/BteIntegration/references/parse_bte1.py",
+    "description": "BTE1 complete-line parser for host adapters. No serial ownership.",
+    "parameters": [],
+    "imports": [
+      "struct"
+    ],
+    "sha256": "04c492d6a5cf34b8c34ee92e72afb0982e0520e2ab295a1a845431ef6ae75c76"
+  },
+  {
+    "path": "board_original/source/apps/examples/openvela_ble_probe/tools/capture_front_camera_ble_accel.py",
+    "description": "Record front-camera video and raw BLE accelerometer samples.",
+    "parameters": [
+      "parser.add_argument(\"--address\", required=True)",
+      "parser.add_argument(\"--camera-index\", type=int, default=0)",
+      "parser.add_argument(\"--scan-timeout-s\", type=float, default=10.0)",
+      "parser.add_argument(\"--connect-timeout-s\", type=float, default=20.0)",
+      "parser.add_argument(\"--control-timeout-s\", type=float, default=5.0)",
+      "parser.add_argument(\"--ping-preflight\", action=\"store_true\")",
+      "parser.add_argument(\"--ping-timeout-s\", type=float, default=5.0)",
+      "parser.add_argument(\"--duration-s\", type=float, default=30.0)",
+      "parser.add_argument(\"--output-dir\", type=Path, required=True)",
+      "parser.add_argument(\"--session-id\",                         default=datetime.now().strftime(\"%Y%m%d_%H%M%S\"))",
+      "parser.add_argument(\"--meter\", required=True)",
+      "parser.add_argument(\"--bpm\", type=float, required=True)",
+      "parser.add_argument(\"--hand\", choices=[\"right\"], default=\"right\")",
+      "parser.add_argument(\"--watch-face\", choices=[\"back-of-hand\"],                         default=\"back-of-hand\")",
+      "parser.add_argument(\"--serial-port\")",
+      "parser.add_argument(\"--baud\", type=int, default=115200)"
+    ],
+    "sha256": "80f182172d4392960609a1d4c0d1986160ce92d48ce343e14dcc437ee6e98ce5"
+  },
+  {
+    "path": "board_original/source/apps/examples/openvela_ble_probe/tools/serial_beat_link_test.py",
+    "description": "Cold-start serial BEAT1 loop test; not an action recognizer.",
+    "parameters": [
+      "ap.add_argument('--serial-port', default='COM7')",
+      "ap.add_argument('--baud', type=int, default=1000000)",
+      "ap.add_argument('--events', type=int, default=10)",
+      "ap.add_argument('--reset-via-rts', action='store_true')",
+      "ap.add_argument('--rts-reset-pulse-ms', type=float, default=100.0)",
+      "ap.add_argument('--startup-timeout-s', type=float, default=30.0)",
+      "ap.add_argument('--ack-timeout-s', type=float, default=4)",
+      "ap.add_argument('--duplicate-event', type=int, default=3)",
+      "ap.add_argument('--raw-log', default='beat_link_raw.bin')",
+      "ap.add_argument('--diag-log', default='beat_link_diag.log')",
+      "ap.add_argument('--startup-command', default='openvela_ble_probe\\n')"
+    ],
+    "sha256": "3e29f2fc8921df43a18ae9e818faeb9f66ee50433cc7f21277f3db9b7791cc3a"
+  },
+  {
+    "path": "board_original/source/apps/examples/openvela_ble_probe/tools/serial_imu_capture.py",
+    "description": "USB serial IMU + front camera recorder for BLE-independent baseline.",
+    "parameters": [
+      "ap.add_argument('--serial-port',default='COM7')",
+      "ap.add_argument('--baud',type=int,default=1000000)",
+      "ap.add_argument('--duration-s',type=float,default=30)",
+      "ap.add_argument('--camera-index',type=int,default=0)",
+      "ap.add_argument('--output-dir',type=Path,required=True)"
+    ],
+    "sha256": "7e9126a48e2af2409b91e686e21dadbc7b267d709761bc8ba55d6eda32f798fd"
+  }
+]
