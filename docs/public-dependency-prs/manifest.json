@@ -4,7 +4,7 @@
     "key": "lvgl-buffer-ownership",
     "title": "fix(nuttx): release owned LCD pixel buffers",
     "target_head": "0f2a49f588505a00e8b46e25a34581c87291a62a",
-    "commit": "75b9ccf4077439b6f4b2b9a8dc9bfc298c86c8ec",
+    "commit": "6935b1f97ce2d3499c0ca9ed676fded9bde122ad",
     "branch": "contest161/lvgl-buffer-ownership",
     "diffstat": " src/drivers/nuttx/lv_nuttx_lcd.c | 25 ++++++++++++++++++-------\n 1 file changed, 18 insertions(+), 7 deletions(-)\n",
     "files": [
@@ -12,7 +12,7 @@
     ],
     "whitespace_exit": 0,
     "tests": {},
-    "patch_sha256": "ac31c20126256a6b56bdbe52465882a4e1dff2d05b146f77e6064808121719d9",
+    "patch_sha256": "d7bd7147549c3e5b2876171744c837c07ec4d974395b7dc67b54e854020aa085",
     "published": true,
     "pr_url": "https://github.com/open-vela/apps_graphics_lvgl/pull/44",
     "pr_number": 44,
@@ -23,7 +23,7 @@
     "key": "zblue-cleanup-diagnostics",
     "title": "bluetooth: retain host cleanup state and bounded diagnostics",
     "target_head": "2e5bddcc5284534aaca189346570d32f1a5509f3",
-    "commit": "b46e044a24d8ee4ac244201a1c06cf832624caea",
+    "commit": "656111c983147a554aeacec7b2429271b29d5441",
     "branch": "contest161/zblue-cleanup-diagnostics",
     "diffstat": " include/zephyr/bluetooth/bluetooth.h |   1 +\n subsys/bluetooth/host/att.c          | 207 +++++++++++++++++++\n subsys/bluetooth/host/gatt.c         |  18 +-\n subsys/bluetooth/host/hci_core.c     | 385 ++++++++++++++++++++++++++++++++++-\n 4 files changed, 603 insertions(+), 8 deletions(-)\n",
     "files": [
@@ -34,7 +34,7 @@
     ],
     "whitespace_exit": 0,
     "tests": {},
-    "patch_sha256": "07cdcab7991c20b8c4b204a339f1d62735464600b62930910a916083c8e44408",
+    "patch_sha256": "05273a8235ccb1f45ba1b28de5271331a2da88b687187f083ff0a23d7dc9d57b",
     "published": true,
     "pr_url": "https://github.com/open-vela/external_zblue/pull/233",
     "pr_number": 233,
@@ -45,7 +45,7 @@
     "key": "bluetooth-h4-cleanup",
     "title": "bluetooth: close H4 transport and propagate cleanup results",
     "target_head": "028b4ba7e39328acdf23fed0921b7c65aba2001a",
-    "commit": "238c974d78a969122b0dc361a3d85771c6cd95a7",
+    "commit": "102668a25d07957c6a2d7f9c8dcc6f62bd1546d6",
     "branch": "contest161/bluetooth-h4-cleanup",
     "diffstat": " framework/api/bluetooth.c                          | 37 ++++++++-\n service/common/service_loop.c                      | 36 +++++++++\n service/common/service_trace.h                     |  9 +++\n service/src/adapter_service.c                      |  5 ++\n service/stacks/include/sal_adapter_le_interface.h  |  2 +\n service/stacks/zephyr/hci_h4.c                     | 90 +++++++++++++++++++++-\n service/stacks/zephyr/sal_adapter_le_interface.c   | 58 +++++++++++++-\n service/stacks/zephyr/sal_gatt_db_ownership.h      | 29 +++++++\n service/stacks/zephyr/sal_gatt_server_interface.c  | 36 +++++++--\n service/stacks/zephyr/sal_le_advertise_interface.c | 37 +++++++--\n 10 files changed, 317 insertions(+), 22 deletions(-)\n",
     "files": [
@@ -62,7 +62,7 @@
     ],
     "whitespace_exit": 0,
     "tests": {},
-    "patch_sha256": "2b22471eb275a267a76d86df44835db4a3521626defb290f8709be80564107cf",
+    "patch_sha256": "517eaaaac558ac772c26a7df2f186f661b7cf122745c3577c4c9224a4dedd8d6",
     "published": true,
     "pr_url": "https://github.com/open-vela/frameworks_bluetooth/pull/593",
     "pr_number": 593,
@@ -73,7 +73,7 @@
     "key": "nuttx-const-allsyms",
     "title": "tools: honor const mode in generated allsyms declarations",
     "target_head": "dd92bcf425738734d1b8aed09c2bd4dbe3f2e438",
-    "commit": "1174b2d59d46710745f9d955f728908c215da9ac",
+    "commit": "d17023a728dfcc7193733d8f2ab61b3ac20a56ad",
     "branch": "contest161/nuttx-const-allsyms",
     "diffstat": " tools/mkallsyms.py | 6 +++---\n 1 file changed, 3 insertions(+), 3 deletions(-)\n",
     "files": [
@@ -90,7 +90,7 @@
         "passed": true
       }
     },
-    "patch_sha256": "1301409d3a1cf6b65f57914e5e798961701d2120b1494a6be34ed7d1e2b40db9",
+    "patch_sha256": "e95596234fdc531fca1eec4708517dfe950f0e7611e3212f271b50ef51fddab2",
     "published": true,
     "pr_url": "https://github.com/open-vela/nuttx/pull/388",
     "pr_number": 388,
@@ -101,7 +101,7 @@
     "key": "nuttx-hci-rx-snapshot",
     "title": "wireless: define HCI RX ring diagnostic snapshot",
     "target_head": "dd92bcf425738734d1b8aed09c2bd4dbe3f2e438",
-    "commit": "8d633733d3d140a658d12a3fcc717383e57445b6",
+    "commit": "44ef43643cf8e9e46b1ccb55aa0aaa3198641bbe",
     "branch": "contest161/nuttx-hci-rx-snapshot",
     "diffstat": " .../nuttx/wireless/bluetooth/bt_hci_rx_snapshot.h  | 32 ++++++++++++++++++++++\n 1 file changed, 32 insertions(+)\n",
     "files": [
@@ -109,7 +109,7 @@
     ],
     "whitespace_exit": 0,
     "tests": {},
-    "patch_sha256": "8e5a4c17b7b3e07a023064a6f2897725b4c9cf44b3564c3a498b0cc31359fcc2",
+    "patch_sha256": "c6ce1f61695b5e47167c3b6c52b43eeb4d63abf76f09683ee1aca5d036ae2bf3",
     "published": true,
     "pr_url": "https://github.com/open-vela/nuttx/pull/389",
     "pr_number": 389,
@@ -120,7 +120,7 @@
     "key": "sifli-v28-platform",
     "title": "sf32lb52: prepare Huangshan IMU and v28 boot support",
     "target_head": "af6f365eaa04a674af0467aa1a803bc4c77691ba",
-    "commit": "867c9b49f9a0bbb2691f783f30cc30c545d547d5",
+    "commit": "a821dbaa48f4606a9bde8d8364e4bd1b7a6ae3fd",
     "branch": "contest161/sifli-v28-platform",
     "files": [
       "boards/sf32lb52/lckfb_huangshan_pi/include/board.h",
@@ -143,7 +143,7 @@
       "Preserved upstream async LCD, LSM6DS3 and SPI_DRIVER conditions",
       "No build or hardware validation on rebased target"
     ],
-    "patch_sha256": "494b17919c00bc678a5bc63dfb20f289fd87fb301a8196fc4efc84206faba9e6",
+    "patch_sha256": "e72e0250f703bd5fa3dd8f2efdb7f9fac9f20782a4db0da4d94bf2fba4ca6868",
     "published": true,
     "pr_url": "https://github.com/open-vela/vendor_sifli/pull/35",
     "pr_number": 35,

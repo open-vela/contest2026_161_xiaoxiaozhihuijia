@@ -4,7 +4,7 @@
 
 目标分支：`dev-ai-contest-2026`；准备时目标提交：`af6f365eaa04a674af0467aa1a803bc4c77691ba`。
 
-提交分支：`contest161/sifli-v28-platform`；签署提交：`867c9b49f9a0bbb2691f783f30cc30c545d547d5`。
+提交分支：`contest161/sifli-v28-platform`；签署提交：`a821dbaa48f4606a9bde8d8364e4bd1b7a6ae3fd`。
 
 ## Summary
 

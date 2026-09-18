@@ -1,9 +1,9 @@
-From 238c974d78a969122b0dc361a3d85771c6cd95a7 Mon Sep 17 00:00:00 2001
-From: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
-Date: Fri, 18 Sep 2026 21:50:25 +0800
+From 102668a25d07957c6a2d7f9c8dcc6f62bd1546d6 Mon Sep 17 00:00:00 2001
+From: yangshuxuan1024 <yangshuxuan1024@gmail.com>
+Date: Fri, 18 Sep 2026 22:17:12 +0800
 Subject: [PATCH] bluetooth: close H4 transport and propagate cleanup results
 
-Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
+Signed-off-by: yangshuxuan1024 <yangshuxuan1024@gmail.com>
 ---
  framework/api/bluetooth.c                     | 37 +++++++-
  service/common/service_loop.c                 | 36 ++++++++
@@ -20,7 +20,7 @@ Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.c
  create mode 100644 service/stacks/zephyr/sal_gatt_db_ownership.h
 
 diff --git a/framework/api/bluetooth.c b/framework/api/bluetooth.c
-index e4c5b95a..4840cc95 100644
+index e4c5b95..4840cc9 100644
 --- a/framework/api/bluetooth.c
 +++ b/framework/api/bluetooth.c
 @@ -32,18 +32,47 @@ bt_instance_t* BTSYMBOLS(bluetooth_create_instance)(void)
@@ -82,7 +82,7 @@ index e4c5b95a..4840cc95 100644
 \ No newline at end of file
 +}
 diff --git a/service/common/service_loop.c b/service/common/service_loop.c
-index 90d591d7..83e6fc58 100644
+index 90d591d..83e6fc5 100644
 --- a/service/common/service_loop.c
 +++ b/service/common/service_loop.c
 @@ -28,7 +28,25 @@
@@ -178,7 +178,7 @@ index 90d591d7..83e6fc58 100644
  
 diff --git a/service/common/service_trace.h b/service/common/service_trace.h
 new file mode 100644
-index 00000000..20eb1eaf
+index 0000000..20eb1ea
 --- /dev/null
 +++ b/service/common/service_trace.h
 @@ -0,0 +1,9 @@
@@ -192,7 +192,7 @@ index 00000000..20eb1eaf
 +uint32_t service_trace_copy(struct service_trace_record *out, uint32_t cap, uint32_t *dropped);
 +#endif
 diff --git a/service/src/adapter_service.c b/service/src/adapter_service.c
-index c3553f9a..501e9d84 100644
+index c3553f9..501e9d8 100644
 --- a/service/src/adapter_service.c
 +++ b/service/src/adapter_service.c
 @@ -26,6 +26,7 @@
@@ -222,7 +222,7 @@ index c3553f9a..501e9d84 100644
  }
  
 diff --git a/service/stacks/include/sal_adapter_le_interface.h b/service/stacks/include/sal_adapter_le_interface.h
-index 7b20e0c8..f93c067d 100644
+index 7b20e0c..f93c067 100644
 --- a/service/stacks/include/sal_adapter_le_interface.h
 +++ b/service/stacks/include/sal_adapter_le_interface.h
 @@ -27,6 +27,8 @@
@@ -235,7 +235,7 @@ index 7b20e0c8..f93c067d 100644
  bt_status_t bt_sal_le_disable(bt_controller_id_t id);
  bt_status_t bt_sal_le_set_io_capability(bt_controller_id_t id, bt_io_capability_t cap);
 diff --git a/service/stacks/zephyr/hci_h4.c b/service/stacks/zephyr/hci_h4.c
-index 9206c0c4..d81dca7e 100644
+index 9206c0c..d81dca7 100644
 --- a/service/stacks/zephyr/hci_h4.c
 +++ b/service/stacks/zephyr/hci_h4.c
 @@ -38,6 +38,7 @@
@@ -400,7 +400,7 @@ index 9206c0c4..d81dca7e 100644
  };
  
 diff --git a/service/stacks/zephyr/sal_adapter_le_interface.c b/service/stacks/zephyr/sal_adapter_le_interface.c
-index 8733e4a7..3f4a115b 100644
+index 8733e4a..3f4a115 100644
 --- a/service/stacks/zephyr/sal_adapter_le_interface.c
 +++ b/service/stacks/zephyr/sal_adapter_le_interface.c
 @@ -17,6 +17,15 @@
@@ -511,7 +511,7 @@ index 8733e4a7..3f4a115b 100644
  
 diff --git a/service/stacks/zephyr/sal_gatt_db_ownership.h b/service/stacks/zephyr/sal_gatt_db_ownership.h
 new file mode 100644
-index 00000000..bd007f39
+index 0000000..bd007f3
 --- /dev/null
 +++ b/service/stacks/zephyr/sal_gatt_db_ownership.h
 @@ -0,0 +1,29 @@
@@ -545,7 +545,7 @@ index 00000000..bd007f39
 +
 +#endif
 diff --git a/service/stacks/zephyr/sal_gatt_server_interface.c b/service/stacks/zephyr/sal_gatt_server_interface.c
-index 5146fd50..ce45f56f 100644
+index 5146fd5..ce45f56 100644
 --- a/service/stacks/zephyr/sal_gatt_server_interface.c
 +++ b/service/stacks/zephyr/sal_gatt_server_interface.c
 @@ -29,6 +29,7 @@
@@ -678,7 +678,7 @@ index 5146fd50..ce45f56f 100644
          if (!attr_desc) {
              BT_LOGE("%s, generic descriptor allocation failed", __func__);
 diff --git a/service/stacks/zephyr/sal_le_advertise_interface.c b/service/stacks/zephyr/sal_le_advertise_interface.c
-index f1d472e3..50ca3e5d 100644
+index f1d472e..50ca3e5 100644
 --- a/service/stacks/zephyr/sal_le_advertise_interface.c
 +++ b/service/stacks/zephyr/sal_le_advertise_interface.c
 @@ -292,6 +292,8 @@ static bt_status_t zblue_le_ext_delete(struct bt_le_adv_set* adv_set)
@@ -778,5 +778,5 @@ index f1d472e3..50ca3e5d 100644
 \ No newline at end of file
 +#endif /*CONFIG_BLUETOOTH_BLE_ADV*/
 -- 
-2.34.1
+2.53.0.windows.3
 

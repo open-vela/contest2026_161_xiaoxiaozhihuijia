@@ -1,15 +1,15 @@
-From 75b9ccf4077439b6f4b2b9a8dc9bfc298c86c8ec Mon Sep 17 00:00:00 2001
-From: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
-Date: Fri, 18 Sep 2026 21:50:23 +0800
+From 6935b1f97ce2d3499c0ca9ed676fded9bde122ad Mon Sep 17 00:00:00 2001
+From: yangshuxuan1024 <yangshuxuan1024@gmail.com>
+Date: Fri, 18 Sep 2026 22:16:57 +0800
 Subject: [PATCH] fix(nuttx): release owned LCD pixel buffers
 
-Signed-off-by: yangshuxuan1024 <284936491+yangshuxuan1024@users.noreply.github.com>
+Signed-off-by: yangshuxuan1024 <yangshuxuan1024@gmail.com>
 ---
  src/drivers/nuttx/lv_nuttx_lcd.c | 25 ++++++++++++++++++-------
  1 file changed, 18 insertions(+), 7 deletions(-)
 
 diff --git a/src/drivers/nuttx/lv_nuttx_lcd.c b/src/drivers/nuttx/lv_nuttx_lcd.c
-index a53f4b8f2..e8e8df77e 100644
+index a53f4b8..e8e8df7 100644
 --- a/src/drivers/nuttx/lv_nuttx_lcd.c
 +++ b/src/drivers/nuttx/lv_nuttx_lcd.c
 @@ -37,6 +37,8 @@ typedef struct {
@@ -74,5 +74,5 @@ index a53f4b8f2..e8e8df77e 100644
  
          /* close device fb */
 -- 
-2.34.1
+2.53.0.windows.3
 

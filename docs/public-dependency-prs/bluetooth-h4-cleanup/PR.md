@@ -4,7 +4,7 @@
 
 目标分支：`dev-ai-contest-2026`；准备时目标提交：`028b4ba7e39328acdf23fed0921b7c65aba2001a`。
 
-提交分支：`contest161/bluetooth-h4-cleanup`；签署提交：`238c974d78a969122b0dc361a3d85771c6cd95a7`。
+提交分支：`contest161/bluetooth-h4-cleanup`；签署提交：`102668a25d07957c6a2d7f9c8dcc6f62bd1546d6`。
 
 ## Summary
 
